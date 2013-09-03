@@ -1,4 +1,4 @@
 taurine-hx
 ==========
 
-Haxe standard API language extensions
+Haxe standard API extensions
