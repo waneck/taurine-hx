@@ -24,7 +24,6 @@ class System
 	
 	private static function get_isWin()
 	{
-		return false;
 		if (__init) return isWin;
 		init();
 		return isWin;
