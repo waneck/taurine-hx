@@ -1,7 +1,7 @@
 package taurine.io._platforms;
 
 /**
- * ...
+ * Delegate to cope with runtime differences between different systems.
  * @author waneck
  */
 class PathDelegate
