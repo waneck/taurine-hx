@@ -9,22 +9,22 @@ import taurine.System;
 class Path extends PathDelegate
 {
 	var splitPathRe:EReg;
-	
+
 	public function new()
 	{
 		splitPathRe = ~/^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
 		this.sep = '/';
 		this.delimiter = ':';
 	}
-	
+
 	public override function splitPath(filename:String):Array<String>
 	{
 		if (!splitPathRe.match(filename))
 			throw 'Invalid path: $filename';
 		return [splitPathRe.matched(1), splitPathRe.matched(2), splitPathRe.matched(3), splitPathRe.matched(4)];
 	}
-	
-	override public function resolve(to:Array<String>):String 
+
+	override public function resolve(to:Array<String>):String
 	{
 		var resolvedPath = '',
 			resolvedAbsolute = false;
@@ -42,7 +42,7 @@ class Path extends PathDelegate
 			resolvedPath = path + '/' + resolvedPath;
 			resolvedAbsolute = path.charAt(0) == '/';
 		}
-		
+
 		// At this point the path should be resolved to a full absolute path, but
 		// handle relative paths to be safe (might happen when process.cwd() fails)
 
@@ -54,8 +54,8 @@ class Path extends PathDelegate
 		var ret = ((resolvedAbsolute ? '/' : '') + resolvedPath);
 		return ret != '' ? ret : '.';
 	}
-	
-	override public function normalize(path:String):String 
+
+	override public function normalize(path:String):String
 	{
 		var isAbsolute = isAbsolute(path),
 			trailingSlash = path.substr(-1) == '/';
@@ -64,42 +64,42 @@ class Path extends PathDelegate
 		path = taurine.io.Path.normalizeArray(path.split('/').filter(function(p) {
 			return p != null && p != '';
 		}), !isAbsolute).join('/');
-		
-		if ((path == null || path == '') && !isAbsolute) 
+
+		if ((path == null || path == '') && !isAbsolute)
 		{
 			path = '.';
 		}
-		
-		if (path != null && path != '' && trailingSlash) 
+
+		if (path != null && path != '' && trailingSlash)
 		{
 			path += '/';
 		}
 
 		return (isAbsolute ? '/' : '') + path;
 	}
-	
-	override public function isAbsolute(path:String):Bool 
+
+	override public function isAbsolute(path:String):Bool
 	{
 		return path.charAt(0) == '/';
 	}
-	
-	override public function join(paths:Array<String>):String 
+
+	override public function join(paths:Array<String>):String
 	{
 		paths = paths.filter(function(s) return s != null && s.length > 0);
 		return normalize(paths.join('/'));
 	}
-	
-	override public function relative(from:String, to:String):String 
+
+	override public function relative(from:String, to:String):String
 	{
 		from = resolve([from]).substr(1);
 		to = resolve([to]).substr(1);
 
-		function trim(arr:Array<String>) 
+		function trim(arr:Array<String>)
 		{
 			var start = 0, len = arr.length;
 			while (start < len)
 			{
-				if (arr[start] != '')
+				if (arr[start] != null && arr[start] != '')
 					break;
 				start++;
 			}
@@ -107,7 +107,7 @@ class Path extends PathDelegate
 			var end = arr.length - 1;
 			while (end >= 0)
 			{
-				if (arr[end] != '')
+				if (arr[end] != null && arr[end] != '')
 					break;
 				end--;
 			}
@@ -123,23 +123,29 @@ class Path extends PathDelegate
 		var samePartsLength = length;
 		for (i in 0...length)
 		{
-		  if (fromParts[i] != toParts[i]) 
+		  if (fromParts[i] != toParts[i])
 		  {
-			samePartsLength = i;
-			break;
+				samePartsLength = i;
+				break;
 		  }
 		}
 
+		if (samePartsLength == 0)
+			return to;
+
 		var outputParts = [];
-		for (i in 0...fromParts.length)
+		for (i in samePartsLength...fromParts.length)
 		{
 		  outputParts.push('..');
 		}
+		trace(fromParts, toParts);
+		trace(outputParts);
+		trace(toParts.slice(samePartsLength));
 
 		outputParts = outputParts.concat(toParts.slice(samePartsLength));
 
 		return outputParts.join('/');
 	}
-	
-	
+
+
 }

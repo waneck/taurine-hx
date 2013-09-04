@@ -2,7 +2,7 @@ package taurine.io;
 import taurine.io._platforms.PathDelegate;
 import taurine.System;
 // this code was ported from Node.JS 'path' library
-// last change at commit: https://github.com/joyent/node/commit/22c68fdc1dae40f0ed9c71a02f66e5b2c6353691
+// last sync at commit: https://github.com/joyent/node/commit/22c68fdc1dae40f0ed9c71a02f66e5b2c6353691
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -26,7 +26,7 @@ import taurine.System;
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /**
- * This module contains utilities for handling and transforming file paths. 
+ * This module contains utilities for handling and transforming file paths.
  * Almost all these methods perform only string transformations. The file system is not consulted to check whether paths are valid.
  */
 class Path
@@ -41,43 +41,43 @@ class Path
 		else
 			return _path = new taurine.io._platforms.posix.Path();
 	}
-	
+
 	/**
 	 * The platform-specific file separator. '\\' or '/'.
 	 */
 	public static var sep(get, never):String;
-	
+
 	/**
 	 * The platform-specific path delimiter, ; or ':'.
 	 */
 	public static var delimiter(get, never):String;
-	
+
 	private static inline function get_sep()
 	{
 		return path().sep;
 	}
-	
+
 	private static inline function get_delimiter()
 	{
 		return path().delimiter;
 	}
-	
+
 	/**
 		Normalize a string path, taking care of '..' and '.' parts.
-		
-		When multiple slashes are found, they're replaced by a single one; when the path contains a trailing slash, 
+
+		When multiple slashes are found, they're replaced by a single one; when the path contains a trailing slash,
 		it is preserved. On Windows backslashes are used.
 	 */
 	public static function normalize(s:String):String
 	{
 		return path().normalize(s);
 	}
-	
+
 	public static function isAbsolute(p:String):Bool
 	{
 		return path().isAbsolute(p);
 	}
-	
+
 	/**
 		Join all arguments together and normalize the resulting path.
 
@@ -87,7 +87,7 @@ class Path
 	{
 		return path().join(paths);
 	}
-	
+
 	/**
 		Solve the relative path from from to to.
 
@@ -110,7 +110,7 @@ class Path
 	{
 		return path().relative(from, to);
 	}
-	
+
 	/**
 		Resolves `to` to an absolute path.
 	 */
@@ -118,12 +118,12 @@ class Path
 	{
 		return path().resolve(to);
 	}
-	
+
 	function splitPath(filename:String):Array<String>
 	{
 		return path().splitPath(filename);
 	}
-	
+
 	/**
 		Return the directory name of a path. Similar to the Unix `dirname` command.
 	 */
@@ -131,7 +131,7 @@ class Path
 	{
 		return path().dirname(p);
 	}
-	
+
 	/**
 		Return the last portion of a path. Similar to the Unix basename command.
 
@@ -151,21 +151,21 @@ class Path
 	{
 		return path().basename(p, ext);
 	}
-	
+
 	/**
-		Return the extension of the path, from the last '.' to end of string in the last portion of the path. 
+		Return the extension of the path, from the last '.' to end of string in the last portion of the path.
 		If there is no '.' in the last portion of the path or the first character of it is '.', then it returns an empty string. Examples:
 	**/
 	public static function extname(p:String):String
 	{
 		return path().extname(p);
 	}
-	
+
 	public static function makeLong(p:String):String
 	{
 		return path().makeLong(p);
 	}
-	
+
 	public static function normalizeArray(parts:Array<String>, allowAboveRoot:Bool)
 	{
 		// if the path tries to go above the root, `up` ends up > 0
@@ -187,7 +187,7 @@ class Path
 		}
 
 		// if the path is allowed to go above the root, restore leading ..s
-		if (allowAboveRoot) 
+		if (allowAboveRoot)
 		{
 			while (up-- > 0)
 			{
