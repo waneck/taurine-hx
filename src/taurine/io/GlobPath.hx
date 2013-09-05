@@ -88,6 +88,115 @@ class GlobPath
 		return pattern;
 	}
 
+	static function normalizePosix(pattern:String)
+	{
+		//posix allows some wacky unescaped expressions. Let's escape them before we start
+		var nBr = 0, nPt = 0, lastBr = -1, lastPt = -1, escape = false, add = 0, pat = new StringBuf(), last = -1;
+		for (i in 0...pattern.length)
+		{
+			var chr = StringTools.fastCodeAt(pattern, i), lst = last;
+			last = chr;
+			if (escape)
+			{
+				pat.addChar(chr);
+				escape = false;
+				continue;
+			}
+
+			switch(chr)
+			{
+			case '\\'.code:
+				escape = true;
+			case '('.code:
+				nPt++;
+				lastPt = i + add;
+			case ')'.code:
+				if (--nPt < 0)
+				{
+					nPt = 0;
+					//escaped
+					pat.add("\\)");
+					add++;
+					continue;
+				}
+			case '|'.code:
+				if (nPt == 0)
+				{
+					pat.add("\\|");
+					add++;
+					continue;
+				}
+			case '['.code:
+				if (nBr > 0)
+				{
+					pat.add("\\[");
+					last = -1;
+					add++;
+					continue;
+				} else {
+					nBr++;
+					lastBr = i + add;
+				}
+			case ']'.code:
+				if (lst == '['.code)
+				{
+					//act as if it were escaped
+					pat.add("\\]");
+					add++;
+					continue;
+				} else if (--nBr < 0) {
+					nBr = 0;
+					//escaped
+					pat.add("\\]");
+					add++;
+					continue;
+				}
+			case _:
+			}
+			pat.addChar(chr);
+		}
+
+		var pat = pat.toString();
+		trace(pat);
+		if (nBr != 0) //open bracket
+		{
+			pat = pat.substr(0,lastBr) + "\\" + pat.substr(lastBr);
+			if (lastPt > lastBr)
+				lastPt++;
+		}
+
+		if (nPt != 0) //open paren
+		{
+			var right = pat.substr(lastPt);
+			var buf = new StringBuf();
+			buf.add(pat.substr(0,lastPt));
+			buf.add("\\");
+			var escaped = false;
+			//escape any non-escaped |
+			for(i in 0...right.length)
+			{
+				var chr = StringTools.fastCodeAt(right,i), wasEscaped = escaped;
+				escaped = false;
+				switch(chr)
+				{
+					case '\\'.code if(!wasEscaped):
+						escaped = true;
+					case '|'.code:
+						if (wasEscaped)
+							buf.add("\\");
+						buf.add("\\|");
+						continue;
+				}
+				buf.addChar(chr);
+			}
+
+			pat = buf.toString();
+		}
+
+		trace(pat,pattern);
+		return pat;
+	}
+
 	/**
 		Compiles a pattern into a Haxe EReg. May throw a GlobError object
 	**/
@@ -103,42 +212,20 @@ class GlobPath
 			notPathSep = "^\\/";
 		}
 
-		if (nodot)
-			notPathSep = '[$notPathSep\\.]+[$notPathSep]*';
-		else
-			notPathSep = '[$notPathSep]+';
+		var notPathSepStart =
+			if (nodot)
+				'[$notPathSep\\.]+[$notPathSep]*';
+			else
+				'[$notPathSep]+';
 
 		if (posix)
 		{
-			//posix allows some wacky unescaped expressions. Let's escape them before we start
-			var nBr = 0, nPt = 0, lastBr = -1, lastPt = -1, escape = false, add = 0;
-			for (i in 0...pattern.length)
-			{
-				if (escape)
-				{
-					escape = false;
-					continue;
-				}
-
-				switch(StringTools.fastCodeAt(pattern, i))
-				{
-				case '\\'.code:
-					escape = true;
-				case '('.code:
-					nPt++;
-					lastPt = i;
-				case ')'.code:
-					if (--nPt < 0)
-					{
-
-					}
-				}
-			}
+			pattern = normalizePosix(pattern);
 		}
 
 		var pat = new StringBuf();
 		pat.add("^"); //match from beginning
-		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], onPartEnd = null, openLiterals = [], curLiteral:Null<Int> = null;
+		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], inNegate = false, openLiterals = [], curLiteral:Null<Int> = null;
 		var beginPathStack = [];
 		while(++i < len)
 		{
@@ -148,10 +235,10 @@ class GlobPath
 			{
 			case '/'.code, '\\'.code if (curLiteral != '['.code && (!posix || chr == '/'.code)):
 				//check part end
-				if (openLiterals.length == 0 && onPartEnd != null) //openLiterals only implemented for top-level path parts
+				if (openLiterals.length == 0 && inNegate) //openLiterals only implemented for top-level path parts
 				{
-					pat.add(onPartEnd);
-					onPartEnd = null;
+					pat.add(").*"); //match anything but this
+					inNegate = false;
 				}
 				//path separator
 				pat.add(pathSep);
@@ -171,7 +258,17 @@ class GlobPath
 				case '*'.code:
 					i++;
 					//matches directories recursively
-					pat.add('.*');
+					if (nodot) {
+						if (wasBeginPath)
+						{
+							//[ [any char but path sep or .] + [any char but path sep] ]
+							pat.add('(?:(?:[^$notPathSep\\.][^$notPathSep]*)(?:$pathSep|))*');
+						} else {
+							pat.add('(?:(?:[^$notPathSep]*)(?:$pathSep(?:[^$notPathSep\\.]|)|))*');
+						}
+					} else {
+						pat.add('.*');
+					}
 					continue;
 				case chr:
 					if (wasBeginPath)
@@ -185,18 +282,18 @@ class GlobPath
 							case '\\'.code if (!posix):
 							case _:
 								//this pattern may not be null
-								pat.add(notPathSep);
+								pat.add(notPathSepStart);
 								continue;
 						}
 					}
 				} else if (wasBeginPath) {
 					//this.pattern may not be null
-					pat.add(notPathSep);
+					pat.add(notPathSepStart);
 					continue;
 				}
 				//any character but path separator
 				pat.add("(?:");
-				pat.add(notPathSep);
+				pat.add(notPathSepStart);
 				pat.add("|)");
 			case '?'.code:
 				//lookahead for '?('
@@ -223,25 +320,25 @@ class GlobPath
 			case '-'.code if (curLiteral == '['.code):
 				pat.addChar(chr);
 			case '['.code:
-				pat.addChar(chr);
-				openLiterals.push(curLiteral = '['.code);
-
-				//[]] is considered [\\]] on POSIX
 				if (i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
 				{
-					case '['.code:
-						i++;
-						pat.addChar('['.code);
 					case ']'.code:
 						i++;
-						pat.addChar(']'.code);
-					case '^'.code:
+						continue;
+					case '^'.code, '!'.code:
+						pat.addChar(chr);
+						openLiterals.push(curLiteral = '['.code);
+
 						i++;
 						pat.addChar('^'.code);
 						if (wasBeginPath && nodot)
 							pat.add('\\.');
+						continue;
 					case _:
 				}
+				pat.addChar(chr);
+				openLiterals.push(curLiteral = '['.code);
+
 			case ']'.code:
 				if (curLiteral != '['.code)
 					throw GlobError(pattern, i, 'Unmatched ]');
@@ -257,17 +354,17 @@ class GlobPath
 					case '('.code:
 						i++;
 						pat.add("(?!");
-						onParenEnd.push(")");
+						onParenEnd.push(").*");
 						openLiterals.push(curLiteral = '('.code);
 						beginPathStack.push(wasBeginPath);
 						continue;
 					case _:
 				}
 
-				if (!wasBeginPath || openLiterals.length != 0 || onPartEnd != null)
+				if (!wasBeginPath || openLiterals.length != 0 || inNegate)
 					throw InvalidExclamationPat(pattern, i);
 				pat.add("(?!");
-				onPartEnd = ")";
+				inNegate = true;
 
 			//+(), @()
 			case '+'.code, '@'.code if (ext && i + 1 < len && StringTools.fastCodeAt(pattern, i+1) == '('.code):
@@ -328,11 +425,16 @@ class GlobPath
 			}
 		}
 
+		if (inNegate)
+		{
+			pat.add(").*"); //match anything but this
+		}
+
 		if (openLiterals.length != 0)
 		{
 			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
 		}
-		pat.add("(?!.)"); //only exact match
+		pat.add("$"); //only exact match
 		trace(pat);
 
 		return new EReg(pat.toString(), flags.has(NoCase) ? "i" : "");
