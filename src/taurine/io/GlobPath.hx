@@ -157,7 +157,6 @@ class GlobPath
 		}
 
 		var pat = pat.toString();
-		trace(pat);
 		if (nBr != 0) //open bracket
 		{
 			pat = pat.substr(0,lastBr) + "\\" + pat.substr(lastBr);
@@ -193,7 +192,7 @@ class GlobPath
 			pat = buf.toString();
 		}
 
-		trace(pat,pattern);
+		// trace(pat,pattern);
 		return pat;
 	}
 
@@ -266,6 +265,7 @@ class GlobPath
 						} else {
 							pat.add('(?:(?:[^$notPathSep]*)(?:$pathSep(?:[^$notPathSep\\.]|)|))*');
 						}
+					// } else { //allow first globstar **/x to match 'x' files
 					} else {
 						pat.add('.*');
 					}
@@ -435,7 +435,7 @@ class GlobPath
 			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
 		}
 		pat.add("$"); //only exact match
-		trace(pat);
+		// trace(pat);
 
 		return new EReg(pat.toString(), flags.has(NoCase) ? "i" : "");
 	}

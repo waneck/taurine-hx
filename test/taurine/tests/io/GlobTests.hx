@@ -280,10 +280,6 @@ class GlobTests
 				trace(pattern);
 
 				var opts = [];
-				// for (f in ["nonull", "nocase", "dot", "nocomment", "nonegate" ])
-				// {
-				// 	if
-				// }
 				if (!Reflect.field(options, "dot"))
 					opts.push(NoDot);
 				if (Reflect.field(options, "nocase"))
@@ -299,6 +295,12 @@ class GlobTests
 					{
 						all.push({pat:StringTools.replace(pattern,"\\","`"), opt:o});
 					}
+				} else if (!Reflect.field(options, "posix")) {
+					var o = opts.copy();
+					//test also the posix version
+					o.push(Posix);
+					all.push({pat:pattern, opt:o});
+
 				}
 				all.push({pat:pattern, opt:opts});
 
