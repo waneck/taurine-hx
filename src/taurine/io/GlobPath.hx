@@ -108,6 +108,34 @@ class GlobPath
 		else
 			notPathSep = '[$notPathSep]+';
 
+		if (posix)
+		{
+			//posix allows some wacky unescaped expressions. Let's escape them before we start
+			var nBr = 0, nPt = 0, lastBr = -1, lastPt = -1, escape = false, add = 0;
+			for (i in 0...pattern.length)
+			{
+				if (escape)
+				{
+					escape = false;
+					continue;
+				}
+
+				switch(StringTools.fastCodeAt(pattern, i))
+				{
+				case '\\'.code:
+					escape = true;
+				case '('.code:
+					nPt++;
+					lastPt = i;
+				case ')'.code:
+					if (--nPt < 0)
+					{
+
+					}
+				}
+			}
+		}
+
 		var pat = new StringBuf();
 		pat.add("^"); //match from beginning
 		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], onPartEnd = null, openLiterals = [], curLiteral:Null<Int> = null;
@@ -195,13 +223,6 @@ class GlobPath
 			case '-'.code if (curLiteral == '['.code):
 				pat.addChar(chr);
 			case '['.code:
-				//apparently, a single '[' is a valid glob
-				if (i == 0 && len == 1)
-				{
-					pat.add("\\[");
-					break;
-				}
-
 				pat.addChar(chr);
 				openLiterals.push(curLiteral = '['.code);
 
@@ -276,7 +297,8 @@ class GlobPath
 			case '`'.code, '\\'.code if(escapeChar == chr):
 				if (i + 1 >= len)
 				{
-					// throw GlobError(pattern,i, "Invalid escape char");
+					if (!posix)
+						throw GlobError(pattern,i, "Invalid escape char");
 					//edit: it seems that glob considers this acceptable
 					if (chr == '\\'.code)
 						pat.addChar(chr);
@@ -307,7 +329,9 @@ class GlobPath
 		}
 
 		if (openLiterals.length != 0)
+		{
 			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
+		}
 		pat.add("(?!.)"); //only exact match
 		trace(pat);
 

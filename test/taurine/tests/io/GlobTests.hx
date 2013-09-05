@@ -100,16 +100,16 @@ class GlobTests
 		, ["a****c**?**??*****", ["abcdecdhjk"], null, ["abcdecdhjk"]]
 		, ["[-abc]", ["-"], null, ["-"]]
 		, ["[abc-]", ["-"], null, ["-"]]
-		, ["\\", ["\\"], null, ["\\"]]
-		, ["[\\\\]", ["\\"], null, ["\\"]]
-		, ["[[]", ["["], null, ["["]]
-		, ["[", ["["], null, ["["]]
-		, ["[*", ["[abc"], null, ["[abc"]]
+		, ["\\", ["\\"], {posix:true}, ["\\"]]
+		, ["[\\\\]", ["\\"], {posix:true}, ["\\"]]
+		, ["[[]", ["["], {posix:true}, ["["]]
+		, ["[", ["["], {posix:true}, ["["]]
+		, ["[*", ["[abc"], {posix:true}, ["[abc"]]
 		, "a right bracket shall lose its special meaning and\n" +
 		"represent itself in a bracket expression if it occurs\n" +
 		"first in the list.  -- POSIX.2 2.8.3.2"
-		, ["[]]", ["]"], null, ["]"]]
-		, ["[]-]", ["]"], null, ["]"]]
+		, ["[]]", ["]"], {posix:true}, ["]"]]
+		, ["[]-]", ["]"], {posix:true}, ["]"]]
 		, ["[a-\\z]", ["p"], null, ["p"]]
 		, ["??**********?****?", [], { "null": true }, ["abc"]]
 		, ["??**********?****c", [], { "null": true }, ["abc"]]
