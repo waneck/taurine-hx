@@ -93,7 +93,7 @@ class GlobPath
 	**/
 	static function compile(pattern:String, flags:haxe.EnumFlags<GlobFlags>):EReg
 	{
-		var extraSep = '\\'.code, escapeChar = '`'.code, posix = flags.has(Posix), ext = !flags.has(NoExt);
+		var extraSep = '\\'.code, escapeChar = '`'.code, posix = flags.has(Posix), ext = !flags.has(NoExt), nodot = flags.has(NoDot);
 		var pathSep = "[\\/\\\\]+", notPathSep = "^\\/\\\\";
 		if (posix)
 		{
@@ -103,14 +103,15 @@ class GlobPath
 			notPathSep = "^\\/";
 		}
 
-		if (flags.has(NoDot))
-			notPathSep = '(?:[^$notPathSep\\.]+[$notPathSep]*|)';
+		if (nodot)
+			notPathSep = '[$notPathSep\\.]+[$notPathSep]*';
 		else
-			notPathSep = '[$notPathSep]*';
+			notPathSep = '[$notPathSep]+';
 
 		var pat = new StringBuf();
 		pat.add("^"); //match from beginning
 		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], onPartEnd = null, openLiterals = [], curLiteral:Null<Int> = null;
+		var beginPathStack = [];
 		while(++i < len)
 		{
 			var chr = StringTools.fastCodeAt(pattern, i), wasBeginPath = beginPath;
@@ -137,15 +138,38 @@ class GlobPath
 					pat.add('(?:');
 					onParenEnd.push(')*');
 					openLiterals.push(curLiteral = '('.code);
+					beginPathStack.push(wasBeginPath);
+					continue;
 				case '*'.code:
 					i++;
 					//matches directories recursively
 					pat.add('.*');
-				case _:
-					//any character but path separator
+					continue;
+				case chr:
+					if (wasBeginPath)
+					{
+						//if we're in the beginning of a path, check if next character further restricts the pattern
+						//if not, this pattern may not be null
+						switch(chr)
+						{
+							case '|'.code, ')'.code if (ext):
+							case '/'.code:
+							case '\\'.code if (!posix):
+							case _:
+								//this pattern may not be null
+								pat.add(notPathSep);
+								continue;
+						}
+					}
+				} else if (wasBeginPath) {
+					//this.pattern may not be null
 					pat.add(notPathSep);
-				} else
-					pat.add(notPathSep);
+					continue;
+				}
+				//any character but path separator
+				pat.add("(?:");
+				pat.add(notPathSep);
+				pat.add("|)");
 			case '?'.code:
 				//lookahead for '?('
 				if (ext && i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
@@ -154,15 +178,21 @@ class GlobPath
 					pat.add("(?:");
 					onParenEnd.push(")?");
 					openLiterals.push(curLiteral = '('.code);
+					beginPathStack.push(wasBeginPath);
+					continue;
 				case _:
-					pat.add('.');
-				} else
+				}
+				if (wasBeginPath && nodot)
+					pat.add('[^\\.]');
+				else
 					pat.add('.');
 
 			//[set] handling
 			//reject special characters if inside []
-			case '\\'.code, '/'.code, '('.code, ')'.code, '`'.code, '+'.code, '!'.code if(curLiteral == '['.code):
+			// case '\\'.code, '/'.code, '('.code, ')'.code, '`'.code, '+'.code, '!'.code if(curLiteral == '['.code):
 				//check if next is a escaped
+				// pat.addChar(chr);
+			case '-'.code if (curLiteral == '['.code):
 				pat.addChar(chr);
 			case '['.code:
 				pat.addChar(chr);
@@ -174,6 +204,11 @@ class GlobPath
 					case ']'.code:
 						i++;
 						pat.addChar(']'.code);
+					case '^'.code:
+						i++;
+						pat.addChar('^'.code);
+						if (wasBeginPath && nodot)
+							pat.add('\\.');
 					case _:
 				}
 			case ']'.code:
@@ -181,6 +216,7 @@ class GlobPath
 					throw GlobError(pattern, i, 'Unmatched ]');
 				openLiterals.pop();
 				curLiteral = openLiterals[openLiterals.length-1];
+				pat.addChar(chr);
 
 			//!
 			case '!'.code if(ext):
@@ -192,6 +228,7 @@ class GlobPath
 						pat.add("(?!");
 						onParenEnd.push(")");
 						openLiterals.push(curLiteral = '('.code);
+						beginPathStack.push(wasBeginPath);
 						continue;
 					case _:
 				}
@@ -207,11 +244,13 @@ class GlobPath
 				pat.add("(?:");
 				onParenEnd.push(")" + (chr == '+'.code ? "+" : ""));
 				openLiterals.push(curLiteral = '('.code);
+				beginPathStack.push(wasBeginPath);
 
 			case '|'.code if(ext):
 				if (curLiteral != '('.code)
 					throw GlobError(pattern, i, "Unexpected |");
 				pat.addChar(chr);
+				beginPath = beginPathStack[beginPathStack.length-1];
 
 			case ')'.code if(ext):
 				if (curLiteral != '('.code)
@@ -221,6 +260,7 @@ class GlobPath
 				pat.add(p);
 				openLiterals.pop();
 				curLiteral = openLiterals[openLiterals.length-1];
+				beginPath = beginPathStack.pop();
 
 			//escape
 			case '`'.code, '\\'.code if(escapeChar == chr):

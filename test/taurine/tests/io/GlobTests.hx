@@ -27,7 +27,7 @@ class GlobTests
 			, next = files.concat([ "a-b", "aXb"
 					, ".x", ".y" ]);
 
-		var patterns:Array<Dynamic> =
+		var patterns:Array<Dynamic> = untyped
 		[ "http://www.bashcookbook.com/bashinfo/source/bash-1.14.7/tests/glob-test"
 		, ["a*", ["a", "abc", "abd", "abe"]]
 		, ["X*", ["X*"], {nonull: true}]
@@ -67,7 +67,7 @@ class GlobTests
 		, function () { files.push("a*b/"); files.push("a*b/ooo"); }
 	, ["a\\*b/*", ["a*b/ooo"]]
 		, ["a\\*?/*", ["a*b/ooo"]]
-		, ["*\\\\!*", [], {"null": true}, ["echo !7"]]
+		, ["*\\\\\\!*", [], {"null": true}, ["echo !7"]]
 		, ["*\\!*", ["echo !7"], null, ["echo !7"]]
 		, ["*.\\*", ["r.*"], null, ["r.*"]]
 		, ["a[b]c", ["abc"]]
@@ -76,7 +76,8 @@ class GlobTests
 		, ["a\\*c", [], {"null": true}, ["abc"]]
 		, ["", [""], { "null": true }, [""]]
 
-		, "http://www.opensource.apple.com/source/bash/bash-23/" +
+		].concat([
+		"http://www.opensource.apple.com/source/bash/bash-23/" +
 		"bash/tests/glob-test"
 		, function () { files.push("man/"); files.push("man/man1/"); files.push("man/man1/bash.1"); }
 	, ["*/man*/bash.*", ["man/man1/bash.1"]]
@@ -119,7 +120,8 @@ class GlobTests
 		, ["[]", [], { "null": true }, ["a"]]
 		, ["[abc", [], { "null": true }, ["["]]
 
-		, "nocase tests"
+		]).concat([
+		"nocase tests"
 		, ["XYZ", ["xYz"], { nocase: true, "null": true }
 	, ["xYz", "ABC", "IjK"]]
 		, ["ab*", ["ABC"], { nocase: true, "null": true }
@@ -178,13 +180,13 @@ class GlobTests
 
 		// like: {a,b|c\\,d\\\|e} except it's unclosed, so it has to be escaped.
 		, ["+(a|*\\|c\\\\|d\\\\\\|e\\\\\\\\|f\\\\\\\\\\|g"
-		, ["+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g"]
-		, {}
-	, ["+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g", "a", "b\\c"]]
+			, ["+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g"]
+			, {}
+			, ["+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g", "a", "b\\c"]]
 
-
+		]).concat([
 		// crazy nested {,,} and *(||) tests.
-		, function () {
+		function () {
 			files = [ "a", "b", "c", "d"
 				, "ab", "ac", "ad"
 				, "bc", "cb"
@@ -265,7 +267,7 @@ class GlobTests
 		, 'a/b/.x/c/d'
 		, 'a/b/.x/c/d/e' ] ]
 
-		];
+		]);
 
 		// var regexps =
 		// [ '/^(?:(?=.)a[^/]*?)$/',
