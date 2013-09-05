@@ -1,0 +1,13 @@
+-cp src
+-cp test
+-main taurine.tests.Test
+-debug
+-neko bin/test.n
+-lib utest
+#--next
+#-cp src
+#-cp test
+#-main taurine.tests.Test
+#-debug
+#--interp
+#-lib utest

@@ -1,5 +1,6 @@
 package taurine.tests;
 import taurine.tests.io.PathTests;
+import taurine.tests.io.GlobTests;
 import utest.Runner;
 import utest.ui.Report;
 
@@ -13,15 +14,16 @@ class Test
 	static function main()
 	{
 		var runner = new Runner();
-		
+
 		runner.addCase(new PathTests());
-		
+		runner.addCase(new GlobTests());
+
 		var report = Report.create(runner);
 		runner.run();
-		
+
 #if sys
 		//Sys.exit(report.allOk() ? 0 : 1);
 #end
 	}
-	
+
 }

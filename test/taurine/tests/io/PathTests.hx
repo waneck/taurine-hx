@@ -10,11 +10,11 @@ import utest.Assert;
 class PathTests
 {
 	private var f:String;
-	public function new() 
+	public function new()
 	{
 		f = Sys.getCwd() + "test.n";
 	}
-	
+
 	public function testNames()
 	{
 		Assert.equals('test.n', Path.basename(f));
@@ -24,7 +24,7 @@ class PathTests
 		Assert.equals('basename.ext', Path.basename('/basename.ext'));
 		Assert.equals('basename.ext', Path.basename('basename.ext/'));
 		Assert.equals('basename.ext', Path.basename('basename.ext//'));
-		
+
 		if (System.isWin)
 		{
 			// On Windows a backslash acts as a Path separator.
@@ -41,15 +41,15 @@ class PathTests
 			Assert.equals(Path.basename('basename.ext\\'), 'basename.ext\\');
 			Assert.equals(Path.basename('basename.ext\\\\'), 'basename.ext\\\\');
 		}
-		
-		if (!System.isWin) 
+
+		if (!System.isWin)
 		{
 			// POSIX filenames may include control characters
 			// c.f. http://www.dwheeler.com/essays/fixing-unix-linux-filenames.html
 			var controlCharFilename = 'Icon' + String.fromCharCode(13);
 			Assert.equals(Path.basename('/a/b/' + controlCharFilename),controlCharFilename);
 		}
-		
+
 		Assert.equals(Path.extname(f), '.n');
 
 		Assert.equals(Path.dirname(f).substr(-3), 'bin');
@@ -156,7 +156,7 @@ class PathTests
 		  Assert.equals(Path.extname('file.\\\\'), '.\\\\');
 		}
 	}
-	
+
 	public function testPathJoin()
 	{
 		var joinTests:Array<Dynamic> =
@@ -258,7 +258,7 @@ class PathTests
 			 [['c:', 'file'], 'c:/file']
 			]);
 		}
-		
+
 		for (test in joinTests)
 		{
 			var actual = Path.join(test[0]);
@@ -270,9 +270,9 @@ class PathTests
 			if (actual != expected)
 				throw "";
 		}
-		
+
 	}
-	
+
 	public function testNormalize()
 	{
 		// Path normalize tests
@@ -294,7 +294,7 @@ class PathTests
 		  Assert.equals(Path.normalize('a//b//.'), 'a/b');
 		}
 	}
-	
+
 	public function testResolve()
 	{
 		var resolveTests:Array<Dynamic>;
@@ -332,13 +332,13 @@ class PathTests
 			var message = 'Path.resolve(' + test[0].join(',') + ')' +
 						'\n  expect=' + expected +
 						'\n  actual=' + actual;
-			
+
 			Assert.equals(expected, actual, message);
 			if (expected != actual)
 				throw "";
 		}
 	}
-	
+
 	public function testIsAbsolute()
 	{
 		if (System.isWin) {
@@ -357,7 +357,7 @@ class PathTests
 		  Assert.equals(Path.isAbsolute('./baz'), false);
 		}
 	}
-	
+
 	public function testRelative()
 	{
 		var relativeTests = if (System.isWin) {

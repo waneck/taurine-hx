@@ -138,9 +138,6 @@ class Path extends PathDelegate
 		{
 		  outputParts.push('..');
 		}
-		trace(fromParts, toParts);
-		trace(outputParts);
-		trace(toParts.slice(samePartsLength));
 
 		outputParts = outputParts.concat(toParts.slice(samePartsLength));
 
