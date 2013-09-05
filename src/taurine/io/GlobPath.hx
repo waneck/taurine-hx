@@ -195,12 +195,22 @@ class GlobPath
 			case '-'.code if (curLiteral == '['.code):
 				pat.addChar(chr);
 			case '['.code:
+				//apparently, a single '[' is a valid glob
+				if (i == 0 && len == 1)
+				{
+					pat.add("\\[");
+					break;
+				}
+
 				pat.addChar(chr);
 				openLiterals.push(curLiteral = '['.code);
 
 				//[]] is considered [\\]] on POSIX
 				if (i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
 				{
+					case '['.code:
+						i++;
+						pat.addChar('['.code);
 					case ']'.code:
 						i++;
 						pat.addChar(']'.code);
@@ -266,7 +276,12 @@ class GlobPath
 			case '`'.code, '\\'.code if(escapeChar == chr):
 				if (i + 1 >= len)
 				{
-					throw GlobError(pattern,i, "Invalid escape char");
+					// throw GlobError(pattern,i, "Invalid escape char");
+					//edit: it seems that glob considers this acceptable
+					if (chr == '\\'.code)
+						pat.addChar(chr);
+					pat.addChar(chr);
+					break;
 				}
 				i++;
 				//escape all possible regex special chars
@@ -291,6 +306,8 @@ class GlobPath
 			}
 		}
 
+		if (openLiterals.length != 0)
+			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
 		pat.add("(?!.)"); //only exact match
 		trace(pat);
 
