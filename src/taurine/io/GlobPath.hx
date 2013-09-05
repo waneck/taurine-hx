@@ -63,7 +63,8 @@ class GlobPath
 			this.flags.set(f);
 		this.pattern = pattern;
 
-		this.regex = compile(pattern, this.flags);
+		var c = compile(pattern, this.flags);
+		this.regex = c.exact;
 	}
 
 	/**
@@ -199,7 +200,7 @@ class GlobPath
 	/**
 		Compiles a pattern into a Haxe EReg. May throw a GlobError object
 	**/
-	static function compile(pattern:String, flags:haxe.EnumFlags<GlobFlags>):EReg
+	static function compile(pattern:String, flags:haxe.EnumFlags<GlobFlags>):{ exact: EReg, partials: Array<GlobPart> }
 	{
 		var extraSep = '\\'.code, escapeChar = '`'.code, posix = flags.has(Posix), ext = !flags.has(NoExt), nodot = flags.has(NoDot);
 		var pathSep = "[\\/\\\\]+", notPathSep = "^\\/\\\\";
@@ -223,8 +224,9 @@ class GlobPath
 		}
 
 		var pat = new StringBuf();
-		pat.add("^"); //match from beginning
+		// pat.add("^"); //match from beginning
 		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], inNegate = false, openLiterals = [], curLiteral:Null<Int> = null;
+		var rawPartials = [], partials = [], hasConcrete = false, hasPattern = false, isWildcard = false, isRecursive = false;
 		var beginPathStack = [];
 		while(++i < len)
 		{
@@ -234,13 +236,33 @@ class GlobPath
 			{
 			case '/'.code, '\\'.code if (curLiteral != '['.code && (!posix || chr == '/'.code)):
 				//check part end
-				if (openLiterals.length == 0 && inNegate) //openLiterals only implemented for top-level path parts
+				if (openLiterals.length == 0) //openLiterals only implemented for top-level path parts
 				{
-					pat.add(").*"); //match anything but this
-					inNegate = false;
+					if (inNegate)
+					{
+						pat.add(").*"); //match anything but this
+						inNegate = false;
+					}
+					//complete current partial
+					var s = pat.toString();
+					pat = new StringBuf();
+					rawPartials.push(s);
+					var part = switch [hasConcrete, hasPattern, isWildcard]
+					{
+					case [true,false,false]:
+						Exact(s, flags.has(NoCase));
+					case [false,false,true]:
+						Any(isRecursive);
+					default:
+						Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive);
+					};
+					partials.push(part);
+
+					hasConcrete = hasPattern = isWildcard = isRecursive = false;
+				} else {
+					//path separator
+					pat.add(pathSep);
 				}
-				//path separator
-				pat.add(pathSep);
 				beginPath = true;
 			case '*'.code:
 				//lookahead for '*(' or '**'
@@ -248,6 +270,7 @@ class GlobPath
 				{
 				case '('.code if (ext):
 					i++;
+					hasPattern = true;
 					//matches zero or more occurrences of the given patterns
 					pat.add('(?:');
 					onParenEnd.push(')*');
@@ -256,6 +279,7 @@ class GlobPath
 					continue;
 				case '*'.code:
 					i++;
+					isWildcard = true; isRecursive = true;
 					//matches directories recursively
 					if (nodot) {
 						if (wasBeginPath)
@@ -271,17 +295,18 @@ class GlobPath
 					}
 					continue;
 				case chr:
+					isWildcard = true;
 					if (wasBeginPath)
 					{
 						//if we're in the beginning of a path, check if next character further restricts the pattern
-						//if not, this pattern may not be null
+						//if not, this pattern cannot be matched to empty
 						switch(chr)
 						{
 							case '|'.code, ')'.code if (ext):
 							case '/'.code:
 							case '\\'.code if (!posix):
 							case _:
-								//this pattern may not be null
+								//this pattern cannot be matched to empty
 								pat.add(notPathSepStart);
 								continue;
 						}
@@ -291,11 +316,13 @@ class GlobPath
 					pat.add(notPathSepStart);
 					continue;
 				}
+				isWildcard = true;
 				//any character but path separator
 				pat.add("(?:");
 				pat.add(notPathSepStart);
 				pat.add("|)");
 			case '?'.code:
+				hasPattern = true;
 				//lookahead for '?('
 				if (ext && i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
 				{
@@ -320,6 +347,7 @@ class GlobPath
 			case '-'.code if (curLiteral == '['.code):
 				pat.addChar(chr);
 			case '['.code:
+				hasPattern = true;
 				if (i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
 				{
 					case ']'.code:
@@ -348,6 +376,7 @@ class GlobPath
 
 			//!
 			case '!'.code if(ext):
+				hasPattern = true;
 				//we either have !(), or ! at the beginning of a slash
 				if (i + 1 < len) switch(StringTools.fastCodeAt(pattern, i+1))
 				{
@@ -369,6 +398,7 @@ class GlobPath
 			//+(), @()
 			case '+'.code, '@'.code if (ext && i + 1 < len && StringTools.fastCodeAt(pattern, i+1) == '('.code):
 				i++;
+				hasPattern = true;
 				pat.add("(?:");
 				onParenEnd.push(")" + (chr == '+'.code ? "+" : ""));
 				openLiterals.push(curLiteral = '('.code);
@@ -396,6 +426,7 @@ class GlobPath
 				{
 					if (!posix)
 						throw GlobError(pattern,i, "Invalid escape char");
+					hasConcrete = true;
 					//edit: it seems that glob considers this acceptable
 					if (chr == '\\'.code)
 						pat.addChar(chr);
@@ -414,6 +445,7 @@ class GlobPath
 			case '('.code if(ext):
 				throw GlobError(pattern,i, "Invalid '(' without !,+,@,?,*");
 			case _:
+				hasConcrete = true;
 				//escape all possible regex special chars
 				switch(chr)
 				{
@@ -434,10 +466,26 @@ class GlobPath
 		{
 			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
 		}
-		pat.add("$"); //only exact match
+		// pat.add("$"); //only exact match
+
+		var s = pat.toString();
+		rawPartials.push(s);
+		var part = switch [hasConcrete, hasPattern, isWildcard]
+		{
+		case [true,false,false]:
+			Exact(s, flags.has(NoCase));
+		case [false,false,true]:
+			Any(isRecursive);
+		default:
+			Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive);
+		};
+		partials.push(part);
+
+		var pat = "^" + rawPartials.join(pathSep) + "$";
+
 		// trace(pat);
 
-		return new EReg(pat.toString(), flags.has(NoCase) ? "i" : "");
+		return { exact : new EReg(pat, flags.has(NoCase) ? "i" : ""), partials: partials };
 	}
 
 }
@@ -476,4 +524,11 @@ enum GlobError
 		Thrown when the NoExt flag is not set, and an invalid `!` is encountered during parsing
 	**/
 	InvalidExclamationPat(pattern:String, charPos:Int);
+}
+
+enum GlobPart
+{
+	Exact(s:String, caseSensitive:Bool); //matches exactly
+	Any(recursive:Bool); //* and **
+	Regex(r:EReg, recursive:Bool); //is recursive if has globstar (**)
 }
