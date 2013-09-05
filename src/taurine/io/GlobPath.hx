@@ -246,16 +246,20 @@ class GlobPath
 					//complete current partial
 					var s = pat.toString();
 					pat = new StringBuf();
-					rawPartials.push(s);
 					var part = switch [hasConcrete, hasPattern, isWildcard]
 					{
 					case [true,false,false]:
+						s += pathSep;
 						Exact(s, flags.has(NoCase));
 					case [false,false,true]:
+						if (partials.length != 0 || !isRecursive)
+							s += pathSep;
 						Any(isRecursive);
 					default:
+						s += pathSep;
 						Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive);
 					};
+					rawPartials.push(s);
 					partials.push(part);
 
 					hasConcrete = hasPattern = isWildcard = isRecursive = false;
@@ -289,7 +293,6 @@ class GlobPath
 						} else {
 							pat.add('(?:(?:[^$notPathSep]*)(?:$pathSep(?:[^$notPathSep\\.]|)|))*');
 						}
-					// } else { //allow first globstar **/x to match 'x' files
 					} else {
 						pat.add('.*');
 					}
@@ -481,7 +484,7 @@ class GlobPath
 		};
 		partials.push(part);
 
-		var pat = "^" + rawPartials.join(pathSep) + "$";
+		var pat = "^" + rawPartials.join("") + "$";
 
 		// trace(pat);
 
