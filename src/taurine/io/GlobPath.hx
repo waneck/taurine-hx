@@ -52,6 +52,7 @@ class GlobPath
 	public var flags(default, null):haxe.EnumFlags<GlobFlags>;
 	public var pattern(default, null):String;
 	private var regex:EReg;
+	private var partials:Array<GlobPart>;
 
 	/**
 		Creates a new GlobPath object and compiles the pattern. May throw a GlobError object
@@ -65,6 +66,7 @@ class GlobPath
 
 		var c = compile(pattern, this.flags);
 		this.regex = c.exact;
+		this.partials = c.partials;
 	}
 
 	/**
@@ -82,6 +84,117 @@ class GlobPath
 	public inline function unsafeMatch(normalizedPath:String):Bool
 	{
 		return regex.match(normalizedPath);
+	}
+
+	/**
+		Tells whether the normalized `path` parameter can be a valid subpath of this pattern.
+		May be used to eagerly rule out unmatched directories from search
+	**/
+	public function partialMatch(normalizedPath:String):Bool
+	{
+		var nodot = flags.has(NoDot);
+		var path = flags.has(Posix) ? normalizedPath.split("/") : ~/[\\\/]/g.split(normalizedPath);
+		var li = 0, ll = partials.length, i = 0, len = path.length, lastAnyRec = false;
+		while(i < len)
+		{
+			var cur = path[i++];
+			if (li >= ll) //we have reached the last path delimiter; this is not a valid match
+				if (i == len && cur == "")
+					return true;
+				else
+					return false;
+
+			var willReturn = false, retval = false;
+			switch(partials[li++])
+			{
+				case Exact(s,false):
+					if (cur != s)
+					{
+						return false;
+					}
+				case Exact(s,true):
+					if (cur.toLowerCase() != s.toLowerCase())
+						return false;
+				case Any(false):
+					if (nodot && cur.charCodeAt(0) == '.'.code)
+						return false;
+					//always matches
+				case Regex(r, false,s):
+					if (!r.match(cur))
+					{
+						return false;
+					}
+				case Any(true):
+					var found = false;
+					if (i == 1)
+						i = 0;
+					for (j in li...ll)
+					{
+						switch(partials[j])
+						{
+							case Regex(r,_,_):
+								li = j; found = true;
+								for (k in i...len)
+								{
+									if (r.match(path[k]))
+									{
+										i = k;
+										break;
+									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
+										return false;
+									}
+								}
+								break;
+							case Exact(s,true):
+								li = j; found = true;
+								for (k in i...len)
+								{
+									if (s.toLowerCase() == path[k].toLowerCase())
+									{
+										i = k;
+										break;
+									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
+										return false;
+									}
+								}
+								break;
+							case Exact(s,false):
+								li = j; found = true;
+								for (k in i...len)
+								{
+									if (s == path[k])
+									{
+										i = k;
+										break;
+									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
+										return false;
+									}
+								}
+								break;
+							case _:
+						}
+					}
+					lastAnyRec = true;
+
+					if (!found)
+						return true; //anything goes
+				case Regex(r, true,_):
+					var acc = cur;
+					while(i < len && !r.match(acc))
+					{
+						acc += "/" + path[i++];
+					}
+
+					if (i == len) //last one;
+					{
+						//we cannot dismiss this, as it may become a valid regex in the future
+						//TODO: optimize this so we can filter cases like someName**; they should be pretty rare though
+						return true;
+					}
+			}
+		}
+
+		return true;
 	}
 
 	@:keep public function toString()
@@ -223,7 +336,7 @@ class GlobPath
 			pattern = normalizePosix(pattern);
 		}
 
-		var pat = new StringBuf();
+		var pat = new StringBuf(), noEscapePat = new StringBuf();
 		// pat.add("^"); //match from beginning
 		var i = -1, len = pattern.length, beginPath = true, onParenEnd = [], inNegate = false, openLiterals = [], curLiteral:Null<Int> = null;
 		var rawPartials = [], partials = [], hasConcrete = false, hasPattern = false, isWildcard = false, isRecursive = false;
@@ -244,20 +357,22 @@ class GlobPath
 						inNegate = false;
 					}
 					//complete current partial
-					var s = pat.toString();
+					var s = pat.toString(), ses = noEscapePat.toString();
 					pat = new StringBuf();
+					noEscapePat = new StringBuf();
 					var part = switch [hasConcrete, hasPattern, isWildcard]
 					{
 					case [true,false,false]:
 						s += pathSep;
-						Exact(s, flags.has(NoCase));
+						Exact(ses, flags.has(NoCase));
 					case [false,false,true]:
 						if (partials.length != 0 || !isRecursive)
 							s += pathSep;
 						Any(isRecursive);
 					default:
+						var ret = Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive, s);
 						s += pathSep;
-						Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive);
+						ret;
 					};
 					rawPartials.push(s);
 					partials.push(part);
@@ -434,6 +549,7 @@ class GlobPath
 					if (chr == '\\'.code)
 						pat.addChar(chr);
 					pat.addChar(chr);
+					noEscapePat.addChar(chr);
 					break;
 				}
 				i++;
@@ -444,6 +560,7 @@ class GlobPath
 						pat.addChar('\\'.code);
 					case _:
 				}
+				noEscapePat.addChar(chr);
 				pat.addChar(chr);
 			case '('.code if(ext):
 				throw GlobError(pattern,i, "Invalid '(' without !,+,@,?,*");
@@ -457,6 +574,7 @@ class GlobPath
 					case _:
 				}
 				pat.addChar(chr);
+				noEscapePat.addChar(chr);
 			}
 		}
 
@@ -476,11 +594,11 @@ class GlobPath
 		var part = switch [hasConcrete, hasPattern, isWildcard]
 		{
 		case [true,false,false]:
-			Exact(s, flags.has(NoCase));
+			Exact(noEscapePat.toString(), flags.has(NoCase));
 		case [false,false,true]:
 			Any(isRecursive);
 		default:
-			Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive);
+			Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive,s);
 		};
 		partials.push(part);
 
@@ -533,5 +651,5 @@ enum GlobPart
 {
 	Exact(s:String, caseSensitive:Bool); //matches exactly
 	Any(recursive:Bool); //* and **
-	Regex(r:EReg, recursive:Bool); //is recursive if has globstar (**)
+	Regex(r:EReg, recursive:Bool,s:String); //is recursive if has globstar (**)
 }

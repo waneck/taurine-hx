@@ -212,7 +212,7 @@ class GlobTests
 		}
 
 	// anything that is NOT a* matches.
-	, ["!a*", ["\\!a", "d", "e", "!ab", "!abc"]]
+	, ["!a*", ["\\!a", "d", "e", "!ab", "!abc"], {posix:true}]
 
 		// anything that IS !a* matches.
 		// no support for nonegate
@@ -269,7 +269,7 @@ class GlobTests
 			{
 				c();
 			} else if (Std.is(c, String)) {
-				trace(c);
+				// trace(c);
 			} else {
 				var pattern:String = c[0]
 				, expect:Array<String> = c[1]
@@ -277,7 +277,7 @@ class GlobTests
 				, f = c[3] != null ? c[3] : files
 				, tapOpts = c[4] != null ? c[4] : {};
 				expect.sort(Reflect.compare);
-				trace(pattern);
+				// trace(pattern);
 
 				var opts = [];
 				if (!Reflect.field(options, "dot"))
@@ -313,6 +313,13 @@ class GlobTests
 						newf.push(c[0]);
 					newf.sort(Reflect.compare);
 					Assert.same(expect, newf, 'For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
+
+					// trace("pattern " + untyped glob.partials);
+					var newf = f.filter(function(f) return glob.partialMatch(f) && glob.unsafeMatch(f));
+					if (newf.length == 0 && Reflect.field(options, "nonull"))
+						newf.push(c[0]);
+					newf.sort(Reflect.compare);
+					Assert.same(expect, newf, '(partial + match) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 				}
 			}
 		}
