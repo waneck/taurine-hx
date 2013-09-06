@@ -10,8 +10,9 @@ Haxe standard API extensions
 
 ## What's planned
 * URI handling 
-* BigNum
-* CSV input/output
+* BigNum / Decimal
 * Crypto and Digest implementations
 * OpenSSL
 * YAML
+* CSV input/output
+* Printf
