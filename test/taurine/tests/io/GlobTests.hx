@@ -321,11 +321,11 @@ class GlobTests
 					newf.sort(Reflect.compare);
 					Assert.same(expect, newf, '(partial + match) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 					
-					//var newf = f.filter(function(f) return glob.unsafeMatch(f).exact);
-					//if (newf.length == 0 && Reflect.field(options, "nonull"))
-						//newf.push(c[0]);
-					//newf.sort(Reflect.compare);
-					//Assert.same(expect, newf, '(match - exact) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
+					var newf = f.filter(function(f) return glob.unsafeMatch(f).exact);
+					if (newf.length == 0 && Reflect.field(options, "nonull"))
+						newf.push(c[0]);
+					newf.sort(Reflect.compare);
+					Assert.same(expect, newf, '(match - exact) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 				}
 			}
 		}

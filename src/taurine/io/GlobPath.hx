@@ -131,8 +131,9 @@ class GlobPath
 					}
 				case PAny(true):
 					var found = false;
-					if (i == 1)
-						i = 0;
+					//if (i == 1)
+						//i = 0;
+					i--;
 					for (j in li...ll)
 					{
 						switch(partials[j])
@@ -182,7 +183,16 @@ class GlobPath
 					lastAnyRec = true;
 
 					if (!found)
+					{
+						if (nodot)
+						{
+							for (k in i...len)
+								if (path[k].charCodeAt(0) == '.'.code)
+									return GlobMatch.NoMatch;
+						}
+						
 						return GlobMatch.Exact;
+					}
 				case PRegex(r, true,_):
 					var acc = cur;
 					while(i < len && !r.match(acc))
@@ -194,7 +204,7 @@ class GlobPath
 					{
 						//we cannot dismiss this, as it may become a valid regex in the future
 						//TODO: optimize this so we can filter cases like someName**; they should be pretty rare though
-						if (r.match(acc) && li == ll - 1)
+						if (r.match(acc) && li == ll)
 							return GlobMatch.Exact;
 						else
 							return GlobMatch.Partial;
@@ -202,7 +212,7 @@ class GlobPath
 			}
 		}
 
-		if (li == ll - 1)
+		if (li == ll)
 			return GlobMatch.Exact;
 		else
 			return GlobMatch.Partial;
@@ -447,9 +457,9 @@ class GlobPath
 				}
 				isWildcard = true;
 				//any character but path separator
-				pat.add("(?:");
-				pat.add(notPathSepStart);
-				pat.add("|)");
+				pat.add("(?:[");
+				pat.add(notPathSep);
+				pat.add("]*)");
 			case '?'.code:
 				hasPattern = true;
 				//lookahead for '?('
@@ -564,6 +574,7 @@ class GlobPath
 					break;
 				}
 				i++;
+				hasConcrete = true;
 				//escape all possible regex special chars
 				switch(chr = StringTools.fastCodeAt(pattern, i))
 				{
