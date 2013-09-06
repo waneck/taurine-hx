@@ -1,5 +1,5 @@
 package taurine.tests.io;
-import taurine.io.GlobPath;
+import taurine.io.Glob;
 import taurine.System;
 import utest.Assert;
 
@@ -307,7 +307,7 @@ class GlobTests
 				for (a in all)
 				{
 					var pattern = a.pat, opts = a.opt;
-					var glob = new GlobPath(pattern, opts);
+					var glob = new Glob(pattern, opts);
 					var newf = f.filter(glob.unsafeExact);
 					if (newf.length == 0 && Reflect.field(options, "nonull"))
 						newf.push(c[0]);
@@ -315,7 +315,7 @@ class GlobTests
 					Assert.same(expect, newf, 'For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 
 					// trace("pattern " + untyped glob.partials);
-					var newf = f.filter(function(f) return glob.partialMatch(f) && glob.unsafeExact(f));
+					var newf = f.filter(function(f) return glob.unsafePartial(f) && glob.unsafeExact(f));
 					if (newf.length == 0 && Reflect.field(options, "nonull"))
 						newf.push(c[0]);
 					newf.sort(Reflect.compare);

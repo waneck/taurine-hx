@@ -45,9 +45,9 @@ package taurine.io;
 	If POSIX compliance is needed, the `Posix` flag can be used.
 
 ## Security
-	It's not considered safe to use GlobPath as a sandbox for untrusted input
+	It's not considered safe to use Glob as a sandbox for untrusted input
 **/
-class GlobPath
+class Glob
 {
 	public var flags(default, null):haxe.EnumFlags<GlobFlags>;
 	public var pattern(default, null):String;
@@ -55,7 +55,7 @@ class GlobPath
 	private var partials:Array<GlobPart>;
 
 	/**
-		Creates a new GlobPath object and compiles the pattern. May throw a GlobError object
+		Creates a new Glob object and compiles the pattern. May throw a GlobError object
 	**/
 	public function new(pattern:String, ?flags:Array<GlobFlags>)
 	{
@@ -74,7 +74,7 @@ class GlobPath
 	**/
 	public inline function exact(path:String):Bool
 	{
-		return regex.match(path);
+		return regex.match(Path.normalize(path));
 	}
 
 	/**
@@ -85,16 +85,40 @@ class GlobPath
 	{
 		return regex.match(normalizedPath);
 	}
+	
+	/**
+		Tells whether the `path` parameter can be a valid subpath of this pattern.
+		May be used to eagerly rule out unmatched directories from search
+	**/
+	public inline function partial(path:String):Bool
+	{
+		return unsafePartial(Path.normalize(path));
+	}
 
 	/**
 		Tells whether the normalized `path` parameter can be a valid subpath of this pattern.
-		May be used to eagerly rule out unmatched directories from search
+		May be used to eagerly rule out unmatched directories from search.
+		The `path` parameter is expected to be already in a normalized form
 	**/
-	public inline function partialMatch(normalizedPath:String):Bool
+	public inline function unsafePartial(normalizedPath:String):Bool
 	{
 		return unsafeMatch(normalizedPath).matches;
 	}
 	
+	/**
+		Tells if either the normalized `path` matches - either partially or exactly, the specified pattern.
+		A `GlobMatch` object is returned, so it can be later checked if there was a match, and if it was partial or exact.
+	 */
+	public inline function match(path:String):GlobMatch
+	{
+		return unsafeMatch(Path.normalize(path));
+	}
+	
+	/**
+		Tells if either the normalized `path` matches - either partially or exactly, the specified pattern.
+		A `GlobMatch` object is returned, so it can be later checked if there was a match, and if it was partial or exact.
+		The `path` parameter is expected to be already in a normalized form
+	 */
 	public function unsafeMatch(normalizedPath:String):GlobMatch
 	{
 		var nodot = flags.has(NoDot);
