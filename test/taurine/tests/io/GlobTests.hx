@@ -308,18 +308,24 @@ class GlobTests
 				{
 					var pattern = a.pat, opts = a.opt;
 					var glob = new GlobPath(pattern, opts);
-					var newf = f.filter(glob.unsafeMatch);
+					var newf = f.filter(glob.unsafeExact);
 					if (newf.length == 0 && Reflect.field(options, "nonull"))
 						newf.push(c[0]);
 					newf.sort(Reflect.compare);
 					Assert.same(expect, newf, 'For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 
 					// trace("pattern " + untyped glob.partials);
-					var newf = f.filter(function(f) return glob.partialMatch(f) && glob.unsafeMatch(f));
+					var newf = f.filter(function(f) return glob.partialMatch(f) && glob.unsafeExact(f));
 					if (newf.length == 0 && Reflect.field(options, "nonull"))
 						newf.push(c[0]);
 					newf.sort(Reflect.compare);
 					Assert.same(expect, newf, '(partial + match) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
+					
+					//var newf = f.filter(function(f) return glob.unsafeMatch(f).exact);
+					//if (newf.length == 0 && Reflect.field(options, "nonull"))
+						//newf.push(c[0]);
+					//newf.sort(Reflect.compare);
+					//Assert.same(expect, newf, '(match - exact) For pattern $pattern, with $opts ($options) :\n Expected\n\t$expect,\n got\n\t$newf\n for\n\t $f');
 				}
 			}
 		}

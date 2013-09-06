@@ -72,7 +72,7 @@ class GlobPath
 	/**
 		Tells whether the `path` parameter matches a valid Glob path
 	**/
-	public inline function match(path:String):Bool
+	public inline function exact(path:String):Bool
 	{
 		return regex.match(path);
 	}
@@ -81,7 +81,7 @@ class GlobPath
 		Tells whether the `path` parameter matches a valid Glob path.
 		The `path` parameter is expected to be already in a normalized form
 	**/
-	public inline function unsafeMatch(normalizedPath:String):Bool
+	public inline function unsafeExact(normalizedPath:String):Bool
 	{
 		return regex.match(normalizedPath);
 	}
@@ -90,7 +90,12 @@ class GlobPath
 		Tells whether the normalized `path` parameter can be a valid subpath of this pattern.
 		May be used to eagerly rule out unmatched directories from search
 	**/
-	public function partialMatch(normalizedPath:String):Bool
+	public inline function partialMatch(normalizedPath:String):Bool
+	{
+		return unsafeMatch(normalizedPath).matches;
+	}
+	
+	public function unsafeMatch(normalizedPath:String):GlobMatch
 	{
 		var nodot = flags.has(NoDot);
 		var path = flags.has(Posix) ? normalizedPath.split("/") : ~/[\\\/]/g.split(normalizedPath);
@@ -99,32 +104,32 @@ class GlobPath
 		{
 			var cur = path[i++];
 			if (li >= ll) //we have reached the last path delimiter; this is not a valid match
-				if (i == len && cur == "")
-					return true;
+				if (i == len && cur == "") 
+					return GlobMatch.Exact;
 				else
-					return false;
+					return GlobMatch.NoMatch;
 
 			var willReturn = false, retval = false;
 			switch(partials[li++])
 			{
-				case Exact(s,false):
+				case PExact(s,false):
 					if (cur != s)
 					{
-						return false;
+						return GlobMatch.NoMatch;
 					}
-				case Exact(s,true):
+				case PExact(s,true):
 					if (cur.toLowerCase() != s.toLowerCase())
-						return false;
-				case Any(false):
+						return GlobMatch.NoMatch;
+				case PAny(false):
 					if (nodot && cur.charCodeAt(0) == '.'.code)
-						return false;
+						return GlobMatch.NoMatch;
 					//always matches
-				case Regex(r, false,s):
+				case PRegex(r, false,s):
 					if (!r.match(cur))
 					{
-						return false;
+						return GlobMatch.NoMatch;
 					}
-				case Any(true):
+				case PAny(true):
 					var found = false;
 					if (i == 1)
 						i = 0;
@@ -132,7 +137,7 @@ class GlobPath
 					{
 						switch(partials[j])
 						{
-							case Regex(r,_,_):
+							case PRegex(r,_,_):
 								li = j; found = true;
 								for (k in i...len)
 								{
@@ -141,11 +146,11 @@ class GlobPath
 										i = k;
 										break;
 									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
-										return false;
+										return GlobMatch.NoMatch;
 									}
 								}
 								break;
-							case Exact(s,true):
+							case PExact(s,true):
 								li = j; found = true;
 								for (k in i...len)
 								{
@@ -154,11 +159,11 @@ class GlobPath
 										i = k;
 										break;
 									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
-										return false;
+										return GlobMatch.NoMatch;
 									}
 								}
 								break;
-							case Exact(s,false):
+							case PExact(s,false):
 								li = j; found = true;
 								for (k in i...len)
 								{
@@ -167,7 +172,7 @@ class GlobPath
 										i = k;
 										break;
 									} else if (nodot && path[k].charCodeAt(0) == '.'.code) {
-										return false;
+										return GlobMatch.NoMatch;
 									}
 								}
 								break;
@@ -177,8 +182,8 @@ class GlobPath
 					lastAnyRec = true;
 
 					if (!found)
-						return true; //anything goes
-				case Regex(r, true,_):
+						return GlobMatch.Exact;
+				case PRegex(r, true,_):
 					var acc = cur;
 					while(i < len && !r.match(acc))
 					{
@@ -189,12 +194,18 @@ class GlobPath
 					{
 						//we cannot dismiss this, as it may become a valid regex in the future
 						//TODO: optimize this so we can filter cases like someName**; they should be pretty rare though
-						return true;
+						if (r.match(acc) && li == ll - 1)
+							return GlobMatch.Exact;
+						else
+							return GlobMatch.Partial;
 					}
 			}
 		}
 
-		return true;
+		if (li == ll - 1)
+			return GlobMatch.Exact;
+		else
+			return GlobMatch.Partial;
 	}
 
 	@:keep public function toString()
@@ -364,13 +375,13 @@ class GlobPath
 					{
 					case [true,false,false]:
 						s += pathSep;
-						Exact(ses, flags.has(NoCase));
+						PExact(ses, flags.has(NoCase));
 					case [false,false,true]:
 						if (partials.length != 0 || !isRecursive)
 							s += pathSep;
-						Any(isRecursive);
+						PAny(isRecursive);
 					default:
-						var ret = Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive, s);
+						var ret = PRegex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive, s);
 						s += pathSep;
 						ret;
 					};
@@ -594,11 +605,11 @@ class GlobPath
 		var part = switch [hasConcrete, hasPattern, isWildcard]
 		{
 		case [true,false,false]:
-			Exact(noEscapePat.toString(), flags.has(NoCase));
+			PExact(noEscapePat.toString(), flags.has(NoCase));
 		case [false,false,true]:
-			Any(isRecursive);
+			PAny(isRecursive);
 		default:
-			Regex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive,s);
+			PRegex(new EReg("^" + s + "$", flags.has(NoCase) ? "i" : ""), isRecursive,s);
 		};
 		partials.push(part);
 
@@ -611,6 +622,9 @@ class GlobPath
 
 }
 
+/**
+	Glob options. Note that some of them may change how the pattern is parsed.
+**/
 enum GlobFlags
 {
 	/**
@@ -631,6 +645,41 @@ enum GlobFlags
 	Posix;
 }
 
+/**
+	In order to avoid matching a string two times - one for partial and one for exact,
+	GlobMatch can be used to return more than one enum flag
+ */
+abstract GlobMatch(Int)
+{
+	public static var NoMatch = new GlobMatch(0);
+	public static var Partial = new GlobMatch(1);
+	public static var Exact = new GlobMatch(2);
+
+	/**
+		Is true if a match is exact
+	 */
+	public var exact(get, never):Bool;
+	/**
+		Is true if a match is either partial or exact
+	 */
+	public var matches(get, never):Bool;
+	
+	private inline function get_exact():Bool
+	{
+		return this == 2;
+	}
+	
+	private inline function get_matches():Bool
+	{
+		return this != 0;
+	}
+	
+	private inline function new(v:Int)
+	{
+		this = v;
+	}
+}
+
 enum GlobError
 {
 	/**
@@ -649,7 +698,7 @@ enum GlobError
 
 enum GlobPart
 {
-	Exact(s:String, caseSensitive:Bool); //matches exactly
-	Any(recursive:Bool); //* and **
-	Regex(r:EReg, recursive:Bool,s:String); //is recursive if has globstar (**)
+	PExact(s:String, caseSensitive:Bool); //matches exactly
+	PAny(recursive:Bool); //* and **
+	PRegex(r:EReg, recursive:Bool,s:String); //is recursive if has globstar (**)
 }
