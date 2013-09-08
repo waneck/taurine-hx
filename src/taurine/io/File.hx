@@ -27,6 +27,7 @@ abstract File(FileData) from FileData
 
 class FileData
 {
+	public var length(get,never):Int;
 	public var originalPath(default, null):String;
 	public var absolute(default, null):Bool;
 	public var exists(get, never):Bool;
@@ -35,10 +36,15 @@ class FileData
 	/**
 	 * Creates a new File reference. The file may exist or not.
 	 */
-	public function new(path:String)
+	public function new(?root:FileData, path:String)
 	{
 		this.originalPath = path;
 		this.absolute = Path.isAbsolute(path);
+	}
+
+	public static function root(path:String):FileData
+	{
+		return new FileData(path);
 	}
 
 	/**
@@ -48,6 +54,73 @@ class FileData
 	public function sync():FileData
 	{
 		return this;
+	}
+
+	//async
+	public function children(?selector:String):FileData
+	{
+	}
+
+	public function parent(?selector:String):FileData
+	{
+	}
+
+
+	public function ensure(atLeast=1, ?atMost:Int):FileData
+	{
+	}
+
+	public function single()
+	{
+	}
+
+	public function next(?selector:String):FileData
+	{
+	}
+
+	public function nextAll(?selector:String):FileData
+	{
+	}
+
+	public function nextUntil(selector:String):FileData
+	{
+	}
+
+	public function prev(?selector:String):FileData
+	{
+	}
+
+	public function prevAll(?selector:String):FileData
+	{
+	}
+
+	public function prevUntil(selector:String):FileData
+	{
+	}
+
+	public function siblings(?selector:String):FileData
+	{
+	}
+
+	public function find(selector:String):FileData
+	{
+	}
+
+	public function size():Int
+	{
+	}
+
+	public function each(fn:FileData->Void):FileData
+	{
+	}
+
+	public function filter(fn:FileData->Bool):FileData
+	{
+	}
+
+
+	public function is(selector:String):Bool
+	{
 	}
 
 	private function get_exists():Bool

@@ -9,10 +9,9 @@ Haxe standard API extensions
 * Intuitive File / FileSystem manipulation with File abstract
 
 ## What's planned
-* URI handling 
+* Standard URI library 
 * BigNum / Decimal
-* Crypto and Digest implementations
-* OpenSSL
-* YAML
-* CSV input/output
+* Crypto and Digest implementations - http://code.google.com/p/crypto-js/
+* TLS/SSL
+* Async I/O
 * Printf
