@@ -7,9 +7,9 @@ Haxe standard API extensions
 * Pure Haxe Path library
 * Pure Haxe Path Globbing library
 * Intuitive File / FileSystem manipulation with File abstract
+* Standard URI library - thanks @skial !
 
 ## What's planned
-* Standard URI library 
 * BigNum / Decimal
 * Crypto and Digest implementations - http://code.google.com/p/crypto-js/
 * TLS/SSL
