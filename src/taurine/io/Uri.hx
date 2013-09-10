@@ -4,6 +4,7 @@ import haxe.ds.StringMap;
 
 using Lambda;
 using StringTools;
+using taurine.io.QueryString;
 
 /**
  * ...
@@ -75,7 +76,7 @@ class Uri {
 		
 		var queryPos = u.lastIndexOf('?');
 		if (queryPos > -1) {
-			query = QueryString.parse( u.substr( queryPos + 1 ) );
+			query = u.substr( queryPos + 1 ).parse();
 			u = u.substr( 0 , queryPos );
 		}
 		
@@ -118,26 +119,7 @@ class Uri {
 				result += '/';
 			}
 			
-			var queries = '';
-			
-			var i = 0;
-			
-			for (k in query.keys()) {
-				
-				for (q in query.get(k)) {
-					
-					if (q != null && q.length > 0) {
-						if (i != 0) queries += '&';
-						queries += k;
-						queries += '=' + q;
-					}
-					
-					i++;
-				}
-				
-				i++;
-			}
-			
+			var queries = query.stringify();
 			if (queries != '') {
 				result += '?$queries';
 			}

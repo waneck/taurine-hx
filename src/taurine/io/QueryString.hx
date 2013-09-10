@@ -31,4 +31,27 @@ class QueryString {
 		return result;
 	}
 	
+	public static function stringify(map:StringMap<Array<String>>):String {
+		var result = '';
+		var i = 0;
+		
+		for (k in map.keys()) {
+			
+			for (q in map.get(k)) {
+				
+				if (q != null && q.length > 0) {
+					if (i != 0) result += '&';
+					result += k;
+					result += '=' + q;
+				}
+				
+				i++;
+			}
+			
+			i++;
+		}
+		
+		return result;
+	}
+	
 }
