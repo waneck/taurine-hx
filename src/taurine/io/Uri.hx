@@ -164,7 +164,7 @@ class Uri {
 	}
 	
 	private function set_scheme(v:String):String {
-		scheme = v.replace(':', '');
+		scheme = v.replace(':', '').replace('/', '');
 		return scheme;
 	}
 	
