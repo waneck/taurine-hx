@@ -1,6 +1,7 @@
 package taurine.tests;
 import taurine.tests.io.PathTests;
 import taurine.tests.io.GlobTests;
+import taurine.tests.io.UriTests;
 import utest.Runner;
 import utest.ui.Report;
 
@@ -17,6 +18,7 @@ class Test
 
 		runner.addCase(new PathTests());
 		runner.addCase(new GlobTests());
+		runner.addCase(new UriTests());
 
 		var report = Report.create(runner);
 		runner.run();
