@@ -6,8 +6,10 @@ Haxe standard API extensions
 ## What's in here
 * Pure Haxe Path library
 * Pure Haxe Path Globbing library
-* Intuitive File / FileSystem manipulation with File abstract
 * Standard URI library - thanks @skial !
+
+## What's being developed
+* Intuitive File / FileSystem manipulation with File abstract
 
 ## What's planned
 * BigNum / Decimal
