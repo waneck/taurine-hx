@@ -16,3 +16,5 @@
 -cpp bin/cpp
 --next
 -php bin/php
+--next
+-js bin/js.js

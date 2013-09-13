@@ -12,7 +12,7 @@ class PathTests
 	private var f:String;
 	public function new()
 	{
-		f = Sys.getCwd() + "test.n";
+		f = #if sys Sys.getCwd() #else "/some/path/to/bin/" #end + "test.n";
 	}
 
 	public function testNames()
@@ -307,7 +307,9 @@ class PathTests
 			   [['c:/ignore', 'd:\\a/b\\c/d', '\\e.exe'], 'd:\\e.exe'],
 			   [['c:/ignore', 'c:/some/file'], 'c:\\some\\file'],
 			   [['d:/ignore', 'd:some/dir//'], 'd:\\ignore\\some\\dir'],
+#if sys
 			   [['.'], System.cwd().substr(0,-1)],
+#end
 			   [['//server/share', '..', 'relative\\'], '\\\\server\\share\\relative'],
 			   [['c:/', '//'], 'c:\\'],
 			   [['c:/', '//dir'], 'c:\\dir'],
@@ -321,8 +323,10 @@ class PathTests
 			  // arguments                                    result
 			  [[['/var/lib', '../', 'file/'], '/var/file'],
 			   [['/var/lib', '/../', 'file/'], '/file'],
+#if sys
 			   [['a/b/c/', '../../..'], System.cwd().substr(0,-1)],
 			   [['.'], System.cwd().substr(0,-1)],
+#end
 			   [['/some/dir', '.', '/absolute/'], '/absolute']];
 		}
 		for (test in resolveTests)

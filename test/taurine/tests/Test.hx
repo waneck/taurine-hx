@@ -21,7 +21,8 @@ class Test
 		runner.addCase(new UriTests());
 		runner.addCase(new taurine.tests.UInt8Tests());
 
-		var report = Report.create(runner);
+		// var report = Report.create(runner);
+		var report = new utest.ui.text.PrintReport(runner);
 		runner.run();
 
 #if sys
