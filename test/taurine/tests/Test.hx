@@ -19,6 +19,7 @@ class Test
 		runner.addCase(new PathTests());
 		runner.addCase(new GlobTests());
 		runner.addCase(new UriTests());
+		runner.addCase(new taurine.tests.UInt8Tests());
 
 		var report = Report.create(runner);
 		runner.run();

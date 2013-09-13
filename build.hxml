@@ -9,6 +9,5 @@
 -cp test
 -main taurine.tests.Test
 -debug
---cwd bin
 --interp
 -lib utest

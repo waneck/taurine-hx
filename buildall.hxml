@@ -1,0 +1,18 @@
+-cp src
+-cp test
+-main taurine.tests.Test
+-debug
+-lib utest
+--each
+--next
+-neko bin/test.n
+--next
+--interp
+--next
+-java bin/java
+--next
+-cs bin/cs
+--next
+-cpp bin/cpp
+--next
+-php bin/php

@@ -85,7 +85,7 @@ class Glob
 	{
 		return regex.match(normalizedPath);
 	}
-	
+
 	/**
 		Tells whether the `path` parameter can be a valid subpath of this pattern.
 		May be used to eagerly rule out unmatched directories from search
@@ -104,7 +104,7 @@ class Glob
 	{
 		return unsafeMatch(normalizedPath).matches;
 	}
-	
+
 	/**
 		Tells if either the normalized `path` matches - either partially or exactly, the specified pattern.
 		A `GlobMatch` object is returned, so it can be later checked if there was a match, and if it was partial or exact.
@@ -113,7 +113,7 @@ class Glob
 	{
 		return unsafeMatch(Path.normalize(path));
 	}
-	
+
 	/**
 		Tells if either the normalized `path` matches - either partially or exactly, the specified pattern.
 		A `GlobMatch` object is returned, so it can be later checked if there was a match, and if it was partial or exact.
@@ -128,7 +128,7 @@ class Glob
 		{
 			var cur = path[i++];
 			if (li >= ll) //we have reached the last path delimiter; this is not a valid match
-				if (i == len && cur == "") 
+				if (i == len && cur == "")
 					return GlobMatch.Exact;
 				else
 					return GlobMatch.NoMatch;
@@ -214,7 +214,7 @@ class Glob
 								if (path[k].charCodeAt(0) == '.'.code)
 									return GlobMatch.NoMatch;
 						}
-						
+
 						return GlobMatch.Exact;
 					}
 				case PRegex(r, true,_):
@@ -532,7 +532,7 @@ class Glob
 
 			case ']'.code:
 				if (curLiteral != '['.code)
-					throw GlobError(pattern, i, 'Unmatched ]');
+					throw GError(pattern, i, 'Unmatched ]');
 				openLiterals.pop();
 				curLiteral = openLiterals[openLiterals.length-1];
 				pat.addChar(chr);
@@ -554,7 +554,7 @@ class Glob
 				}
 
 				if (!wasBeginPath || openLiterals.length != 0 || inNegate)
-					throw InvalidExclamationPat(pattern, i);
+					throw GInvalidExclamationPat(pattern, i);
 				pat.add("(?!");
 				inNegate = true;
 
@@ -569,13 +569,13 @@ class Glob
 
 			case '|'.code if(ext):
 				if (curLiteral != '('.code)
-					throw GlobError(pattern, i, "Unexpected |");
+					throw GError(pattern, i, "Unexpected |");
 				pat.addChar(chr);
 				beginPath = beginPathStack[beginPathStack.length-1];
 
 			case ')'.code if(ext):
 				if (curLiteral != '('.code)
-					throw GlobError(pattern, i, "Unmatched )");
+					throw GError(pattern, i, "Unmatched )");
 				var p = onParenEnd.pop();
 				if (p == null) throw "assert";
 				pat.add(p);
@@ -588,7 +588,7 @@ class Glob
 				if (i + 1 >= len)
 				{
 					if (!posix)
-						throw GlobError(pattern,i, "Invalid escape char");
+						throw GError(pattern,i, "Invalid escape char");
 					hasConcrete = true;
 					//edit: it seems that glob considers this acceptable
 					if (chr == '\\'.code)
@@ -609,7 +609,7 @@ class Glob
 				noEscapePat.addChar(chr);
 				pat.addChar(chr);
 			case '('.code if(ext):
-				throw GlobError(pattern,i, "Invalid '(' without !,+,@,?,*");
+				throw GError(pattern,i, "Invalid '(' without !,+,@,?,*");
 			case _:
 				hasConcrete = true;
 				//escape all possible regex special chars
@@ -631,7 +631,7 @@ class Glob
 
 		if (openLiterals.length != 0)
 		{
-			throw GlobError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
+			throw GError(pattern, pattern.length, 'Unterminated literals: ${openLiterals.map(String.fromCharCode).join(",")}');
 		}
 		// pat.add("$"); //only exact match
 
@@ -698,17 +698,17 @@ abstract GlobMatch(Int)
 		Is true if a match is either partial or exact
 	 */
 	public var matches(get, never):Bool;
-	
+
 	private inline function get_exact():Bool
 	{
 		return this == 2;
 	}
-	
+
 	private inline function get_matches():Bool
 	{
 		return this != 0;
 	}
-	
+
 	private inline function new(v:Int)
 	{
 		this = v;
@@ -720,15 +720,15 @@ enum GlobError
 	/**
 		General glob error. A message is included to better describe the issue
 	**/
-	GlobError(pattern:String, charPos:Int, msg:String);
+	GError(pattern:String, charPos:Int, msg:String);
 	/**
 		General parsing error
 	**/
-	InvalidPat(pattern:String, charPos:Int);
+	GInvalidPat(pattern:String, charPos:Int);
 	/**
 		Thrown when the NoExt flag is not set, and an invalid `!` is encountered during parsing
 	**/
-	InvalidExclamationPat(pattern:String, charPos:Int);
+	GInvalidExclamationPat(pattern:String, charPos:Int);
 }
 
 enum GlobPart
