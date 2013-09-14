@@ -2,7 +2,7 @@
 -cp test
 -main taurine.tests.Test
 -debug
--neko bin/test.n
+-js bin/js.js
 -lib utest
 --next
 -cp src
