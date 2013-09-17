@@ -38,14 +38,16 @@ abstract Mat2(Vector<Single>)
 	**/
 	public inline function new()
 	{
-		this = new Vector(4);
+		this = VectorTools.create(4);
 		this[0] = this[3] = 1;
+#if !static
 		this[1] = this[2] = 0;
+#end
 	}
 
-	private inline function mkmat():Mat2
+	public static inline function mk():Mat2
 	{
-		return cast new Vector(4);
+		return untyped (VectorTools.create(4) : Vector<Single>);
 	}
 
 	/**
