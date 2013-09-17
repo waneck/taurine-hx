@@ -2,7 +2,8 @@
 -cp test
 -main taurine.tests.Test
 -debug
--js bin/js.js
+#-js bin/js.js
+-cpp bin/cpp
 -lib utest
 --next
 -cp src

@@ -46,6 +46,8 @@ abstract Vec2(Vector<Single>)
 		return untyped (VectorTools.create(2) : Vector<Single>);
 	}
 
+	private inline function t():Vec2 return untyped this; //get `this` as the abstract type
+
 	/**
 		Creates a new Vec2 initialized with values from `this` vector
 	**/
@@ -77,6 +79,122 @@ abstract Vec2(Vector<Single>)
 		return untyped this;
 	}
 
+	/**
+		Adds two Vec2's.
+		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+	**/
+	public function add(b:Vec2, ?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		out[0] = t()[0] + b[0];
+		out[1] = t()[1] + b[1];
 
+		return out;
+	}
+
+	@:op(A+B) public static inline function opAdd(a:Vec2, b:Vec2):Vec2
+	{
+		return a.add(b, mk());
+	}
+
+	/**
+		Subtracts vector `b` from `this`.
+		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+	**/
+	public function sub(b:Vec2, ?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		out[0] = t()[0] - b[0];
+		out[1] = t()[1] - b[1];
+		return out;
+	}
+
+	@:op(A-B) public static inline function opSub(a:Vec2, b:Vec2):Vec2
+	{
+		return a.sub(b, mk());
+	}
+
+	/**
+		Multiplies two Vec2's.
+		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+	**/
+	public function mul(b:Vec2, ?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		out[0] = t()[0] * b[0];
+		out[1] = t()[1] * b[1];
+		return out;
+	}
+
+	@:op(A*B) public static inline function opMul(a:Vec2, b:Vec2):Vec2
+	{
+		return a.mul(b, mk());
+	}
+
+	/**
+		Divides two Vec2's
+		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+	**/
+	public function div(b:Vec2, ?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		out[0] = t()[0] / b[0];
+		out[1] = t()[1] / b[1];
+		return out;
+	}
+
+	@:op(A/B) inline public static function opDiv(a:Vec2, b:Vec2):Vec2
+	{
+		return a.div(b, mk());
+	}
+
+	/**
+		Returns the minimum of two Vec2's.
+		The `out` parameter is required and cannot be null.
+	 **/
+	public function min(b:Vec2, out:Vec2):Vec2
+	{
+		var a0 = t()[0], b0 = b[0], a1 = t()[1], b1 = b[1];
+		out[0] = a0 < b0 ? a0 : b0;
+		out[1] = a1 < b1 ? a1 : b1;
+		return out;
+	}
+
+	/**
+		Returns the maximum of two Vec2's.
+		The `out` parameter is required and cannot be null.
+	 **/
+	public function max(b:Vec2, out:Vec2):Vec2
+	{
+		var a0 = t()[0], b0 = b[0], a1 = t()[1], b1 = b[1];
+		out[0] = a0 > b0 ? a0 : b0;
+		out[1] = a1 > b1 ? a1 : b1;
+		return out;
+	}
+
+	/**
+		Scales a Vec2 by a scalar number
+		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+	**/
+	public function scale(b:Float, ?out:Vec2):Vec2
+	{
+		if (out != null) out = t();
+		out[0] = t()[0] * b;
+		out[1] = t()[1] * b;
+		return out;
+	}
+
+	@:op(A*B) inline public static function opScale(a:Vec2, b:Float):Vec2
+	{
+		return a.scale(b, mk());
+	}
+
+	//scaleAndAdd not added
+
+	public function dist(to:Vec2):Float
+	{
+		var x = t()[0] - to[0], y = t()[1] - to[1];
+		return Math.sqrt(x*x + y*y);
+	}
 
 }

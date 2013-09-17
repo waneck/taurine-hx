@@ -50,6 +50,8 @@ abstract Mat2(Vector<Single>)
 		return untyped (VectorTools.create(4) : Vector<Single>);
 	}
 
+	private inline function t():Mat2 return untyped this; //get `this` as the abstract type
+
 	/**
 		Copy the value from one mat2 to another. If no matrix is entered, a new matrix is returned
 	**/

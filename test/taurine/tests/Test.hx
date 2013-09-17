@@ -14,6 +14,7 @@ class Test
 
 	static function main()
 	{
+		var v = new taurine.math.Vec2();
 		var runner = new Runner();
 
 		runner.addCase(new PathTests());
