@@ -8,20 +8,17 @@ import haxe.macro.Expr;
 **/
 class MacroMath
 {
-	public static inline var NaN = #if cpp Math.NaN #else 0 / 0 #end;
-	public static inline var POSITIVE_INFINITY = #if cpp Math.POSITIVE_INFINITY #else 1. / 0 #end;
-	public static inline var NEGATIVE_INFINITY = #if cpp Math.NEGATIVE_INFINITY #else -1. / 0 #end;
 
 	macro public static function reduce(e:haxe.macro.Expr):haxe.macro.Expr
 	{
 		var ret = eval(e);
 		if (Math.isNaN(ret))
-			return macro taurine.math.MacroMath.NaN; //let it inline if possible
+			return macro taurine.math.FastMath.NaN; //let it inline if possible
 		else if (!Math.isFinite(ret))
 			if (ret > 0)
-				return macro Math.POSITIVE_INFINITY;
+				return macro taurine.math.FastMath.POSITIVE_INFINITY;
 			else
-				return macro Math.NEGATIVE_INFINITY;
+				return macro taurine.math.FastMath.NEGATIVE_INFINITY;
 		else
 			return { expr: EConst(CFloat(ret + "")), pos: e.pos };
 	}

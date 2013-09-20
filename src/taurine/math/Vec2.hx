@@ -27,7 +27,7 @@ import taurine.Single;
 using taurine.ds.VectorTools;
 
 /**
-	2 x 2 Matrix
+	(x,y) vector
 **/
 @:arrayAccess
 abstract Vec2(Vector<Single>)
@@ -76,7 +76,7 @@ abstract Vec2(Vector<Single>)
 	{
 		this[0] = x;
 		this[1] = y;
-		return untyped this;
+		return t();
 	}
 
 	/**
@@ -196,5 +196,85 @@ abstract Vec2(Vector<Single>)
 		var x = t()[0] - to[0], y = t()[1] - to[1];
 		return Math.sqrt(x*x + y*y);
 	}
+
+	public function sqrDist(to:Vec2):Float
+	{
+		var x = to[0] - t()[0], y = to[1] - t()[1];
+		return x * x + y * y;
+	}
+
+	public function length():Float
+	{
+		var x = t()[0], y = t()[1];
+		return Math.sqrt(x*x + y*y);
+	}
+
+	/**
+		Negates the components of a Vec2
+	**/
+	public function negate(?out:Vec2):Vec2
+	{
+		if(out == null) out = t();
+		out[0] = -t()[0];
+		out[1] = -t()[1];
+		return out;
+	}
+
+	@:op(-A) inline public static function opNeg(a:Vec2):Vec2
+	{
+		return negate(mk());
+	}
+
+	/**
+		Normalize a Vec2
+	**/
+	public function normalize(?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		var x = t()[0], y = t()[1];
+		var len = x*x + y*y;
+		if (len > 0)
+		{
+			len = FastMath.invsqrt(len);
+			out[0] = t()[0] * len;
+			out[1] = t()[1] * len;
+		}
+		return out;
+	}
+
+	/**
+		Dot product of two vectors
+	**/
+	public function dot(to:Vec2):Float
+	{
+		return t()[0] * to[0] + t()[1] * b[1];
+	}
+
+	/**
+		Computes the cross product of two Vec2's
+		If `out` is not specified, a new Vec3 will be created
+	**/
+	public function cross(to:Vec2, ?out:Vec3):Vec2
+	{
+		if (out == null) out = Vec3.mk();
+		var z = t()[0] * to[1] - t()[1] * to[0];
+		out[0] = out[1] = 0;
+		out[2] = z;
+		return out;
+	}
+
+	/**
+		Performs a linear interpolation between two Vec2's
+		If `out` is not specified, `this` vector will be changed in place
+	**/
+	public function lerp(to:Vec2, t:Float, ?out:Vec2):Vec2
+	{
+		if (out == null) out = t();
+		var ax = t()[0], ay = t()[1];
+		out[0] = ax + t * (to[0] - ax);
+		out[1] = ay + t * (to[1] - ay);
+		return out;
+	}
+
 
 }
