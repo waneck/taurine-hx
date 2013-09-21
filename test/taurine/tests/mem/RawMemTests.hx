@@ -15,7 +15,7 @@ class RawMemTests
 		message = '($message) Expected $expected. Got $actual';
 		if (Math.isNaN(expected))
 		{
-			Assert.isTrue(Math.isNaN(expected) && Math.isFinite(expected) == Math.isFinite(actual) && (actual > 0) == (expected > 0), message, pos);
+			Assert.isTrue(Math.isNaN(actual) && Math.isFinite(expected) == Math.isFinite(actual) && (actual > 0) == (expected > 0), message, pos);
 		} else {
 			Assert.floatEquals(expected, actual, message, pos);
 		}

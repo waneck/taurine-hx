@@ -62,7 +62,7 @@ abstract RawMem(RawMemData)
 #elseif java
 		return untyped java.nio.ByteBuffer.allocateDirect(byteLength).order(java.nio.ByteOrder.nativeOrder());
 #elseif cs
-		return untyped taurine.mem._internal.cs.RawMemData.alloc(byteLength);
+		return untyped new taurine.mem._internal.cs.RawMemData(byteLength);
 #else
 		return untyped haxe.io.Bytes.alloc(byteLength).getData();
 #end
