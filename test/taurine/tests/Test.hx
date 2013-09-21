@@ -14,13 +14,14 @@ class Test
 
 	static function main()
 	{
-		var v = new taurine.math.Vec2();
+		// var v = new taurine.math.Vec2();
 		var runner = new Runner();
 
 		runner.addCase(new PathTests());
 		runner.addCase(new GlobTests());
 		runner.addCase(new UriTests());
 		runner.addCase(new taurine.tests.UInt8Tests());
+		runner.addCase(new taurine.tests.mem.RawMemTests());
 
 		// var report = Report.create(runner);
 		var report = new utest.ui.text.PrintReport(runner);

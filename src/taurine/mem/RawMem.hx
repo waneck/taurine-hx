@@ -26,23 +26,45 @@ typedef RawMemData =
 abstract RawMem(RawMemData)
 {
 	/**
+		The total length - in bytes - of the raw memory
+	**/
+	public var byteLength(get,never):Int;
+
+	private inline function get_byteLength():Int
+	{
+#if js
+		return this.byteLength;
+#elseif neko
+		return untyped $ssize(this);
+#elseif php
+		return untyped __call__("strlen", this);
+#elseif cs
+		return this.data.Length;
+#elseif java
+		return this.capacity();
+#else
+		return this.length;
+#end
+	}
+
+	/**
 		Allocates a new RawMem object with the target `byteLength` size.
 		This should be considered an expensive operation.
 	**/
 	public static inline function alloc(byteLength:Int):RawMem
 	{
 #if (js && TAURINE_JS_BACKWARDS)
-		return taurine.mem._internal.js.RawMemCompat.alloc(byteLength);
+		return untyped taurine.mem._internal.js.RawMemCompat.alloc(byteLength);
 #elseif js
-		return new js.html.DataView(new js.html.ArrayBuffer(byteLength));
+		return untyped new js.html.DataView(new js.html.ArrayBuffer(byteLength));
 #elseif (neko || cpp || php || flash9)
-		return haxe.io.Bytes.alloc(byteLength).getData();
+		return untyped haxe.io.Bytes.alloc(byteLength).getData();
 #elseif java
-		return java.nio.ByteBuffer.allocateDirect(byteLength).order(java.nio.ByteOrder.nativeOrder());
+		return untyped java.nio.ByteBuffer.allocateDirect(byteLength).order(java.nio.ByteOrder.nativeOrder());
 #elseif cs
-		return taurine.mem._internal.cs.RawMemData.alloc(byteLength);
+		return untyped taurine.mem._internal.cs.RawMemData.alloc(byteLength);
 #else
-		return haxe.io.Bytes.alloc(byteLength).getData();
+		return untyped haxe.io.Bytes.alloc(byteLength).getData();
 #end
 	}
 
@@ -63,7 +85,7 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		return this[offset];
 #elseif java
-		return this.get(offset) & 0xFF;
+		return (cast this.get(offset)) & 0xFF;
 #elseif cs
 		return this.getUInt8(offset);
 #else
@@ -107,9 +129,7 @@ abstract RawMem(RawMemData)
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_ui16(this, offset);
 #elseif java
-		return this.getShort(offset) & 0xFFFF;
-#elseif cs
-		return this.getUInt16(offset);
+		return (cast this.getShort(offset)) & 0xFFFF;
 #else
 		return getUInt8(offset) | (getUInt8(offset + 1) << 8);
 #end
@@ -127,8 +147,6 @@ abstract RawMem(RawMemData)
 		untyped __global__.__hxcpp_memory_set_i16(this, offset, val);
 #elseif java
 		this.putShort(offset, cast val);
-#elseif cs
-		this.setUInt16(offset, val);
 #else
 		setUInt8(offset, val); setUInt8(offset+1, val >> 8);
 #end
@@ -146,8 +164,6 @@ abstract RawMem(RawMemData)
 		return untyped __global__.__hxcpp_memory_get_i32(this, offset);
 #elseif java
 		return this.getInt(offset);
-#elseif cs
-		return this.getInt32(offset);
 #elseif flash9
 		this.position = offset;
 		return this.readInt(offset);
@@ -168,8 +184,6 @@ abstract RawMem(RawMemData)
 		untyped __global__.__hxcpp_memory_set_i32(this, offset, val);
 #elseif java
 		this.putInt(offset, val);
-#elseif cs
-		this.setInt32(offset, val);
 #elseif flash9
 		this.position = offset;
 		this.writeInt(val);
@@ -195,7 +209,7 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		return this.readFloat();
-#else
+#else //TODO: OPTIMIZATION - evaluate if calling bytes_to_float will be faster on neko
 		var b0 = getUInt8(offset), b1 = getUInt8(offset+1), b2 = getUInt8(offset+2), b3 = getUInt8(offset+3);
 		var sign = 1 - ((b0 >> 7) << 1);
 		var exp = (((b0 << 1) & 0xFF) | (b1 >> 7)) - 127;
@@ -223,7 +237,7 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		this.writeFloat(val);
-#else
+#else //TODO: OPTIMIZATION - evaluate if alloc a temp array and calling float_to_bytes will be faster on neko
 		if (val == 0.0)
 		{
 			setInt32(offset, 0);

@@ -1,7 +1,7 @@
 package taurine;
 
 #if (cs || java)
-typedef Single = std.Single;
+typedef Single = StdTypes.Single;
 #else
 typedef Single = Float;
 //abstract Single(Float) from Float to Float {}
