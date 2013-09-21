@@ -17,3 +17,5 @@ Haxe standard API extensions
 * TLS/SSL
 * Async I/O
 * Printf
+
+![how standards proliferate](http://imgs.xkcd.com/comics/standards.png "How standards proliferate")
