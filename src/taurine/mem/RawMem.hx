@@ -25,10 +25,47 @@ typedef RawMemData =
 **/
 abstract RawMem(RawMemData)
 {
+
+#if false // (js && TAURINE_JS_BACKWARDS)
+	private static var LITTLE_ENDIAN = {
+		if (untyped __js__('typeof DataView == "undefined"'))
+		{
+			true;
+		} else {
+			var buffer = new js.html.ArrayBuffer(2);
+			new js.html.DataView(buffer).setInt16(0,256,true);
+			new js.html.Int16Array(buffer)[0] == 256;
+		}
+	};
+#elseif js
+	private static inline var LITTLE_ENDIAN = true;
+#end
 	/**
 		The total length - in bytes - of the raw memory
 	**/
 	public var byteLength(get,never):Int;
+
+	public function isLittleEndian():Bool
+	{
+#if flash9
+		return this.endian == untyped "littleEndian";
+#elseif (js || java || cs || cpp)
+		if (byteLength > 2)
+		{
+			var v1 = getUInt8(0), v2 = getUInt8(1);
+			setUInt16(0,0xFF);
+			var ret = getUInt8(0) == 0xFF;
+			setUInt8(0,v1); setUInt8(1,v2);
+			return ret;
+		} else {
+			var tmp = alloc(2);
+			tmp.setUInt16(0,0xFF);
+			return tmp.getUInt8(0) == 0xFF;
+		}
+#else
+		return true;
+#end
+	}
 
 	private inline function get_byteLength():Int
 	{
@@ -102,7 +139,7 @@ abstract RawMem(RawMemData)
 #if js
 		this.setUint8(offset, val);
 #elseif neko
-		untyped $sset(this, offset, val);
+		untyped $sset(this, offset, val & 0xFF);
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_byte(this, offset, val & 0xFF);
 #elseif php
@@ -125,7 +162,7 @@ abstract RawMem(RawMemData)
 	public inline function getUInt16(offset:Int):Int
 	{
 #if js
-		return this.getUint16(offset);
+		return this.getUint16(offset, LITTLE_ENDIAN);
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_ui16(this, offset);
 #elseif java
@@ -142,7 +179,7 @@ abstract RawMem(RawMemData)
 	public inline function setUInt16(offset:Int, val:Int):Void
 	{
 #if js
-		this.setUint16(offset, val);
+		this.setUint16(offset, val, LITTLE_ENDIAN);
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_i16(this, offset, val);
 #elseif java
@@ -159,7 +196,7 @@ abstract RawMem(RawMemData)
 	public inline function getInt32(offset:Int):Int
 	{
 #if js
-		return this.getInt32(offset);
+		return this.getInt32(offset, LITTLE_ENDIAN);
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_i32(this, offset);
 #elseif java
@@ -179,7 +216,7 @@ abstract RawMem(RawMemData)
 	public inline function setInt32(offset:Int, val:Int):Void
 	{
 #if js
-		this.setInt32(offset, val);
+		this.setInt32(offset, val, LITTLE_ENDIAN);
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_i32(this, offset, val);
 #elseif java
@@ -199,7 +236,7 @@ abstract RawMem(RawMemData)
 	public #if (js || cpp || java || cs || flash9) inline #end function getFloat32(offset:Int):taurine.Single
 	{
 #if js
-		return this.getFloat32(offset);
+		return this.getFloat32(offset, LITTLE_ENDIAN);
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_float(this, offset);
 #elseif java
@@ -227,7 +264,7 @@ abstract RawMem(RawMemData)
 	public #if (js || cpp || java || cs || flash9) inline #end function setFloat32(offset:Int, val:taurine.Single):Void
 	{
 #if js
-		this.setFloat32(offset, val);
+		this.setFloat32(offset, val, LITTLE_ENDIAN);
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_float(this, offset, val);
 #elseif java
@@ -260,7 +297,7 @@ abstract RawMem(RawMemData)
 	public #if (js || cpp || java || cs || flash9) inline #end function getFloat64(offset:Int):Float
 	{
 #if js
-		return this.getFloat64(offset);
+		return this.getFloat64(offset, LITTLE_ENDIAN);
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_double(this, offset);
 #elseif java
@@ -292,7 +329,7 @@ abstract RawMem(RawMemData)
 	public #if (js || cpp || java || cs || flash9) inline #end function setFloat64(offset:Int, val:Float):Void
 	{
 #if js
-		this.setFloat64(offset, val);
+		this.setFloat64(offset, val, LITTLE_ENDIAN);
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_double(this, offset, val);
 #elseif java

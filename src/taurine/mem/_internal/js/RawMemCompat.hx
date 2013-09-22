@@ -2,6 +2,8 @@ package taurine.mem._internal.js;
 
 @:keep class RawMemCompat
 {
+	public static var FORCE_ARRAY = false;
+
 	static function __init__()
 	{
 		if (untyped __js__('typeof DataView == "undefined"'))
@@ -21,20 +23,26 @@ package taurine.mem._internal.js;
 	}
 
 	public var byteLength(default,null):Int;
-	private var arr:Array<Int>;
+	private var arr:js.html.Uint8Array;
 	private var typedArray:Bool;
 
 	public function new(len)
 	{
 		this.byteLength = len;
 		//some browsers do not have DataView but do have TypedArray
-		if (untyped __js__('typeof Uint8Array == "undefined"))
+		if (FORCE_ARRAY || untyped __js__('typeof Uint8Array == "undefined"'))
 		{
-			this.array = untyped __new__(Array, len);
+			FORCE_ARRAY = true;
+			this.arr = untyped __new__(Array, len);
 			this.typedArray = false;
 		} else {
-			this.array = cast new js.html.Uint8Array(len);
+			this.arr = new js.html.Uint8Array(len);
 			this.typedArray = true;
+			var farr = new js.html.Float32Array(arr.buffer, 0, len >>> 2), darr = new js.html.Float64Array(arr.buffer, 0, len >>> 4);
+			this.getFloat32 = function(offset:Int):Float return farr[offset >>> 2];
+			this.setFloat32 = function(offset:Int, f:Float):Void farr[offset >>> 2] = f;
+			this.getFloat64 = function(offset:Int):Float return darr[offset >>> 4];
+			this.setFloat64 = function(offset:Int, f:Float):Void darr[offset >>> 4] = f;
 		}
 	}
 
@@ -68,7 +76,7 @@ package taurine.mem._internal.js;
 		setUint8(offset, val); setUint8(offset+1, val >> 8); setUint8(offset+2, val >> 16); setUint8(offset+3, val >>> 24);
 	}
 
-	public function getFloat32(offset:Int):Float
+	public dynamic function getFloat32(offset:Int):Float
 	{
 		var b0 = getUint8(offset), b1 = getUint8(offset+1), b2 = getUint8(offset+2), b3 = getUint8(offset+3);
 		var sign = 1 - ((b0 >> 7) << 1);
@@ -79,7 +87,7 @@ package taurine.mem._internal.js;
 		return sign*(1 + Math.pow(2, -23)*sig) * Math.pow(2, exp);
 	}
 
-	public function setFloat32(offset:Int, val:Float):Void
+	public dynamic function setFloat32(offset:Int, val:Float):Void
 	{
 		if (val == 0.0)
 		{
@@ -96,7 +104,7 @@ package taurine.mem._internal.js;
 		setUint8(offset, b1); setUint8(offset+1,b2); setUint8(offset+2,b3); setUint8(offset+3,b4);
 	}
 
-	public function getFloat64(offset:Int):Float
+	public dynamic function getFloat64(offset:Int):Float
 	{
 		var b0 = getUint8(offset), b1 = getUint8(offset+1), b2 = getUint8(offset+2), b3 = getUint8(offset+3);
 		var b4 = getUint8(offset+4), b5 = getUint8(offset+5), b6 = getUint8(offset+6), b7 = getUint8(offset+7);
@@ -111,7 +119,7 @@ package taurine.mem._internal.js;
 		return sign * (1.0 + Math.pow(2, -52) * sig) * Math.pow(2, exp);
 	}
 
-	public function setFloat64(offset:Int, val:Float):Void
+	public dynamic function setFloat64(offset:Int, val:Float):Void
 	{
 		if (val == 0)
 		{
@@ -134,4 +142,5 @@ package taurine.mem._internal.js;
 		setUint8(offset, b1); setUint8(offset+1,b2); setUint8(offset+2,b3); setUint8(offset+3,b4);
 		setUint8(offset+4, b5); setUint8(offset+5,b6); setUint8(offset+6,b7); setUint8(offset+7,b8);
 	}
+	static inline var LN2 = taurine.math.MacroMath.reduce(Math.log(2));
 }

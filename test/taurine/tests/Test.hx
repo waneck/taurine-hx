@@ -22,6 +22,10 @@ class Test
 		runner.addCase(new UriTests());
 		runner.addCase(new taurine.tests.UInt8Tests());
 		runner.addCase(new taurine.tests.mem.RawMemTests());
+#if js
+		runner.addCase(new taurine.tests.mem.RawMemTests.RawMemTestsBackwards());
+		runner.addCase(new taurine.tests.mem.RawMemTests.RawMemTestsArray());
+#end
 
 		// var report = Report.create(runner);
 		var report = new utest.ui.text.PrintReport(runner);

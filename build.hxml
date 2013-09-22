@@ -2,6 +2,7 @@
 -cp test
 -main taurine.tests.Test
 -debug
+#-neko bin/neko.n
 -js bin/js.js
 #-cpp bin/cpp
 #-java bin/java
