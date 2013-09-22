@@ -254,11 +254,20 @@ abstract RawMem(RawMemData)
 		if (offset == 0) return _float_of_bytes(this,false);
 		var b = untyped $ssub(this,offset,4);
 		return _float_of_bytes(b, false);
+#elseif php
+		if (offset == 0) return untyped __call__("unpack", "f", this)[1];
+		var b = untyped __call__("substr", this, offset, 4);
+		return untyped __call__('unpack', 'f', b)[1];
 #else
-		var b0 = getUInt8(offset), b1 = getUInt8(offset+1), b2 = getUInt8(offset+2), b3 = getUInt8(offset+3);
+		var b3 = getUInt8(offset), b2 = getUInt8(offset+1), b1 = getUInt8(offset+2), b0 = getUInt8(offset+3);
 		var sign = 1 - ((b0 >> 7) << 1);
 		var exp = (((b0 << 1) & 0xFF) | (b1 >> 7)) - 127;
 		var sig = ((b1 & 0x7F) << 16) | (b2 << 8) | b3;
+		if (exp == 128)
+			if (sig == 0)
+				return sign / 0.0;
+			else
+				return taurine.math.FastMath.NaN;
 		if (sig == 0 && exp == -127)
 			return 0.0;
 		return sign*(1 + Math.pow(2, -23)*sig) * Math.pow(2, exp);
@@ -286,19 +295,36 @@ abstract RawMem(RawMemData)
 		var b = _float_bytes(val, false);
 		for (i in 0...4)
 			setUInt8(offset + i, untyped $sget(b,i));
+#elseif php
+		var b = untyped __call__('pack', 'f', val);
+		for (i in 0...4)
+			setUInt8(offset + i, b[i]);
 #else
 		if (val == 0.0)
 		{
-			setInt32(offset, 0);
-			return;
+			for(i in 0...4)
+				setUInt8(offset+i,0);
+		} else if (val != val) {
+			setUInt8(offset+3, 0x7F); setUInt8(offset+2,0xC0);
+		} else if (val * 2 == val && !Math.isFinite(val)) {
+			if (val > 0)
+			{
+				setUInt8(offset+3, 0x7F);
+			} else {
+				setUInt8(offset+3, 0xFF);
+			}
+			setUInt8(offset+2, 0x80);
+			for (i in 0...2)
+				setUInt8(offset+i,0);
+		} else {
+			var exp = Math.floor(Math.log(Math.abs(val)) / LN2);
+			var sig = (Math.floor(Math.abs(val) / Math.pow(2, exp) * (2 << 22)) & 0x7FFFFF);
+			var b1 = (exp + 0x7F) >> 1 | (exp>0 ? ((val<0) ? 1<<7 : 1<<6) : ((val<0) ? 1<<7 : 0)),
+				b2 = (exp + 0x7F) << 7 & 0xFF | (sig >> 16 & 0x7F),
+				b3 = (sig >> 8) & 0xFF,
+				b4 = sig & 0xFF;
+			setUInt8(offset, b4); setUInt8(offset+1,b3); setUInt8(offset+2,b2); setUInt8(offset+3,b1);
 		}
-		var exp = Math.floor(Math.log(Math.abs(val)) / LN2);
-		var sig = (Math.floor(Math.abs(val) / Math.pow(2, exp) * (2 << 22)) & 0x7FFFFF);
-		var b1 = (exp + 0x7F) >> 1 | (exp>0 ? ((val<0) ? 1<<7 : 1<<6) : ((val<0) ? 1<<7 : 0)),
-			b2 = (exp + 0x7F) << 7 & 0xFF | (sig >> 16 & 0x7F),
-			b3 = (sig >> 8) & 0xFF,
-			b4 = sig & 0xFF;
-		setUInt8(offset, b1); setUInt8(offset+1,b2); setUInt8(offset+2,b3); setUInt8(offset+3,b4);
 #end
 	}
 
@@ -323,17 +349,33 @@ abstract RawMem(RawMemData)
 		if (offset == 0) return _double_of_bytes(this,false);
 		var b = untyped $ssub(this,offset,8);
 		return _double_of_bytes(b, false);
+#elseif php
+		if (offset == 0) return untyped __call__('unpack', 'd', this)[1];
+		var b = untyped __call__('substr', this, offset, 8);
+		return untyped __call__('unpack', 'd', b)[1];
 #else
-		var b0 = getUInt8(offset), b1 = getUInt8(offset+1), b2 = getUInt8(offset+2), b3 = getUInt8(offset+3);
-		var b4 = getUInt8(offset+4), b5 = getUInt8(offset+5), b6 = getUInt8(offset+6), b7 = getUInt8(offset+7);
+		var b7 = getUInt8(offset), b6 = getUInt8(offset+1), b5 = getUInt8(offset+2), b4 = getUInt8(offset+3);
+		var b3 = getUInt8(offset+4), b2 = getUInt8(offset+5), b1 = getUInt8(offset+6), b0 = getUInt8(offset+7);
 
 		var sign = 1 - ((b0 >> 7) << 1); // sign = bit 0
 		var exp = (((b0 << 4) & 0x7FF) | (b1 >> 4)) - 1023; // exponent = bits 1..11
 		var sig = (((b1&0xF) << 16) | (b2 << 8) | b3 ) * 4294967296. +
 				(b4 >> 7) * 2147483648 +
 				(((b4&0x7F) << 24) | (b5 << 16) | (b6 << 8) | b7);
-		if (sig == 0 && exp == -1023)
-			return 0.0;
+		if (exp == 1024)
+		{
+			if (sig == 0)
+				return sign / 0.0;
+			else
+				return taurine.math.FastMath.NaN;
+		}
+
+		if (exp == -1023)
+		{
+			if (sig == 0)
+				return .0;
+			//TODO: denormalized numbers
+		}
 		return sign * (1.0 + Math.pow(2, -52) * sig) * Math.pow(2, exp);
 #end
 	}
@@ -359,26 +401,43 @@ abstract RawMem(RawMemData)
 		var b = _double_bytes(val, false);
 		for (i in 0...8)
 			setUInt8(offset + i, untyped $sget(b,i));
+#elseif php
+		var b = untyped __call__('pack', 'd', val);
+		for (i in 0...8)
+			setUInt8(offset + i, untyped this[i]);
 #else
 		if (val == 0)
 		{
-			setInt32(offset,0); setInt32(offset+4,0);
-			return;
+			for(i in 0...8)
+				setUInt8(offset+i,0);
+		} else if (val != val) {
+			setUInt8(offset+7, 0x7F); setUInt8(offset+6, 0xF8);
+		} else if (val * 2 == val && !Math.isFinite(val)) {
+			if (val > 0)
+			{
+				setUInt8(offset+7, 0x7F);
+			} else {
+				setUInt8(offset+7, 0xFF);
+			}
+			setUInt8(offset+6,0xF0);
+			for (i in 0...6)
+				setUInt8(offset+i,0);
+		} else {
+			var exp = Math.floor(Math.log(Math.abs(val)) / LN2);
+			var sig : Int = Math.floor(Math.abs(val) / Math.pow(2, exp) * Math.pow(2, 52));
+			var sig_h = (sig & cast 34359738367);
+			var sig_l = Math.floor((sig / Math.pow(2,32)));
+			var b1 = (exp + 0x3FF) >> 4 | (exp>0 ? ((val<0) ? 1<<7 : 1<<6) : ((val<0) ? 1<<7 : 0)),
+				b2 = (exp + 0x3FF) << 4 & 0xFF | (sig_l >> 16 & 0xF),
+				b3 = (sig_l >> 8) & 0xFF,
+				b4 = sig_l & 0xFF,
+				b5 = (sig_h >> 24) & 0xFF,
+				b6 = (sig_h >> 16) & 0xFF,
+				b7 = (sig_h >> 8) & 0xFF,
+				b8 = sig_h & 0xFF;
+			setUInt8(offset, b8); setUInt8(offset+1,b7); setUInt8(offset+2,b6); setUInt8(offset+3,b5);
+			setUInt8(offset+4, b4); setUInt8(offset+5,b3); setUInt8(offset+6,b2); setUInt8(offset+7,b1);
 		}
-		var exp = Math.floor(Math.log(Math.abs(val)) / LN2);
-		var sig : Int = Math.floor(Math.abs(val) / Math.pow(2, exp) * Math.pow(2, 52));
-		var sig_h = (sig & cast 34359738367);
-		var sig_l = Math.floor((sig / Math.pow(2,32)));
-		var b1 = (exp + 0x3FF) >> 4 | (exp>0 ? ((val<0) ? 1<<7 : 1<<6) : ((val<0) ? 1<<7 : 0)),
-			b2 = (exp + 0x3FF) << 4 & 0xFF | (sig_l >> 16 & 0xF),
-			b3 = (sig_l >> 8) & 0xFF,
-			b4 = sig_l & 0xFF,
-			b5 = (sig_h >> 24) & 0xFF,
-			b6 = (sig_h >> 16) & 0xFF,
-			b7 = (sig_h >> 8) & 0xFF,
-			b8 = sig_h & 0xFF;
-		setUInt8(offset, b1); setUInt8(offset+1,b2); setUInt8(offset+2,b3); setUInt8(offset+3,b4);
-		setUInt8(offset+4, b5); setUInt8(offset+5,b6); setUInt8(offset+6,b7); setUInt8(offset+7,b8);
 #end
 	}
 

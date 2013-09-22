@@ -78,7 +78,7 @@ class RawMemTests
 		Assert.equals(0xFFFF, mem.getUInt16(0));
 	}
 
-	public function test_Single_unpack()
+	public function test_float32_unpack()
 	{
 		var littleEndian = alloc(2).isLittleEndian();
 		function fromBytes(arr:Array<Int>):Float
@@ -130,7 +130,7 @@ class RawMemTests
 		stricterEqual(fromBytes([0x7f, 0xff, 0xff, 0xff]), Math.NaN, 'Q+NaN');
 	}
 
-	public function test_Single_pack()
+	public function test_float32_pack()
 	{
 		var littleEndian = alloc(2).isLittleEndian();
 		function toBytes(v:Float):RawMem
@@ -184,7 +184,7 @@ class RawMemTests
 		// ok(exponent === 255 && fraction !== 0, 'NaN');
 	}
 
-	public function test_Float_unpack()
+	public function test_float64_unpack()
 	{
 		var littleEndian = alloc(2).isLittleEndian();
 		function fromBytes(arr:Array<Int>):Float
@@ -235,7 +235,7 @@ class RawMemTests
 		stricterEqual(fromBytes([0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]), Math.NaN, 'Q+NaN');
 	}
 
-	public function test_Float_pack()
+	public function test_float64_pack()
 	{
 		var littleEndian = alloc(2).isLittleEndian();
 		function toBytes(v:Float):RawMem
