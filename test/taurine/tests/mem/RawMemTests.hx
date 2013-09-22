@@ -279,9 +279,9 @@ class RawMemTests
 		var data = [
 			0,
 			1,
-				-1,
+			-1,
 			123,
-				-456,
+			-456,
 			0x80000000,
 			0x7fffffff,
 			0x12345678,
