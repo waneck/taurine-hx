@@ -3,8 +3,8 @@
 -main taurine.tests.Test
 -debug
 #-neko bin/neko.n
--js bin/js.js
-#-cpp bin/cpp
+#-js bin/js.js
+-cpp bin/cpp
 #-java bin/java
 #-cs bin/cs
 -lib utest
