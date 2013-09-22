@@ -25,6 +25,7 @@ package taurine.mem._internal.js;
 	public var byteLength(default,null):Int;
 	private var arr:js.html.Uint8Array;
 	private var typedArray:Bool;
+	private var buffer:js.html.ArrayBuffer;
 
 	public function new(len)
 	{
@@ -37,6 +38,7 @@ package taurine.mem._internal.js;
 			this.typedArray = false;
 		} else {
 			this.arr = new js.html.Uint8Array(len);
+			this.buffer = arr.buffer;
 			this.typedArray = true;
 			var farr = new js.html.Float32Array(arr.buffer, 0, len >>> 2), darr = new js.html.Float64Array(arr.buffer, 0, len >>> 4);
 			this.getFloat32 = function(offset:Int):Float return farr[offset >>> 2];

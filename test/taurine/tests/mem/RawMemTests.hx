@@ -273,6 +273,45 @@ class RawMemTests
 		ui8equal(toBytes(Math.POSITIVE_INFINITY), [0x7f, 0xf0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00], '+Infinity');
 	}
 
+	public function test_blit()
+	{
+		var vec3 = alloc(7), vec4 = alloc(5);
+		for (i in 0...7)
+			vec3.setUInt8(i,i);
+
+		RawMem.blit(vec3, 0, vec4, 1, 3);
+		Assert.equals(vec4.getUInt8(0), 0);
+		Assert.equals(vec4.getUInt8(1), 0);
+		Assert.equals(vec4.getUInt8(2), 1);
+		Assert.equals(vec4.getUInt8(3), 2);
+		Assert.equals(vec4.getUInt8(4), 0);
+
+		RawMem.blit(vec3, 0, vec4, 0, 5);
+		Assert.equals(vec4.getUInt8(0), 0);
+		Assert.equals(vec4.getUInt8(1), 1);
+		Assert.equals(vec4.getUInt8(2), 2);
+		Assert.equals(vec4.getUInt8(3), 3);
+		Assert.equals(vec4.getUInt8(4), 4);
+
+		RawMem.blit(vec4, 1, vec3, 0, 4);
+		Assert.equals(vec3.getUInt8(0), 1);
+		Assert.equals(vec3.getUInt8(1), 2);
+		Assert.equals(vec3.getUInt8(2), 3);
+		Assert.equals(vec3.getUInt8(3), 4);
+		Assert.equals(vec3.getUInt8(4), 4);
+		Assert.equals(vec3.getUInt8(5), 5);
+		Assert.equals(vec3.getUInt8(6), 6);
+
+		RawMem.blit(vec3, 3, vec3, 0, 4);
+		Assert.equals(vec3.getUInt8(0), 4);
+		Assert.equals(vec3.getUInt8(1), 4);
+		Assert.equals(vec3.getUInt8(2), 5);
+		Assert.equals(vec3.getUInt8(3), 6);
+		Assert.equals(vec3.getUInt8(4), 4);
+		Assert.equals(vec3.getUInt8(5), 5);
+		Assert.equals(vec3.getUInt8(6), 6);
+	}
+
 	public function test_int32_roundtrips()
 	{
 		var mem = alloc(4);
@@ -536,6 +575,13 @@ class RawMemTestsBackwards extends RawMemTests
 		taurine.mem._internal.js.RawMemCompat.FORCE_ARRAY = false;
 		return cast taurine.mem._internal.js.RawMemCompat.allocCompat(len);
 	}
+
+#if !TAURINE_JS_BACKWARDS
+	override function test_blit()
+	{
+		Assert.isTrue(true);
+	}
+#end
 #end
 }
 
@@ -547,5 +593,12 @@ class RawMemTestsArray extends RawMemTests
 		taurine.mem._internal.js.RawMemCompat.FORCE_ARRAY = true;
 		return cast taurine.mem._internal.js.RawMemCompat.allocCompat(len);
 	}
+
+#if !TAURINE_JS_BACKWARDS
+	override function test_blit()
+	{
+		Assert.isTrue(true);
+	}
+#end
 #end
 }

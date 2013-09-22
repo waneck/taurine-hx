@@ -49,6 +49,86 @@ abstract RawMem(RawMemData)
 	**/
 	public var byteLength(get,never):Int;
 
+	/**
+		Copies `length` of bytes from `src`, beginning at `srcPos` to
+		`dest`, beginning at `destPos`
+
+		WARNING: On some targets, it may not do bounds check
+	**/
+	#if ( (js && !TAURINE_JS_BACKWARDS) || neko || cs || flash9 ) inline #end
+	public static function blit(src:RawMem, srcPos:Int, dest:RawMem, destPos:Int, len:Int):Void
+	{
+#if (js && TAURINE_JS_BACKWARDS)
+		//check both are typed arrays
+		if (dest.getData().buffer != null && src.getData().buffer != null && untyped __js__('typeof Uint8Array !== "undefined"') )
+		{
+			var dstu8 = new js.html.Uint8Array(dest.getData().buffer, destPos, len);
+			var srcu8 = new js.html.Uint8Array(src.getData().buffer, srcPos, len);
+			dstu8.set(srcu8);
+		} else {
+			var b1 = dest.getData();
+			var b2 = src.getData();
+			if( b1 == b2 && destPos > srcPos ) {
+				var i = len;
+				while( i > 0 ) {
+					i--;
+					b1.setUint8(i + destPos, b2.getUint8(i + srcPos));
+				}
+				return;
+			}
+			for( i in 0...len )
+			{
+				b1.setUint8(i + destPos, b2.getUint8(i + srcPos));
+			}
+		}
+#elseif js
+		var dstu8 = new js.html.Uint8Array(dest.getData().buffer, destPos, len);
+		var srcu8 = new js.html.Uint8Array(src.getData().buffer, srcPos, len);
+		dstu8.set(srcu8);
+#elseif neko
+		untyped $sblit(dest, destPos, src, srcPos, len);
+#elseif php
+		untyped __php__("substr($dest, 0, $destPos) . substr($src, $srcPos, $len) . substr($dest, $destPos+$len)");
+#elseif flash9
+		dest.getData().position = destPos;
+		dest.getData().writeBytes(src,srcPos,len);
+#elseif java
+		if (src.getData().hasArray())
+		{
+			dest.getData().position(destPos);
+			dest.getData().put(src.getData().array(), src.getData().arrayOffset() + srcPos, len);
+		} else {
+			src.getData().position(srcPos);
+			var src = src.getData().slice();
+			src.limit(len);
+			dest.getData().position(destPos);
+			dest.getData().put(src);
+		}
+#elseif cs
+		cs.system.Array.Copy(src.getData().data, srcPos, dest.getData().data, destPos, len);
+#elseif (cpp && !TAURINE_NO_INLINE_CPP)
+		untyped __cpp__('memmove(  dest->GetBase() + destPos, src->GetBase() + srcPos, len)');
+#else
+		var b1 = dest.getData();
+		var b2 = src.getData();
+		if( b1 == b2 && destPos > srcPos ) {
+			var i = len;
+			while( i > 0 ) {
+				i--;
+				b1[i + destPos] = b2[i + srcPos];
+			}
+			return;
+		}
+		for( i in 0...len )
+			b1[i+destPos] = b2[i+srcPos];
+#end
+	}
+
+	inline public function getData():RawMemData
+	{
+		return this;
+	}
+
 	public function isLittleEndian():Bool
 	{
 #if flash9

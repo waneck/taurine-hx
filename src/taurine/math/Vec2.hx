@@ -30,6 +30,7 @@ using taurine.ds.VectorTools;
 	(x,y) vector
 **/
 @:arrayAccess
+@:allow(taurine.math.Vec2Array)
 abstract Vec2(Vector<Single>)
 {
 	/**
