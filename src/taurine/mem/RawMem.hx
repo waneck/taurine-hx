@@ -49,7 +49,11 @@ abstract RawMem(RawMemData)
 	{
 #if flash9
 		return this.endian == untyped "littleEndian";
-#elseif (js || java || cs || cpp)
+#elseif java
+		return this.order() == java.nio.ByteOrder.LITTLE_ENDIAN;
+#elseif js
+		return LITTLE_ENDIAN;
+#elseif (cs || cpp)
 		if (byteLength > 2)
 		{
 			var v1 = getUInt8(0), v2 = getUInt8(1);
@@ -246,7 +250,11 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		return this.readFloat();
-#else //TODO: OPTIMIZATION - evaluate if calling bytes_to_float will be faster on neko
+#elseif neko
+		if (offset == 0) return _float_of_bytes(this,false);
+		var b = untyped $ssub(this,offset,4);
+		return _float_of_bytes(b, false);
+#else
 		var b0 = getUInt8(offset), b1 = getUInt8(offset+1), b2 = getUInt8(offset+2), b3 = getUInt8(offset+3);
 		var sign = 1 - ((b0 >> 7) << 1);
 		var exp = (((b0 << 1) & 0xFF) | (b1 >> 7)) - 127;
@@ -274,7 +282,11 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		this.writeFloat(val);
-#else //TODO: OPTIMIZATION - evaluate if alloc a temp array and calling float_to_bytes will be faster on neko
+#elseif neko
+		var b = _float_bytes(val, false);
+		for (i in 0...4)
+			setUInt8(offset + i, untyped $sget(b,i));
+#else
 		if (val == 0.0)
 		{
 			setInt32(offset, 0);
@@ -307,6 +319,10 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		return this.readDouble();
+#elseif neko
+		if (offset == 0) return _double_of_bytes(this,false);
+		var b = untyped $ssub(this,offset,8);
+		return _double_of_bytes(b, false);
 #else
 		var b0 = getUInt8(offset), b1 = getUInt8(offset+1), b2 = getUInt8(offset+2), b3 = getUInt8(offset+3);
 		var b4 = getUInt8(offset+4), b5 = getUInt8(offset+5), b6 = getUInt8(offset+6), b7 = getUInt8(offset+7);
@@ -339,6 +355,10 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		this.writeDouble(val);
+#elseif neko
+		var b = _double_bytes(val, false);
+		for (i in 0...8)
+			setUInt8(offset + i, untyped $sget(b,i));
 #else
 		if (val == 0)
 		{
@@ -394,4 +414,11 @@ abstract RawMem(RawMemData)
 	}
 
 	static inline var LN2 = taurine.math.MacroMath.reduce(Math.log(2));
+
+#if neko
+	static var _float_of_bytes = neko.Lib.load("std","float_of_bytes",2);
+	static var _double_of_bytes = neko.Lib.load("std","double_of_bytes",2);
+	static var _float_bytes = neko.Lib.load("std","float_bytes",2);
+	static var _double_bytes = neko.Lib.load("std","double_bytes",2);
+#end
 }
