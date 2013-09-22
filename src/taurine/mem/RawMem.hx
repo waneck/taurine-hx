@@ -22,6 +22,10 @@ typedef RawMemData =
 	Byte order is **unspecified**, but is by preference the same as the native byte order.
 
 	If backwards-compatibility is needed for JavaScript, define -D TAURINE_JS_BACKWARDS
+
+## Availability
+	There is a PHP implementation. However, it is not working correctly (see unit tests).
+	It works as expected on all other Haxe targets
 **/
 abstract RawMem(RawMemData)
 {
