@@ -1,4 +1,4 @@
-package taurine.math._internal;
+package taurine.math;
 
 typedef SingleVectorData =
 #if (cpp || (flash9 && !TAURINE_MATH_OPT_MEMORY))
@@ -13,11 +13,23 @@ typedef SingleVectorData =
 	This is a supporting implementation for some Math basic types.
 	It defines the best platform-specific benefit between size (use 32-bit Floats where possible) and speed.
 **/
+@:arrayAccess
 abstract SingleVector(SingleVectorData) to SingleVectorData
 {
 	inline public function new(data:SingleVectorData)
 	{
 		this = data;
+	}
+
+	public var length(get,never):Int;
+
+	private inline function get_length():Int
+	{
+#if (cpp || (flash9 && !TAURINE_MATH_OPT_MEMORY))
+		return this.byteLength;
+#else
+		return this.length;
+#end
 	}
 
 	inline public static function alloc(len:Int):SingleVector

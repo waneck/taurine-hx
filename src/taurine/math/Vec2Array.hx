@@ -24,27 +24,28 @@ package taurine.math;
 //This library was ported from the JavaScript library `glMatrix` - copyright above
 import haxe.ds.Vector;
 import taurine.Single;
-using taurine.ds.VectorTools;
 
 /**
-	(x,y) vector
+	(x,y) vector array
 **/
-@:arrayAccess
-@:allow(taurine.math.Vec2Array)
-abstract Vec2(SingleVector) to Vec2Array
+abstract Vec2Array(SingleVector)
 {
 	/**
-		Creates a new Vec2
+		Creates a new Vec2Array with the given size
 	**/
-	public inline function new(x = 0, y = 0)
+	public inline function new(len:Int)
 	{
-		this = SingleVector.alloc(2);
-		this[0] = x; this[1] = y;
+		this = SingleVector.alloc(len << 2);
 	}
 
-	public static inline function mk():Vec2
+	/**
+		The number of Vec2 elements contained in this array
+	**/
+	public var length(get,never):Int;
+
+	private inline function get_length():Int
 	{
-		return (untyped SingleVector.alloc(2) : Vec2);
+		return this.length >>> 2;
 	}
 
 	private inline function t():Vec2 return untyped this; //get `this` as the abstract type
