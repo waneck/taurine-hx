@@ -28,6 +28,7 @@ import taurine.Single;
 /**
 	4x4 Matrix
 **/
+@:arrayAccess
 abstract Mat4(SingleVector) to Mat4Array
 {
   public var a00(get,set):Single;

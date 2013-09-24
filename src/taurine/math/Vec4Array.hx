@@ -32,7 +32,6 @@ abstract Vec4Array(SingleVector)
 {
 	/**
 		Creates a new Vec4Array with the given size.
-		All elements will be 0, and not identity quats
 	**/
 	@:extern public inline function new(len:Int)
 	{
@@ -527,7 +526,7 @@ abstract Vec4Array(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `Vec4Array`
 	**/
-	public function transformMat4(index:Int, q:QuatArray, qIndex:Int, ?out:Vec4Array, ?outIndex:Int):Vec4Array
+	public function transformQuat(index:Int, q:QuatArray, qIndex:Int, ?out:Vec4Array, ?outIndex:Int):Vec4Array
 	{
 		if (out == null)
 		{
@@ -552,7 +551,7 @@ abstract Vec4Array(SingleVector)
 	}
 
 
-	@:extern inline public function forEach(fn:Quat4Array->Int->Void):Void
+	@:extern inline public function forEach(fn:Vec4Array->Int->Void):Void
 	{
 		var len = this.length >>> 2;
 		for (i in 0...len)
