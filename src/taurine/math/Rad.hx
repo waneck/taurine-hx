@@ -24,7 +24,7 @@ abstract Rad(Float) from Float
 		return new Degrees(this * _toDeg);
 	}
 
-	public inline function toFloat():Float
+	public inline function float():Float
 	{
 		return this;
 	}
@@ -38,4 +38,9 @@ abstract Rad(Float) from Float
 	{
 		return Math.sin(this);
 	}
+
+  inline public function tan():Float
+  {
+    return Math.tan(this);
+  }
 }

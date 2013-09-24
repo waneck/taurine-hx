@@ -69,6 +69,7 @@ abstract SingleVector(SingleVectorData) to SingleVectorData
 	#if !(js && TAURINE_JS_BACKWARDS) inline #end public static function blit(src:SingleVector, srcPos:Int, dest:SingleVector, destPos:Int, len:Int):Void
 	{
 #if (js && !TAURINE_JS_BACKWARDS)
+    //TODO: profile if faster than for() + set
 		dest.getData().set(src.getData().subarray(srcPos, srcPos+len), destPos);
 #elseif (cpp || (flash9 && !TAURINE_MATH_OPT_MEMORY))
 		taurine.mem.RawMem.blit(src.getData(), srcPos << 2, dest.getData(), destPos << 2, len << 2);

@@ -28,7 +28,7 @@ import taurine.Single;
 /**
 	4x4 Matrix Array
 **/
-abstract Mat4Array(SingleVector)
+abstract QuatArray(SingleVector)
 {
 	/**
 		Creates a new Mat4Array with the given size.
