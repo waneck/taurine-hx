@@ -26,35 +26,35 @@ import haxe.ds.Vector;
 import taurine.Single;
 
 /**
-	4x4 Matrix Array
+	Quaternion Array
 **/
 abstract QuatArray(SingleVector)
 {
 	/**
-		Creates a new Mat4Array with the given size.
-		All elements will be 0, and not identity matrices
+		Creates a new QuatArray with the given size.
+		All elements will be 0, and not identity quats
 	**/
 	@:extern public inline function new(len:Int)
 	{
-		this = SingleVector.alloc(len << 4);
+		this = SingleVector.alloc(len << 2);
 	}
 
 	/**
-		The number of Mat4 elements contained in this array
+		The number of Quat elements contained in this array
 	**/
 	public var length(get,never):Int;
 
 	@:extern private inline function get_length():Int
 	{
-		return this.length >>> 4;
+		return this.length >>> 2;
 	}
 
-	@:extern private inline function t():Mat4Array return untyped this; //get `this` as the abstract type
+	@:extern private inline function t():QuatArray return untyped this; //get `this` as the abstract type
 
 	/**
-		Reinterpret `this` array as its first `Mat4`
+		Reinterpret `this` array as its first `Quat`
 	**/
-	@:extern inline public function first():Mat4
+	@:extern inline public function first():Quat
 	{
 		return untyped this;
 	}
