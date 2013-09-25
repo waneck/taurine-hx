@@ -352,4 +352,14 @@ abstract Quat(SingleVector) to QuatArray
 		return buf.toString();
 	}
 
+	//boilerplate
+  @:extern inline private function get_x():Single return this[0];
+  @:extern inline private function set_x(val:Single):Single return this[0] = val;
+  @:extern inline private function get_y():Single return this[1];
+  @:extern inline private function set_y(val:Single):Single return this[1] = val;
+  @:extern inline private function get_z():Single return this[2];
+  @:extern inline private function set_z(val:Single):Single return this[2] = val;
+  @:extern inline private function get_w():Single return this[3];
+  @:extern inline private function set_w(val:Single):Single return this[3] = val;
+
 }
