@@ -28,6 +28,7 @@ import taurine.Single;
 /**
 	Quaternion Array
 **/
+@:access(taurine.math)
 abstract QuatArray(SingleVector)
 {
 	/**
@@ -342,9 +343,9 @@ abstract QuatArray(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `QuatArray`
 	**/
-	@:extern inline public function scale(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function scale(index:Int, scalar:Single, ?out:QuatArray, ?outIndex:Int):QuatArray
 	{
-		return cast Vec4Array.scale(cast t(), index, cast b, bIndex, cast out, outIndex);
+		return cast Vec4Array.scale(cast t(), index, scalar, cast out, outIndex);
 	}
 
 	/**

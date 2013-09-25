@@ -81,7 +81,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	/**
 		Copies `this` Vector to `dest`, and returns `dest`
 	**/
-	public function copyTo(dest:Mat4):Mat4
+	public function copyTo(dest:Vec4):Vec4
 	{
 		var x = this[0], y = this[1], z = this[2], w = this[3];
 
@@ -253,6 +253,11 @@ abstract Vec4(SingleVector) to Vec4Array
 	}
 
 	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec4, b:Single):Vec4
+	{
+		return a.scale(b,mk());
+	}
+
+	@:op(A*B) @:extern inline public static function opMulScalar_1(b:Single, a:Vec4):Vec4
 	{
 		return a.scale(b,mk());
 	}
