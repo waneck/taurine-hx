@@ -24,54 +24,85 @@ package taurine.math;
 //This library was ported from the JavaScript library `glMatrix` - copyright above
 import haxe.ds.Vector;
 import taurine.Single;
-using taurine.ds.VectorTools;
 
 /**
-	(x,y) vector
+	2 Dimensional Vector
 **/
 @:arrayAccess
-@:allow(taurine.math.Vec2Array)
 abstract Vec2(SingleVector) to Vec2Array
 {
+	public var x(get,set):Single;
+	public var y(get,set):Single;
+
 	/**
 		Creates a new Vec2
 	**/
-	public inline function new(x = 0, y = 0)
+	@:extern public inline function new(x=0.,y=0.)
 	{
 		this = SingleVector.alloc(2);
 		this[0] = x; this[1] = y;
 	}
 
-	public static inline function mk():Vec2
+	/**
+		Creates an empty Vec2
+	**/
+	@:extern inline public static function mk():Vec2
 	{
-		return (untyped SingleVector.alloc(2) : Vec2);
+		return untyped SingleVector.alloc(2);
 	}
 
-	private inline function t():Vec2 return untyped this; //get `this` as the abstract type
+  /**
+    Tells whether this Vec2 has more than one Vec2 element
+  **/
+  @:extern inline public function hasMultiple():Bool
+  {
+    return this.length > 2;
+  }
+
+	@:extern private inline function t():Vec2 return untyped this; //get `this` as the abstract type
 
 	/**
-		Creates a new Vec2 initialized with values from `this` vector
+		Clones `this` Vec2
 	**/
 	public function clone():Vec2
 	{
-		var out = mk();
-		out[0] = this[0];
-		out[1] = this[1];
-		return out;
+		var x = this[0], y = this[1];
+		var ret = mk();
+		ret[0] = x;
+		ret[1] = y;
+
+		return ret;
 	}
 
 	/**
-		Copy the value from one Vec2 to another. The parameter `out` cannot be null.
+		Copies `this` Vector to `dest`, and returns `dest`
 	**/
-	public function copy(out:Vec2):Vec2
+	public function copyTo(dest:Vec2):Vec2
 	{
-		out[0] = this[0];
-		out[1] = this[1];
-		return out;
+		var x = this[0], y = this[1];
+
+		dest[0] = x;
+		dest[1] = y;
+
+		return dest;
 	}
 
 	/**
-		Set the components of a Vec2 to the given values
+		Reinterpret `this` array as an array (of length 1)
+	**/
+	@:extern inline public function array():Vec2Array
+	{
+		return untyped this;
+	}
+
+	@:extern public inline function getData():SingleVector
+	{
+		return this;
+	}
+
+	/**
+		Sets the components of `this` Vec2
+			Returns itself
 	**/
 	public function set(x:Single, y:Single):Vec2
 	{
@@ -81,201 +112,299 @@ abstract Vec2(SingleVector) to Vec2Array
 	}
 
 	/**
-		Adds two Vec2's.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Adds `this` Vec2 to `b`, and stores the result at `out`
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
 	public function add(b:Vec2, ?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
-		out[0] = this[0] + b[0];
-		out[1] = this[1] + b[1];
+		if (out == null)
+			out = t();
+		var x = this[0], y = this[1];
+		var b0 = b[0], b1 = b[1];
 
+		out[0] = x + b0;
+		out[1] = y + b1;
 		return out;
 	}
 
-	@:op(A+B) public static inline function opAdd(a:Vec2, b:Vec2):Vec2
+	@:op(A+B) @:extern inline public static function opAdd(a:Vec2, b:Vec2):Vec2
 	{
-		return a.add(b, mk());
+		return a.add(b,mk());
 	}
 
 	/**
-		Subtracts vector `b` from `this`.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Subtracts `this` Vec2 and `b`, and stores the result at `out`
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
 	public function sub(b:Vec2, ?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
-		out[0] = this[0] - b[0];
-		out[1] = this[1] - b[1];
+		if (out == null)
+			out = t();
+		var x = this[0], y = this[1];
+		var b0 = b[0], b1 = b[1];
+
+		out[0] = x - b0;
+		out[1] = y - b1;
 		return out;
 	}
 
-	@:op(A-B) public static inline function opSub(a:Vec2, b:Vec2):Vec2
+	@:op(A-B) @:extern inline public static function opSub(a:Vec2, b:Vec2):Vec2
 	{
-		return a.sub(b, mk());
+		return a.sub(b,mk());
 	}
 
 	/**
-		Multiplies two Vec2's.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Multiplies `this` Vec2 and `b`, and stores the result at `out`
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
 	public function mul(b:Vec2, ?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
-		out[0] = this[0] * b[0];
-		out[1] = this[1] * b[1];
+		if (out == null)
+			out = t();
+		var x = this[0], y = this[1];
+		var b0 = b[0], b1 = b[1];
+
+		out[0] = x * b0;
+		out[1] = y * b1;
 		return out;
 	}
 
-	@:op(A*B) public static inline function opMul(a:Vec2, b:Vec2):Vec2
+	@:op(A*B) @:extern inline public static function opMul(a:Vec2, b:Vec2):Vec2
 	{
-		return a.mul(b, mk());
+		return a.mul(b,mk());
 	}
 
 	/**
-		Divides two Vec2's
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Divides `this` Vec2 and `b`, and stores the result at `out`
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
 	public function div(b:Vec2, ?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
-		out[0] = this[0] / b[0];
-		out[1] = this[1] / b[1];
+		if (out == null)
+			out = t();
+		var x = this[0], y = this[1];
+		var b0 = b[0], b1 = b[1];
+
+		out[0] = x / b0;
+		out[1] = y / b1;
+		out[2] = z / b2;
 		return out;
 	}
 
-	@:op(A/B) inline public static function opDiv(a:Vec2, b:Vec2):Vec2
+	@:op(A/B) @:extern inline public static function opDiv(a:Vec2, b:Vec2):Vec2
 	{
-		return a.div(b, mk());
-	}
-
-	/**
-		Returns the minimum of two Vec2's.
-		The `out` parameter is required and cannot be null.
-	 **/
-	public function min(b:Vec2, out:Vec2):Vec2
-	{
-		var a0 = this[0], b0 = b[0], a1 = this[1], b1 = b[1];
-		out[0] = a0 < b0 ? a0 : b0;
-		out[1] = a1 < b1 ? a1 : b1;
-		return out;
+		return a.div(b,mk());
 	}
 
 	/**
-		Returns the maximum of two Vec2's.
-		The `out` parameter is required and cannot be null.
-	 **/
-	public function max(b:Vec2, out:Vec2):Vec2
+		Returns the maximum of two vec4's
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
+	**/
+	@:extern inline public function max(b:Vec2, ?out:Vec2):Vec2
 	{
-		var a0 = this[0], b0 = b[0], a1 = this[1], b1 = b[1];
-		out[0] = a0 > b0 ? a0 : b0;
-		out[1] = a1 > b1 ? a1 : b1;
-		return out;
+		return Vec2Array.maxFrom(t(),0,b,0,out,0);
+	}
+
+	/**
+		Returns the minimum of two vec4's
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
+	**/
+	@:extern inline public function min(b:Vec2, ?out:Vec2):Vec2
+	{
+		return Vec2Array.minFrom(t(),0,b,0,out,0);
 	}
 
 	/**
 		Scales a Vec2 by a scalar number
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
-	public function scale(b:Float, ?out:Vec2):Vec2
+	@:extern inline public function scale(scalar:Single, ?out:Vec2):Vec2
 	{
-		if (out != null) out = t();
-		out[0] = this[0] * b;
-		out[1] = this[1] * b;
-		return out;
+		return Vec2Array.scale(t(),0,scalar,out,0);
 	}
 
-	@:op(A*B) inline public static function opScale(a:Vec2, b:Float):Vec2
+	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec2, b:Single):Vec2
 	{
-		return a.scale(b, mk());
+		return a.scale(b,mk());
 	}
 
-	//scaleAndAdd not added
-
-	public function dist(to:Vec2):Float
+	@:op(A*B) @:extern inline public static function opMulScalar_1(b:Single, a:Vec2):Vec2
 	{
-		var x = this[0] - to[0], y = this[1] - to[1];
-		return Math.sqrt(x*x + y*y);
+		return a.scale(b,mk());
 	}
 
-	public function sqrDist(to:Vec2):Float
+	/**
+		Calculates the euclidian distance between two Vec2's
+	**/
+	@:extern inline public function dist(b:Vec2):Float
 	{
-		var x = to[0] - this[0], y = to[1] - this[1];
-		return x * x + y * y;
+		return Vec2Array.dist(t(), 0, b, 0);
 	}
 
+	/**
+		Calculates the squared euclidian distance between two Vec2's
+	**/
+	@:extern inline public function sqrdist(b:Vec2):Float
+	{
+		return Vec2Array.sqrdist(t(),0,b,0);
+	}
+
+	/**
+		Calculates the length of a `Vec2`
+	**/
 	public function length():Float
 	{
 		var x = this[0], y = this[1];
-		return Math.sqrt(x*x + y*y);
+		return FastMath.sqrt(x*x + y*y + z*z);
+	}
+
+	/**
+		Calculates the squared length of a `Vec2`
+	**/
+	public function sqrlen():Float
+	{
+		var x = this[0], y = this[1];
+		return (x*x + y*y + z*z);
 	}
 
 	/**
 		Negates the components of a Vec2
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
-	public function negate(?out:Vec2):Vec2
+	@:extern inline public function neg(?out:Vec2):Vec2
 	{
-		if(out == null) out = t();
-		out[0] = -this[0];
-		out[1] = -this[1];
-		return out;
+		return Vec2Array.neg(t(),0,out,0);
 	}
 
-	@:op(-A) inline public static function opNeg(a:Vec2):Vec2
+	@:op(-A) @:extern inline public static function opNeg(v:Vec2):Vec2
 	{
-		return a.negate(mk());
+		return v.neg(mk());
 	}
 
 	/**
 		Normalize a Vec2
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
-	public function normalize(?out:Vec2):Vec2
+	@:extern inline public function normalize(?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
+		return Vec2Array.normalize(t(),0,out,0);
+	}
+
+	/**
+		Calculates the dot product of two Vec2's
+	**/
+	public function dot(b:Vec2):Float
+	{
 		var x = this[0], y = this[1];
-		var len = x*x + y*y;
-		if (len > 0)
-		{
-			len = FastMath.invsqrt(len);
-			out[0] = this[0] * len;
-			out[1] = this[1] * len;
-		}
-		return out;
+		return b[0] * x + b[1] * y;
 	}
-
-	/**
-		Dot product of two vectors
-	**/
-	public function dot(to:Vec2):Float
-	{
-		return this[0] * to[0] + this[1] * to[1];
-	}
-
-	/**
-		Computes the cross product of two Vec2's
-		If `out` is not specified, a new Vec3 will be created
-	**/
-	// public function cross(to:Vec2, ?out:Vec3):Vec2
-	// {
-	// 	if (out == null) out = Vec3.mk();
-	// 	var z = this[0] * to[1] - this[1] * to[0];
-	// 	out[0] = out[1] = 0;
-	// 	out[2] = z;
-	// 	return out;
-	// }
 
 	/**
 		Performs a linear interpolation between two Vec2's
-		If `out` is not specified, `this` vector will be changed in place
+
+			If `out` is null, it will implicitly be considered itself;
+			Returns the changed `Vec2`
 	**/
-	public function lerp(to:Vec2, tf:Float, ?out:Vec2):Vec2
+	public function lerp(to:Vec2, t:Float, ?out:Vec2):Vec2
 	{
-		if (out == null) out = t();
-		var ax = this[0], ay = this[1];
-		out[0] = ax + tf * (to[0] - ax);
-		out[1] = ay + tf * (to[1] - ay);
+		if (out == null)
+			out = t();
+		var x = this[0], y = this[1];
+		var bx = to[0], by = to[1];
+
+		out[0] = x + t * (bx - x);
+		out[1] = y + t * (by - y);
 		return out;
 	}
 
+	/**
+		Transforms the `Vec2` with a `Mat2`
 
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2`
+	**/
+	@:extern inline public function transformMat2(m:Mat2Array, ?out:Vec2):Vec2
+	{
+		return Vec2Array.transformMat2(t(),0,m,0,out,0).first();
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat2D`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2`
+	**/
+	@:extern inline public function transformMat2D(m:Mat2DArray, ?out:Vec2):Vec2
+	{
+		return Vec2Array.transformMat2D(t(),0,m,0,out,0).first();
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat3`
+		3rd vector component is implicitly `1`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2`
+	**/
+	@:extern inline public function transformMat3(m:Mat3Array, ?out:Vec2):Vec2
+	{
+		return Vec2Array.transformMat3(t(),0,m,0,out,0).first();
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat4`
+		3rd and 4th vector components are implicitly `1`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2`
+	**/
+	public function transformMat4(m:Mat4Array, ?out:Vec2):Vec2
+	{
+		return Vec2Array.transformMat4(t(),0,m,0,out,0).first();
+	}
+
+	public function toString():String
+	{
+		var buf = new StringBuf();
+		{
+			buf.add('vec4(');
+			var fst = true;
+			for (j in 0...2)
+			{
+				if (fst) fst = false; else buf.add(", ");
+				buf.add(this[ j ]);
+			}
+			buf.add(")");
+		}
+
+		return buf.toString();
+	}
+
+	//boilerplate
+  @:extern inline private function get_x():Single return this[0];
+  @:extern inline private function set_x(val:Single):Single return this[0] = val;
+  @:extern inline private function get_y():Single return this[1];
+  @:extern inline private function set_y(val:Single):Single return this[1] = val;
 }
