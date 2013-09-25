@@ -26,7 +26,7 @@ import haxe.ds.Vector;
 import taurine.Single;
 
 /**
-	4x4 Matrix
+	3x3 Matrix
 **/
 @:arrayAccess
 abstract Mat3(SingleVector) to Mat3Array

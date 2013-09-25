@@ -26,7 +26,21 @@ import haxe.ds.Vector;
 import taurine.Single;
 
 /**
-	4x4 Matrix
+	2x3 Matrix
+	A Mat2D contains six elements defined as:
+	```
+	[a, b,
+	 c, d,
+	 tx,ty]
+	```
+
+	This is a short form for the 3x3 matrix:
+	```
+	[a, b, 0
+	 c, d, 0
+	 tx,ty,1]
+	```
+	The last column is ignored so the array is shorter and operations are faster
 **/
 @:arrayAccess
 abstract Mat2D(SingleVector) to Mat2DArray
