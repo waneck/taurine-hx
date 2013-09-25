@@ -481,7 +481,7 @@ abstract Mat4Array(SingleVector)
 		index <<= 4;
 
 		scale_inline(index,x,y,z,out,outIndex);
-		return t();
+		return out;
 	}
 
 	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int):Mat4Array

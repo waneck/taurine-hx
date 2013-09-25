@@ -414,7 +414,7 @@ abstract Mat3Array(SingleVector)
 		index *= 9;
 
 		scale_inline(index,x,y,out,outIndex);
-		return t();
+		return out;
 	}
 
 	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int):Mat3Array
