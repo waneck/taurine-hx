@@ -195,7 +195,7 @@ abstract Mat4(SingleVector) to Mat4Array
 		Translates the mat4 with the `vec` Vec3
 		@see Mat4#translate
 	**/
-	@:extern inline public function vtranslate(vec:Vec3, ?out:Mat4):Mat4
+	@:extern inline public function translate_v(vec:Vec3, ?out:Mat4):Mat4
 	{
 		return translate(vec[0],vec[1],vec[2],out);
 	}
@@ -211,7 +211,7 @@ abstract Mat4(SingleVector) to Mat4Array
     return Mat4Array.scale(t(),0,x,y,z,out,0);
 	}
 
-	@:extern inline public function vscale(vec:Vec3, ?out:Mat4):Mat4
+	@:extern inline public function scale_v(vec:Vec3, ?out:Mat4):Mat4
 	{
 		return scale(vec[0],vec[1],vec[2],out);
 	}
@@ -227,7 +227,7 @@ abstract Mat4(SingleVector) to Mat4Array
     return Mat4Array.rotate(t(),0,angle,x,y,z,out,0);
 	}
 
-	@:extern inline public function vrotate(angle:Rad, vec:Vec3, ?out:Mat4):Mat4
+	@:extern inline public function rotate_v(angle:Rad, vec:Vec3, ?out:Mat4):Mat4
 	{
 		return rotate(angle,vec[0],vec[1],vec[2],out);
 	}
@@ -280,7 +280,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	/**
 		@see fromQuatPos
 	**/
-	@:extern inline public function vfromQuatPos(quat:Quat, vec:Vec3):Mat4
+	@:extern inline public function fromQuatPos_v(quat:Quat, vec:Vec3):Mat4
 	{
 		return fromQuatPos(quat,vec[0], vec[1], vec[2]);
 	}
@@ -291,7 +291,7 @@ abstract Mat4(SingleVector) to Mat4Array
 
 			Returns `this` matrix array
 	**/
-  @:extern inline public function fromQuat(quat:QuatArray):Mat4
+  @:extern inline public function fromQuat(quat:Quat):Mat4
 	{
     return Mat4Array.fromQuat(array(),0,quat,0);
 	}
@@ -343,7 +343,7 @@ abstract Mat4(SingleVector) to Mat4Array
     Alias to lookAt
 		@see lookAt
 	**/
-	@:extern inline public function vlookAt(eye:Vec3, center:Vec3, up:Vec3):Mat4
+	@:extern inline public function lookAt_v(eye:Vec3, center:Vec3, up:Vec3):Mat4
 	{
     return Mat4Array.lookAt(array(),0,eye,0,center,0,up);
 	}

@@ -419,6 +419,7 @@ abstract Mat4Array(SingleVector)
 
 			translate_inline_diff(index,x,y,z,out,outIndex);
 		}
+		return out;
 	}
 
 	@:extern inline private function translate_inline_same(index:Int, x:Single, y:Single, z:Single)
@@ -454,7 +455,7 @@ abstract Mat4Array(SingleVector)
 		Translates the mat4 with the `vec` Vec3
 		@see Mat4Array#translate
 	**/
-	@:extern inline public function vtranslate(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function translate_v(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
 	{
 		return translate(index,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -511,7 +512,7 @@ abstract Mat4Array(SingleVector)
 			}
 	}
 
-	@:extern inline public function vscale(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function scale_v(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
 	{
 		return scale(index,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -571,7 +572,7 @@ abstract Mat4Array(SingleVector)
     }
 	}
 
-	@:extern inline public function vrotate(index:Int, angle:Rad, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function rotate_v(index:Int, angle:Rad, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
 	{
 		return rotate(index,angle,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -806,7 +807,7 @@ abstract Mat4Array(SingleVector)
 	/**
 		@see fromQuatPos
 	**/
-	@:extern inline public function vfromQuatPos(index:Int, quat:QuatArray, quatIndex:Int, vec:Vec3):Mat4Array
+	@:extern inline public function fromQuatPos_v(index:Int, quat:QuatArray, quatIndex:Int, vec:Vec3):Mat4Array
 	{
 		return fromQuatPos(index,quat,quatIndex,vec[0],vec[1],vec[2]);
 	}
@@ -1049,7 +1050,7 @@ abstract Mat4Array(SingleVector)
 	/**
 		@see lookAt
 	**/
-	@:extern inline public function vlookAt(index:Int, eye:Vec3, center:Vec3, up:Vec3):Mat4Array
+	@:extern inline public function lookAt_v(index:Int, eye:Vec3, center:Vec3, up:Vec3):Mat4Array
 	{
 		return lookAt(index,eye,0,center,0,up);
 	}
