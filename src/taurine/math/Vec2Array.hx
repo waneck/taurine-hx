@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
+/* Copyright (c) 2013, Brandon Jones, Colin MacKenziewIV. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -26,16 +26,16 @@ import haxe.ds.Vector;
 import taurine.Single;
 
 /**
-	(x,y) vector array
+	3 Dimensional Vector Array
 **/
 abstract Vec2Array(SingleVector)
 {
 	/**
-		Creates a new Vec2Array with the given size
+		Creates a new Vec2Array with the given size.
 	**/
-	public inline function new(len:Int)
+	@:extern public inline function new(len:Int)
 	{
-		this = SingleVector.alloc(len << 2);
+		this = SingleVector.alloc(len << 1);
 	}
 
 	/**
@@ -43,240 +43,566 @@ abstract Vec2Array(SingleVector)
 	**/
 	public var length(get,never):Int;
 
-	private inline function get_length():Int
+	@:extern private inline function get_length():Int
 	{
-		return this.length >>> 2;
+		return this.length >>> 1;
 	}
 
-	private inline function t():Vec2 return untyped this; //get `this` as the abstract type
+	@:extern private inline function t():Vec2Array return untyped this; //get `this` as the abstract type
 
 	/**
-		Creates a new Vec2 initialized with values from `this` vector
+		Reinterpret `this` array as its first `Vec2`
 	**/
-	public function clone():Vec2
+	@:extern inline public function first():Vec2
 	{
-		var out = mk();
-		out[0] = this[0];
-		out[1] = this[1];
+		return untyped this;
+	}
+
+	@:extern public inline function getData():SingleVector
+	{
+		return this;
+	}
+
+	/**
+		Creates a copy of the current Vec2Array and returns it
+	**/
+	public function copy():Vec2Array
+	{
+		var len = this.length;
+		var ret = new Vec2Array(len >>> 1);
+		SingleVector.blit(this, 0, ret.getData(), 0, len);
+		return ret;
+	}
+
+	/**
+		Copies Vec2 at `index` to `out`, at `outIndex`
+			Returns `out` object
+	**/
+	public function copyTo(index:Int, out:Vec2Array, outIndex:Int)
+	{
+		index <<= 1; outIndex <<= 1;
+		out[outIndex] = this[index];
+		out[outIndex+1] = this[index+1];
 		return out;
 	}
 
 	/**
-		Copy the value from one Vec2 to another. The parameter `out` cannot be null.
+		Sets the components of `this` Vec2 at `index`
+			Returns itself
 	**/
-	public function copy(out:Vec2):Vec2
+	public function setAt(index:Int, x:Single, y:Single, z:Single):Vec2Array
 	{
-		out[0] = this[0];
-		out[1] = this[1];
-		return out;
-	}
-
-	/**
-		Set the components of a Vec2 to the given values
-	**/
-	public function set(x:Single, y:Single):Vec2
-	{
-		this[0] = x;
-		this[1] = y;
+		index <<= 1;
+		this[index] = x;
+		this[index+1] = y;
 		return t();
 	}
 
 	/**
-		Adds two Vec2's.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Adds `this` Vec2 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function add(b:Vec2, ?out:Vec2):Vec2
+	public function add(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out == null) out = t();
-		out[0] = this[0] + b[0];
-		out[1] = this[1] + b[1];
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
 
+		out[outIndex] = this[index] + b[bIndex];
+		out[outIndex+1] = this[index+1] + b[bIndex+1];
 		return out;
 	}
 
-	@:op(A+B) public static inline function opAdd(a:Vec2, b:Vec2):Vec2
-	{
-		return a.add(b, mk());
-	}
-
 	/**
-		Subtracts vector `b` from `this`.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Subtracts `this` Vec2 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function sub(b:Vec2, ?out:Vec2):Vec2
+	public function sub(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out == null) out = t();
-		out[0] = this[0] - b[0];
-		out[1] = this[1] - b[1];
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
+
+		out[outIndex] = this[index] - b[bIndex];
+		out[outIndex+1] = this[index+1] - b[bIndex+1];
 		return out;
 	}
 
-	@:op(A-B) public static inline function opSub(a:Vec2, b:Vec2):Vec2
-	{
-		return a.sub(b, mk());
-	}
-
 	/**
-		Multiplies two Vec2's.
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Multiplies `this` Vec2 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function mul(b:Vec2, ?out:Vec2):Vec2
+	public function mul(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out == null) out = t();
-		out[0] = this[0] * b[0];
-		out[1] = this[1] * b[1];
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
+
+		out[outIndex] = this[index] * b[bIndex];
+		out[outIndex+1] = this[index+1] * b[bIndex+1];
 		return out;
 	}
 
-	@:op(A*B) public static inline function opMul(a:Vec2, b:Vec2):Vec2
-	{
-		return a.mul(b, mk());
-	}
-
 	/**
-		Divides two Vec2's
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+		Divides `this` Vec2 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function div(b:Vec2, ?out:Vec2):Vec2
+	public function div(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out == null) out = t();
-		out[0] = this[0] / b[0];
-		out[1] = this[1] / b[1];
-		return out;
-	}
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
 
-	@:op(A/B) inline public static function opDiv(a:Vec2, b:Vec2):Vec2
-	{
-		return a.div(b, mk());
-	}
-
-	/**
-		Returns the minimum of two Vec2's.
-		The `out` parameter is required and cannot be null.
-	 **/
-	public function min(b:Vec2, out:Vec2):Vec2
-	{
-		var a0 = this[0], b0 = b[0], a1 = this[1], b1 = b[1];
-		out[0] = a0 < b0 ? a0 : b0;
-		out[1] = a1 < b1 ? a1 : b1;
+		out[outIndex] = this[index] / b[bIndex];
+		out[outIndex+1] = this[index+1] / b[bIndex+1];
 		return out;
 	}
 
 	/**
-		Returns the maximum of two Vec2's.
-		The `out` parameter is required and cannot be null.
-	 **/
-	public function max(b:Vec2, out:Vec2):Vec2
+		Returns the maximum of two vec4's
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function maxFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		var a0 = this[0], b0 = b[0], a1 = this[1], b1 = b[1];
-		out[0] = a0 > b0 ? a0 : b0;
-		out[1] = a1 > b1 ? a1 : b1;
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
+
+		var t0 = this[index], t1 = this[index+1];
+		var b0 = b[bIndex], b1 = b[bIndex+1];
+		out[outIndex] = t0 > b0 ? t0 : b0;
+		out[outIndex+1] = t1 > b1 ? t1 : b1;
+		return out;
+	}
+
+	/**
+		Returns the minimum of two vec4's
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function minFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		bIndex <<= 1;
+		outIndex <<= 1;
+
+		var t0 = this[index], t1 = this[index+1];
+		var b0 = b[bIndex], b1 = b[bIndex+1];
+		out[outIndex] = t0 < b0 ? t0 : b0;
+		out[outIndex+1] = t1 < b1 ? t1 : b1;
+		return out;
+	}
+
+	/**
+		Calculates the maximum of all elements in `this` Vec2Array,
+		starting from `startIndex` until `endIndex` (`endIndex` included),
+		and stores the result on `out` (at `outIndex`)
+
+			If `endIndex` is less than 0, it will be implicit to be len - endIndex_value;
+			If `endIndex` is greater than length, it will be length - 1
+			Returns the changed `Vec2Array`
+	**/
+	public function max(startIndex:Int=0, endIndex:Int=-1, out:Vec2Array, outIndex:Int):Vec2Array
+	{
+		var mx, my;
+		mx = my = FastMath.NEGATIVE_INFINITY;
+
+		var len = this.length >>> 1 - 1;
+		if (len < 0) return null;
+
+		if (endIndex < 0)
+			endIndex = len + endIndex + 1;
+		if (endIndex > len)
+			endIndex = len;
+
+		for (i in startIndex...endIndex)
+		{
+			var i = i << 1;
+			var tmp = this[ i ];
+			if (mx < tmp) mx = tmp;
+			tmp = this[ i + 1 ];
+			if (my < tmp) my = tmp;
+		}
+
+		out[outIndex+0] = mx;
+		out[outIndex+1] = my;
+		return out;
+	}
+
+	/**
+		Calculates the minimum of all elements in `this` Vec2Array,
+		starting from `startIndex` until `endIndex` (`endIndex` included),
+		and stores the result on `out` (at `outIndex`)
+
+			If `endIndex` is less than 0, it will be implicit to be len - endIndex_value;
+			If `endIndex` is greater than length, it will be length - 1
+			Returns the changed `Vec2Array`
+	**/
+	public function min(startIndex:Int=0, endIndex:Int=-1, out:Vec2Array, outIndex:Int):Vec2Array
+	{
+		var mx, my;
+		mx = my = FastMath.NEGATIVE_INFINITY;
+
+		var len = this.length >>> 1 - 1;
+		if (len < 0) return null;
+
+		if (endIndex < 0)
+			endIndex = len + endIndex + 1;
+		if (endIndex > len)
+			endIndex = len;
+		for (i in startIndex...endIndex)
+		{
+			var tmp = this[ (i << 1) + 0 ];
+			if (mx > tmp) mx = tmp;
+			tmp = this[ (i << 1) + 1 ];
+			if (my > tmp) my = tmp;
+		}
+
+		out[outIndex+0] = mx;
+		out[outIndex+1] = my;
 		return out;
 	}
 
 	/**
 		Scales a Vec2 by a scalar number
-		If `out` is not null, the result will be stored there; otherwise, the vector will be modified in place
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function scale(b:Float, ?out:Vec2):Vec2
+	public function scale(index:Int, scalar:Single, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out != null) out = t();
-		out[0] = this[0] * b;
-		out[1] = this[1] * b;
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1;
+		outIndex <<= 1;
+
+		out[outIndex] = this[index] * scalar;
+		out[outIndex+1] = this[index+1] * scalar;
 		return out;
 	}
 
-	@:op(A*B) inline public static function opScale(a:Vec2, b:Float):Vec2
+	/**
+		Calculates the euclidian distance between two Vec2's
+	**/
+	public function dist(index:Int, b:Vec2Array, bIndex:Int):Float
 	{
-		return a.scale(b, mk());
-	}
-
-	//scaleAndAdd not added
-
-	public function dist(to:Vec2):Float
-	{
-		var x = this[0] - to[0], y = this[1] - to[1];
-		return Math.sqrt(x*x + y*y);
-	}
-
-	public function sqrDist(to:Vec2):Float
-	{
-		var x = to[0] - this[0], y = to[1] - this[1];
-		return x * x + y * y;
-	}
-
-	public function length():Float
-	{
-		var x = this[0], y = this[1];
-		return Math.sqrt(x*x + y*y);
+		index <<= 1; bIndex <<= 1;
+		var a0 = this[index], a1 = this[index+1];
+		var b0 = b[bIndex], b1 = b[bIndex+1];
+		a0 -= b0; a1 -= b1; a2 -= b2;
+		return FastMath.sqrt(a0*a0 + a1*a1 + a2*a2);
 	}
 
 	/**
-		Negates the components of a Vec2
+		Calculates the squared euclidian distance between two Vec2's
 	**/
-	public function negate(?out:Vec2):Vec2
+	public function sqrdist(index:Int, b:Vec2Array, bIndex:Int):Float
 	{
-		if(out == null) out = t();
-		out[0] = -this[0];
-		out[1] = -this[1];
+		index <<= 1; bIndex <<= 1;
+		var a0 = this[index], a1 = this[index+1];
+		var b0 = b[bIndex], b1 = b[bIndex+1];
+		a0 -= b0; a1 -= b1; a2 -= b2;
+		return (a0*a0 + a1*a1 + a2*a2);
+	}
+
+	/**
+		Calculates the length of a `Vec2` at `index`
+	**/
+	public function lengthAt(index:Int):Float
+	{
+		index <<= 1;
+		var x = this[index], y = this[index+1];
+		return FastMath.sqrt(x*x + y*y);
+	}
+
+	/**
+		Calculates the squared length of a `Vec2` at `index`
+	**/
+	public function sqrlenAt(index:Int):Float
+	{
+		index <<= 1;
+		var x = this[index], y = this[index+1];
+		return (x*x + y*y);
+	}
+
+	/**
+		Negates the components of a Vec2 at `index`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function neg(index:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1;
+		var x = this[index], y = this[index+1];
+		out[outIndex] = -x;
+		out[outIndex+1] = -y;
 		return out;
 	}
 
-	@:op(-A) inline public static function opNeg(a:Vec2):Vec2
+	/**
+		Normalize a Vec2Array at `index`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function normalize(index:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		return a.negate(mk());
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1;
+		normalize_inline(index,out,outIndex);
+
+		return out;
 	}
 
-	/**
-		Normalize a Vec2
-	**/
-	public function normalize(?out:Vec2):Vec2
+	@:extern inline private function normalize_inline(index:Int, out:Vec2Array, outIndex:Int):Void
 	{
-		if (out == null) out = t();
-		var x = this[0], y = this[1];
+		var x = this[index], y = this[index+1];
 		var len = x*x + y*y;
 		if (len > 0)
 		{
 			len = FastMath.invsqrt(len);
-			out[0] = this[0] * len;
-			out[1] = this[1] * len;
+			out[outIndex] = x * len;
+			out[outIndex+1] = y * len;
 		}
-		return out;
 	}
 
 	/**
-		Dot product of two vectors
+		Calculates the dot product of two Vec2's
 	**/
-	public function dot(to:Vec2):Float
+	public function dot(index:Int, b:Vec2Array, bIndex:Int):Float
 	{
-		return this[0] * to[0] + this[1] * to[1];
+		index <<= 1; bIndex <<= 1;
+		var x = this[index], y = this[index+1];
+		return b[bIndex] * x + b[bIndex+1] * y;
 	}
-
-	/**
-		Computes the cross product of two Vec2's
-		If `out` is not specified, a new Vec3 will be created
-	**/
-	// public function cross(to:Vec2, ?out:Vec3):Vec2
-	// {
-	// 	if (out == null) out = Vec3.mk();
-	// 	var z = this[0] * to[1] - this[1] * to[0];
-	// 	out[0] = out[1] = 0;
-	// 	out[2] = z;
-	// 	return out;
-	// }
 
 	/**
 		Performs a linear interpolation between two Vec2's
-		If `out` is not specified, `this` vector will be changed in place
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
 	**/
-	public function lerp(to:Vec2, tf:Float, ?out:Vec2):Vec2
+	public function lerp(index:Int, to:Vec2Array, toIndex:Int, t:Float, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
-		if (out == null) out = t();
-		var ax = this[0], ay = this[1];
-		out[0] = ax + tf * (to[0] - ax);
-		out[1] = ay + tf * (to[1] - ay);
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1; toIndex <<= 1;
+		var x = this[index], y = this[index+1];
+		var bx = to[toIndex], by = to[toIndex+1];
+
+		out[outIndex] = x + t * (bx - x);
+		out[outIndex+1] = y + t * (by - y);
 		return out;
 	}
 
+	/**
+		Transforms the `Vec2` with a `Mat2`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function transformMat2(index:Int, m:Mat2Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1; mIndex <<= 2;
+
+		var x = this[index+0], y = this[index+1];
+		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y;
+    out[outIndex+1] = m[mIndex+1] * x + m[mIndex+3] * y;
+		return out;
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat2D`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function transformMat2D(index:Int, m:Mat2DArray, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1; mIndex <<= 3;
+
+		var x = this[index+0], y = this[index+1];
+		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y + m[mIndex+4];
+    out[outIndex+1] = m[mIndex+1] * x + m[mIndex+3] * y + m[mIndex+4];
+		return out;
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat3`
+		3rd vector component is implicitly `1`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function transformMat3(index:Int, m:Mat3Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1; mIndex <<= 4;
+		var x = this[index], y = this[index+1];
+		var m0 = m[mIndex], m1 = m[mIndex+1],  m3 = m[mIndex + 3],
+				m4 = m[mIndex + 4],  m6 = m[mIndex + 6], m7 = m[mIndex + 7];
+    out[outIndex+0] = m0 * x + m3 * y + m6;
+    out[outIndex+1] = m1 * x + m4 * y + m7;
+
+		return out;
+	}
+
+	/**
+		Transforms the `Vec2` with a `Mat4`
+		3rd and 4th vector components are implicitly `1`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec2Array`
+	**/
+	public function transformMat4(index:Int, m:Mat4Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 1; outIndex <<= 1; mIndex <<= 4;
+		var x = this[index], y = this[index+1], z = this[index+2];
+		var m0 = m[mIndex], m1 = m[mIndex+1],
+				m4 = m[mIndex + 4], m5 = m[mIndex + 5],
+				m12 = m[mIndex + 12], m13 = m[mIndex + 13];
+    out[outIndex+0] = m0 * x + m4 * y + m8 * z + m12;
+    out[outIndex+1] = m1 * x + m5 * y + m9 * z + m13;
+
+		return out;
+	}
+
+	@:extern inline public function forEach(fn:Vec2Array->Int->Void):Void
+	{
+		var len = this.length >>> 1;
+		for (i in 0...len)
+		{
+			fn(t(),i);
+		}
+	}
+
+	public function toString():String
+	{
+		var buf = new StringBuf();
+		var len = this.length >>> 1;
+		if (len << 1 > this.length) len--; //be safe
+		buf.add('vec3[');
+		buf.add(len);
+		buf.add(']\n{');
+		for (i in 0...len)
+		{
+			buf.add('\n\t');
+			buf.add('vec3(');
+			var fst = true;
+			for (j in 0...3)
+			{
+				if (fst) fst = false; else buf.add(", ");
+				buf.add(this[ (i << 1) + j ]);
+			}
+			buf.add("), ");
+		}
+		buf.add("\n}");
+
+		return buf.toString();
+	}
 
 }

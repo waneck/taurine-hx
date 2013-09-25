@@ -35,7 +35,7 @@ abstract Vec3Array(SingleVector)
 	**/
 	@:extern public inline function new(len:Int)
 	{
-		this = SingleVector.alloc(len << 2);
+		this = SingleVector.alloc(len << 2); //for better alignment, make each element occupy 4 singles
 	}
 
 	/**
@@ -304,8 +304,8 @@ abstract Vec3Array(SingleVector)
 	**/
 	public function min(startIndex:Int=0, endIndex:Int=-1, out:Vec3Array, outIndex:Int):Vec3Array
 	{
-		var mx, my, mz, mw;
-		mx = my = mz = mw = FastMath.NEGATIVE_INFINITY;
+		var mx, my, mz;
+		mx = my = mz = FastMath.NEGATIVE_INFINITY;
 
 		var len = this.length >>> 2 - 1;
 		if (len < 0) return null;
@@ -322,8 +322,6 @@ abstract Vec3Array(SingleVector)
 			if (my > tmp) my = tmp;
 			tmp = this[ (i << 2) + 2 ];
 			if (mz > tmp) mz = tmp;
-			tmp = this[ (i << 2) + 3 ];
-			if (mw > tmp) mw = tmp;
 		}
 
 		out[outIndex+0] = mx;
@@ -494,6 +492,7 @@ abstract Vec3Array(SingleVector)
 
 	/**
 		Transforms the `Vec3` with a `Mat4`
+		4th vector component is implicitly `1`
 
 			If `out` is null, it will implicitly be considered itself;
 			If `outIndex` is null, it will be considered to be the same as `index`.
@@ -509,13 +508,40 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2; outIndex <<= 2; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2];
-		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2], m3 = m[mIndex + 3],
-				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6], m7 = m[mIndex + 7],
-				m8 = m[mIndex + 8], m9 = m[mIndex + 9], m10 = m[mIndex + 10], m11 = m[mIndex + 11],
-				m12 = m[mIndex + 12], m13 = m[mIndex + 13], m14 = m[mIndex + 14], m15 = m[mIndex + 15];
+		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2],
+				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6],
+				m8 = m[mIndex + 8], m9 = m[mIndex + 9], m10 = m[mIndex + 10],
+				m12 = m[mIndex + 12], m13 = m[mIndex + 13], m14 = m[mIndex + 14];
     out[outIndex+0] = m0 * x + m4 * y + m8 * z + m12;
     out[outIndex+1] = m1 * x + m5 * y + m9 * z + m13;
     out[outIndex+2] = m2 * x + m6 * y + m10 * z + m14;
+
+		return out;
+	}
+
+	/**
+		Transforms the `Vec3` with a `Mat3`
+
+			If `out` is null, it will implicitly be considered itself;
+			If `outIndex` is null, it will be considered to be the same as `index`.
+			Returns the changed `Vec3Array`
+	**/
+	public function transformMat3(index:Int, m:Mat3Array, mIndex:Int, ?out:Vec3Array, ?outIndex:Int):Vec3Array
+	{
+		if (out == null)
+		{
+			out = t();
+			if (outIndex == null)
+				outIndex = index;
+		}
+		index <<= 2; outIndex <<= 2; mIndex <<= 4;
+		var x = this[index], y = this[index+1], z = this[index+2];
+		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2], m3 = m[mIndex + 3],
+				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6], m7 = m[mIndex + 7],
+				m8 = m[mIndex + 8];
+    out[outIndex+0] = m0 * x + m3 * y + m6 * z;
+    out[outIndex+1] = m1 * x + m4 * y + m7 * z;
+    out[outIndex+2] = m2 * x + m5 * y + m8 * z;
 
 		return out;
 	}
