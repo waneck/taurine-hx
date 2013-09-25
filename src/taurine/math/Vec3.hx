@@ -26,54 +26,52 @@ import haxe.ds.Vector;
 import taurine.Single;
 
 /**
-	4 Dimensional Vector
+	3 Dimensional Vector
 **/
 @:arrayAccess
-abstract Vec4(SingleVector) to Vec4Array
+abstract Vec3(SingleVector) to Vec3Array
 {
 	public var x(get,set):Single;
 	public var y(get,set):Single;
 	public var z(get,set):Single;
-	public var w(get,set):Single;
 
 	/**
-		Creates a new Vec4
+		Creates a new Vec3
 	**/
-	@:extern public inline function new(x=0.,y=0.,z=0.,w=0.)
+	@:extern public inline function new(x=0.,y=0.,z=0.)
 	{
-		this = SingleVector.alloc(4);
-		this[0] = x; this[1] = y; this[2] = z; this[3] = w;
+		this = SingleVector.alloc(3);
+		this[0] = x; this[1] = y; this[2] = z;
 	}
 
 	/**
-		Creates an empty Vec4
+		Creates an empty Vec3
 	**/
-	@:extern inline public static function mk():Vec4
+	@:extern inline public static function mk():Vec3
 	{
-		return untyped SingleVector.alloc(4);
+		return untyped SingleVector.alloc(3);
 	}
 
   /**
-    Tells whether this Vec4 has more than one Vec4 element
+    Tells whether this Vec3 has more than one Vec3 element
   **/
   @:extern inline public function hasMultiple():Bool
   {
-    return this.length > 4;
+    return this.length > 3;
   }
 
-	@:extern private inline function t():Vec4 return untyped this; //get `this` as the abstract type
+	@:extern private inline function t():Vec3 return untyped this; //get `this` as the abstract type
 
 	/**
-		Clones `this` Vec4
+		Clones `this` Vec3
 	**/
-	public function clone():Vec4
+	public function clone():Vec3
 	{
-		var x = this[0], y = this[1], z = this[2], w = this[3];
+		var x = this[0], y = this[1], z = this[2];
 		var ret = mk();
 		ret[0] = x;
 		ret[1] = y;
 		ret[2] = z;
-		ret[3] = w;
 
 		return ret;
 	}
@@ -81,14 +79,13 @@ abstract Vec4(SingleVector) to Vec4Array
 	/**
 		Copies `this` Vector to `dest`, and returns `dest`
 	**/
-	public function copyTo(dest:Vec4):Vec4
+	public function copyTo(dest:Vec3):Vec3
 	{
-		var x = this[0], y = this[1], z = this[2], w = this[3];
+		var x = this[0], y = this[1], z = this[2];
 
 		dest[0] = x;
 		dest[1] = y;
 		dest[2] = z;
-		dest[3] = w;
 
 		return dest;
 	}
@@ -96,7 +93,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	/**
 		Reinterpret `this` array as an array (of length 1)
 	**/
-	@:extern inline public function array():Vec4Array
+	@:extern inline public function array():Vec3Array
 	{
 		return untyped this;
 	}
@@ -107,114 +104,109 @@ abstract Vec4(SingleVector) to Vec4Array
 	}
 
 	/**
-		Sets the components of `this` Vec4
+		Sets the components of `this` Vec3
 			Returns itself
 	**/
-	public function set(x:Single, y:Single, z:Single, w:Single):Vec4
+	public function set(x:Single, y:Single, z:Single):Vec3
 	{
 		this[0] = x;
 		this[1] = y;
 		this[2] = z;
-		this[3] = w;
 		return t();
 	}
 
 	/**
-		Adds `this` Vec4 to `b`, and stores the result at `out`
+		Adds `this` Vec3 to `b`, and stores the result at `out`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	public function add(b:Vec4, ?out:Vec4):Vec4
+	public function add(b:Vec3, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+		var x = this[0], y = this[1], z = this[2];
+		var b0 = b[0], b1 = b[1], b2 = b[2];
 
 		out[0] = x + b0;
 		out[1] = y + b1;
 		out[2] = z + b2;
-		out[3] = w + b3;
 		return out;
 	}
 
-	@:op(A+B) @:extern inline public static function opAdd(a:Vec4, b:Vec4):Vec4
+	@:op(A+B) @:extern inline public static function opAdd(a:Vec3, b:Vec3):Vec3
 	{
 		return a.add(b,mk());
 	}
 
 	/**
-		Subtracts `this` Vec4 and `b`, and stores the result at `out`
+		Subtracts `this` Vec3 and `b`, and stores the result at `out`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	public function sub(b:Vec4, ?out:Vec4):Vec4
+	public function sub(b:Vec3, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+		var x = this[0], y = this[1], z = this[2];
+		var b0 = b[0], b1 = b[1], b2 = b[2];
 
 		out[0] = x - b0;
 		out[1] = y - b1;
 		out[2] = z - b2;
-		out[3] = w - b3;
 		return out;
 	}
 
-	@:op(A-B) @:extern inline public static function opSub(a:Vec4, b:Vec4):Vec4
+	@:op(A-B) @:extern inline public static function opSub(a:Vec3, b:Vec3):Vec3
 	{
 		return a.sub(b,mk());
 	}
 
 	/**
-		Multiplies `this` Vec4 and `b`, and stores the result at `out`
+		Multiplies `this` Vec3 and `b`, and stores the result at `out`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	public function mul(b:Vec4, ?out:Vec4):Vec4
+	public function mul(b:Vec3, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+		var x = this[0], y = this[1], z = this[2];
+		var b0 = b[0], b1 = b[1], b2 = b[2];
 
 		out[0] = x * b0;
 		out[1] = y * b1;
 		out[2] = z * b2;
-		out[3] = w * b3;
 		return out;
 	}
 
-	@:op(A*B) @:extern inline public static function opMul(a:Vec4, b:Vec4):Vec4
+	@:op(A*B) @:extern inline public static function opMul(a:Vec3, b:Vec3):Vec3
 	{
 		return a.mul(b,mk());
 	}
 
 	/**
-		Divides `this` Vec4 and `b`, and stores the result at `out`
+		Divides `this` Vec3 and `b`, and stores the result at `out`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	public function div(b:Vec4, ?out:Vec4):Vec4
+	public function div(b:Vec3, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		var b0 = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+		var x = this[0], y = this[1], z = this[2];
+		var b0 = b[0], b1 = b[1], b2 = b[2];
 
 		out[0] = x / b0;
 		out[1] = y / b1;
 		out[2] = z / b2;
-		out[3] = w / b3;
 		return out;
 	}
 
-	@:op(A/B) @:extern inline public static function opDiv(a:Vec4, b:Vec4):Vec4
+	@:op(A/B) @:extern inline public static function opDiv(a:Vec3, b:Vec3):Vec3
 	{
 		return a.div(b,mk());
 	}
@@ -223,155 +215,154 @@ abstract Vec4(SingleVector) to Vec4Array
 		Returns the maximum of two vec4's
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function max(b:Vec4, ?out:Vec4):Vec4
+	@:extern inline public function max(b:Vec3, ?out:Vec3):Vec3
 	{
-		return Vec4Array.maxFrom(t(),0,b,0,out,0);
+		return Vec3Array.maxFrom(t(),0,b,0,out,0);
 	}
 
 	/**
 		Returns the minimum of two vec4's
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function min(b:Vec4, ?out:Vec4):Vec4
+	@:extern inline public function min(b:Vec3, ?out:Vec3):Vec3
 	{
-		return Vec4Array.minFrom(t(),0,b,0,out,0);
+		return Vec3Array.minFrom(t(),0,b,0,out,0);
 	}
 
 	/**
-		Scales a Vec4 by a scalar number
+		Scales a Vec3 by a scalar number
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function scale(scalar:Single, ?out:Vec4):Vec4
+	@:extern inline public function scale(scalar:Single, ?out:Vec3):Vec3
 	{
-		return Vec4Array.scale(t(),0,scalar,out,0);
+		return Vec3Array.scale(t(),0,scalar,out,0);
 	}
 
-	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec4, b:Single):Vec4
+	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec3, b:Single):Vec3
 	{
 		return a.scale(b,mk());
 	}
 
-	@:op(A*B) @:extern inline public static function opMulScalar_1(b:Single, a:Vec4):Vec4
+	@:op(A*B) @:extern inline public static function opMulScalar_1(b:Single, a:Vec3):Vec3
 	{
 		return a.scale(b,mk());
 	}
 
 	/**
-		Calculates the euclidian distance between two Vec4's
+		Calculates the euclidian distance between two Vec3's
 	**/
-	@:extern inline public function dist(b:Vec4):Float
+	@:extern inline public function dist(b:Vec3):Float
 	{
-		return Vec4Array.dist(t(), 0, b, 0);
+		return Vec3Array.dist(t(), 0, b, 0);
 	}
 
 	/**
-		Calculates the squared euclidian distance between two Vec4's
+		Calculates the squared euclidian distance between two Vec3's
 	**/
-	@:extern inline public function sqrdist(b:Vec4):Float
+	@:extern inline public function sqrdist(b:Vec3):Float
 	{
-		return Vec4Array.sqrdist(t(),0,b,0);
+		return Vec3Array.sqrdist(t(),0,b,0);
 	}
 
 	/**
-		Calculates the length of a `Vec4`
+		Calculates the length of a `Vec3`
 	**/
 	public function length():Float
 	{
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		return FastMath.sqrt(x*x + y*y + z*z + w*w);
+		var x = this[0], y = this[1], z = this[2];
+		return FastMath.sqrt(x*x + y*y + z*z);
 	}
 
 	/**
-		Calculates the squared length of a `Vec4`
+		Calculates the squared length of a `Vec3`
 	**/
 	public function sqrlen():Float
 	{
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		return (x*x + y*y + z*z + w*w);
+		var x = this[0], y = this[1], z = this[2];
+		return (x*x + y*y + z*z);
 	}
 
 	/**
-		Negates the components of a Vec4
+		Negates the components of a Vec3
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function neg(?out:Vec4):Vec4
+	@:extern inline public function neg(?out:Vec3):Vec3
 	{
-		return Vec4Array.neg(t(),0,out,0);
+		return Vec3Array.neg(t(),0,out,0);
 	}
 
-	@:op(-A) @:extern inline public static function opNeg(v:Vec4):Vec4
+	@:op(-A) @:extern inline public static function opNeg(v:Vec3):Vec3
 	{
 		return v.neg(mk());
 	}
 
 	/**
-		Normalize a Vec4
+		Normalize a Vec3
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function normalize(?out:Vec4):Vec4
+	@:extern inline public function normalize(?out:Vec3):Vec3
 	{
-		return Vec4Array.normalize(t(),0,out,0);
+		return Vec3Array.normalize(t(),0,out,0);
 	}
 
 	/**
-		Calculates the dot product of two Vec4's
+		Calculates the dot product of two Vec3's
 	**/
-	public function dot(b:Vec4):Float
+	public function dot(b:Vec3):Float
 	{
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		return b[0] * x + b[1] * y + b[2] * z + b[3] * w;
+		var x = this[0], y = this[1], z = this[2];
+		return b[0] * x + b[1] * y + b[2] * z;
 	}
 
 	/**
-		Performs a linear interpolation between two Vec4's
+		Performs a linear interpolation between two Vec3's
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	public function lerp(to:Vec4, t:Float, ?out:Vec4):Vec4
+	public function lerp(to:Vec3, t:Float, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
-		var x = this[0], y = this[1], z = this[2], w = this[3];
-		var bx = to[0], by = to[1], bz = to[2], bw = to[3];
+		var x = this[0], y = this[1], z = this[2];
+		var bx = to[0], by = to[1], bz = to[2];
 
 		out[0] = x + t * (bx - x);
 		out[1] = y + t * (by - y);
 		out[2] = z + t * (bz - z);
-		out[3] = w + t * (bw - w);
 		return out;
 	}
 
 	/**
-		Transforms the `Vec4` with a `Mat4`
+		Transforms the `Vec3` with a `Mat4`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function transformMat4(m:Mat4, ?out:Vec4):Vec4
+	@:extern inline public function transformMat4(m:Mat4, ?out:Vec3):Vec3
 	{
-		return Vec4Array.transformMat4(t(),0,m,0,out,0);
+		return Vec3Array.transformMat4(t(),0,m,0,out,0);
 	}
 
 	/**
-		Transforms the `Vec4` with a `Quat`
+		Transforms the `Vec3` with a `Quat`
 
 			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Vec4`
+			Returns the changed `Vec3`
 	**/
-	@:extern inline public function transformQuat(q:Quat, ?out:Vec4):Vec4
+	@:extern inline public function transformQuat(q:Quat, ?out:Vec3):Vec3
 	{
-		return Vec4Array.transformQuat(t(),0,q,0,out,0);
+		return Vec3Array.transformQuat(t(),0,q,0,out,0);
 	}
 
 	public function toString():String
@@ -380,10 +371,10 @@ abstract Vec4(SingleVector) to Vec4Array
 		{
 			buf.add('vec4(');
 			var fst = true;
-			for (j in 0...4)
+			for (j in 0...3)
 			{
 				if (fst) fst = false; else buf.add(", ");
-				buf.add(this[ (i << 4) + j ]);
+				buf.add(this[ j ]);
 			}
 			buf.add(")");
 		}
@@ -398,6 +389,4 @@ abstract Vec4(SingleVector) to Vec4Array
   @:extern inline private function set_y(val:Single):Single return this[1] = val;
   @:extern inline private function get_z():Single return this[2];
   @:extern inline private function set_z(val:Single):Single return this[2] = val;
-  @:extern inline private function get_w():Single return this[3];
-  @:extern inline private function set_w(val:Single):Single return this[3] = val;
 }
