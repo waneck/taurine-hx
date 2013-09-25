@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
+/* Copyright (c) 2013, Brandon Jones, Colin MacKenziewIV. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
@@ -440,6 +440,13 @@ abstract Vec4Array(SingleVector)
 				outIndex = index;
 		}
 		index <<= 2; outIndex <<= 2;
+		normalize_inline(index,out,outIndex);
+
+		return out;
+	}
+
+	@:extern inline private function normalize_inline(index:Int, out:Vec4Array, outIndex:Int):Void
+	{
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
 		var len = x*x + y*y + z*z + w*w;
 		if (len > 0)
@@ -450,8 +457,6 @@ abstract Vec4Array(SingleVector)
 			out[outIndex+2] = z * len;
 			out[outIndex+3] = w * len;
 		}
-
-		return out;
 	}
 
 	/**
@@ -479,7 +484,7 @@ abstract Vec4Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2; bIndex <<= 2;
+		index <<= 2; outIndex <<= 2; toIndex <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
 		var bx = to[toIndex], by = to[toIndex+1], bz = to[toIndex+2], bw = to[toIndex+3];
 
@@ -576,7 +581,7 @@ abstract Vec4Array(SingleVector)
 			for (j in 0...4)
 			{
 				if (fst) fst = false; else buf.add(", ");
-				buf.add(this[ (i << 4) + j ]);
+				buf.add(this[ (i << 2) + j ]);
 			}
 			buf.add("), ");
 		}
