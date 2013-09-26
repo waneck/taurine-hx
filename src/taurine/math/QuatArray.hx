@@ -79,7 +79,7 @@ abstract QuatArray(SingleVector)
 		//x 1 0 0
 		//y 0 1 0
 		var dot = a.dot(aIndex, b, bIndex);
-		aIndex *= 3; bIndex *= 3; index <<= 2;
+		aIndex <<= 2; bIndex <<= 2; index <<= 2;
 		var ax = a[aIndex], ay = a[aIndex+1], az = a[aIndex+2];
 		var bx = b[bIndex], by = b[bIndex+1], bz = b[bIndex+2];
 		if (dot < -0.999999) {
@@ -136,7 +136,7 @@ abstract QuatArray(SingleVector)
 	**/
 	public function setAxes(index:Int, view:Vec3Array, vindex:Int, right:Vec3Array, rindex:Int, up:Vec3Array, uindex:Int):QuatArray
 	{
-		index <<= 2; vindex *= 3; rindex *= 3; uindex *= 3;
+		index <<= 2; vindex <<= 2; rindex <<= 2; uindex <<= 2;
 		var m0 = right[rindex];
 		var m3 = right[rindex+1];
 		var m6 = right[rindex+2];

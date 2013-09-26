@@ -962,8 +962,8 @@ abstract Mat4Array(SingleVector)
 	public function lookAt(index:Int, eye:Vec3Array, eyeIndex:Int, center:Vec3Array, centerIndex:Int, up:Vec3):Mat4Array
 	{
 		index <<= 4;
-		eyeIndex = eyeIndex * 3;
-		centerIndex = centerIndex * 3;
+		eyeIndex = eyeIndex << 2;
+		centerIndex = centerIndex << 2;
 
 		lookAt_inline(index, eye, eyeIndex, center, centerIndex, up);
 		return t();
