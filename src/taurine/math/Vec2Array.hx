@@ -580,6 +580,15 @@ abstract Vec2Array(SingleVector)
 		}
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(index:Int, b:Vec2Array, bIndex:Int):Bool
+	{
+		index <<= 1; bIndex <<= 1;
+		return (this == b.getData() && index == bIndex) || (this != null && b != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1]);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

@@ -1055,6 +1055,20 @@ abstract Mat4Array(SingleVector)
 		return lookAt(index,eye,0,center,0,up);
 	}
 
+	public function eq(index:Int, b:Mat4Array, bIndex:Int):Bool
+	{
+		index <<= 4; bIndex <<= 4;
+		if (this == b.getData() && index == bIndex)
+			return true;
+		else if (this == null || b == null)
+			return false;
+
+		for(i in 0...16)
+			if (this[index+i] != b[bIndex+i])
+				return false;
+		return true;
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

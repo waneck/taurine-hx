@@ -276,6 +276,28 @@ abstract Mat3(SingleVector) to Mat3Array
 		return buf.toString();
 	}
 
+	public function eq(b:Mat3):Bool
+	{
+		if (this == b.getData())
+			return true;
+		else if (this == null || b == null)
+			return false;
+		for (i in 0...9)
+			if (this[i] != b[i])
+				return false;
+		return true;
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Mat3, b:Mat3):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Mat3, b:Mat3):Bool
+	{
+		return !a.eq(b);
+	}
+
 	//boilerplate
   @:extern inline private function get_a00():Single return this[0];
   @:extern inline private function set_a00(val:Single):Single return this[0] = val;

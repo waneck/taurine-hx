@@ -373,6 +373,28 @@ abstract Mat4(SingleVector) to Mat4Array
 		return buf.toString();
 	}
 
+	public function eq(b:Mat4):Bool
+	{
+		if (this == b.getData())
+			return true;
+		else if (this == null || b == null)
+			return false;
+		for (i in 0...16)
+			if (this[i] != b[i])
+				return false;
+		return true;
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Mat4, b:Mat4):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Mat4, b:Mat4):Bool
+	{
+		return !a.eq(b);
+	}
+
 	//boilerplate
   @:extern inline private function get_a00():Single return this[0];
   @:extern inline private function set_a00(val:Single):Single return this[0] = val;

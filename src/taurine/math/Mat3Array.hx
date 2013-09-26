@@ -604,6 +604,20 @@ abstract Mat3Array(SingleVector)
     return t();
 	}
 
+	public function eq(index:Int, b:Mat3Array, bIndex:Int):Bool
+	{
+		index *= 9; bIndex *= 9;
+		if (this == b.getData() && index == bIndex)
+			return true;
+		else if (this == null || b == null)
+			return false;
+
+		for(i in 0...9)
+			if (this[index+i] != b[bIndex+i])
+				return false;
+		return true;
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

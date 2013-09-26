@@ -323,6 +323,20 @@ abstract Mat2DArray(SingleVector)
 		return rotate(index,angle,vec[0],vec[1],out,outIndex);
 	}
 
+	public function eq(index:Int, b:Mat2DArray, bIndex:Int):Bool
+	{
+		index <<= 3; bIndex <<= 3;
+		if (this == b.getData() && index == bIndex)
+			return true;
+		else if (this == null || b == null)
+			return false;
+
+		for(i in 0...6)
+			if (this[index+i] != b[bIndex+i])
+				return false;
+		return true;
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

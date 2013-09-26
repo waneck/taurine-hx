@@ -587,6 +587,15 @@ abstract Vec3Array(SingleVector)
 		}
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(index:Int, b:Vec3Array, bIndex:Int):Bool
+	{
+		index <<= 2; bIndex <<= 2;
+		return (this == b.getData() && index == bIndex) || (b != null && this != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2]);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

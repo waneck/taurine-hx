@@ -604,6 +604,15 @@ abstract QuatArray(SingleVector)
 		return fromMat3_internal(index, m[mIndex+0],m[mIndex+1],m[mIndex+2],m[mIndex+3],m[mIndex+4],m[mIndex+5],m[mIndex+6],m[mIndex+7],m[mIndex+8]);
 	}
 
+	/**
+		Returns true if the quaternions are equal
+	**/
+	public function eq(index:Int, b:QuatArray, bIndex:Int):Bool
+	{
+		index <<= 2; bIndex <<= 2;
+		return (this == b.getData() && index == bIndex) || (this != null && b != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2] && b[bIndex+3] == this[index+3]);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

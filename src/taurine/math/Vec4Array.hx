@@ -577,6 +577,15 @@ abstract Vec4Array(SingleVector)
 		}
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(index:Int, b:Vec4Array, bIndex:Int):Bool
+	{
+		index <<= 2; bIndex <<= 2;
+		return (this == b.getData() && index == bIndex) || (this != null && b != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2] && b[bIndex+3] == this[index+3]);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

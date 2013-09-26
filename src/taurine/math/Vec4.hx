@@ -374,6 +374,24 @@ abstract Vec4(SingleVector) to Vec4Array
 		return Vec4Array.transformQuat(t(),0,q,0,out,0);
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(b:Vec4):Bool
+	{
+		return this == b.getData() || (b != null && this != null && b[0] == this[0] && b[1] == this[1] && this[2] == b[2] && this[3] == b[3]);
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Vec4, b:Vec4):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Vec4, b:Vec4):Bool
+	{
+		return !a.eq(b);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

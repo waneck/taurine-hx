@@ -365,6 +365,24 @@ abstract Vec3(SingleVector) to Vec3Array
 		return Vec3Array.transformQuat(t(),0,q,0,out,0);
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(b:Vec3):Bool
+	{
+		return this == b.getData() || (b != null && this != null && b[0] == this[0] && b[1] == this[1] && this[2] == b[2]);
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Vec3, b:Vec3):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Vec3, b:Vec3):Bool
+	{
+		return !a.eq(b);
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();

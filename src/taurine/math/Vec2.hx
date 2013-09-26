@@ -402,6 +402,24 @@ abstract Vec2(SingleVector) to Vec2Array
 		return buf.toString();
 	}
 
+	/**
+		Returns true if the vectors are equal
+	**/
+	public function eq(b:Vec2):Bool
+	{
+		return this == b.getData() || (this != null && b != null && b[0] == this[0] && b[1] == this[1]);
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Vec2, b:Vec2):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Vec2, b:Vec2):Bool
+	{
+		return !a.eq(b);
+	}
+
 	//boilerplate
   @:extern inline private function get_x():Single return this[0];
   @:extern inline private function set_x(val:Single):Single return this[0] = val;

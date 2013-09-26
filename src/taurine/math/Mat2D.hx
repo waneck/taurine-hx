@@ -240,6 +240,28 @@ abstract Mat2D(SingleVector) to Mat2DArray
 		return buf.toString();
 	}
 
+	public function eq(b:Mat2D):Bool
+	{
+		if (this == b.getData())
+			return true;
+		else if (this == null || b == null)
+			return false;
+		for (i in 0...6)
+			if (this[i] != b[i])
+				return false;
+		return true;
+	}
+
+	@:op(A==B) @:extern inline public static function opEq(a:Mat2D, b:Mat2D):Bool
+	{
+		return a.eq(b);
+	}
+
+	@:op(A!=B) @:extern inline public static function opNEq(a:Mat2D, b:Mat2D):Bool
+	{
+		return !a.eq(b);
+	}
+
 	//boilerplate
   @:extern inline private function get_a():Single return this[0];
   @:extern inline private function set_a(val:Single):Single return this[0] = val;
