@@ -81,7 +81,7 @@ abstract Mat4Array(SingleVector)
 	**/
 	public function copyTo(index:Int, out:Mat4Array, outIndex:Int)
 	{
-		index <<= 4; outIndex <<= 4;
+		index <<= 4; var outIndex:Int = outIndex << 4;
 		for (i in 0...16)
 			out[outIndex + i] = this[index + i];
 		return out;

@@ -95,7 +95,7 @@ abstract Mat2DArray(SingleVector)
 	**/
 	public function copyTo(index:Int, out:Mat2DArray, outIndex:Int)
 	{
-		index <<= 3; outIndex <<= 3;
+		index <<= 3; var outIndex:Int = outIndex << 3;
 		for (i in 0...6)
 			out[outIndex + i] = this[index + i];
 		return out;

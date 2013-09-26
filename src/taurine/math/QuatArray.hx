@@ -237,7 +237,7 @@ abstract QuatArray(SingleVector)
 	**/
 	public function copyTo(index:Int, out:QuatArray, outIndex:Int)
 	{
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		out[outIndex] = this[index];
 		out[outIndex+1] = this[index+1];
 		out[outIndex+2] = this[index+2];
@@ -325,7 +325,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; bIndex <<= 2; outIndex <<= 2;
+		index <<= 2; bIndex <<= 2; var outIndex:Int = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
         bx = b[bIndex+0], by = b[bIndex+1], bz = b[bIndex+2], bw = b[bIndex+3];
 
@@ -359,7 +359,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		var rad = rad.float() * .5;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
         bx = FastMath.sin(rad), bw = FastMath.cos(rad);
@@ -382,7 +382,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		var rad = rad.float() * .5;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
         by = FastMath.sin(rad), bw = FastMath.cos(rad);
@@ -405,7 +405,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
         bz = FastMath.sin(rad), bw = FastMath.cos(rad);
 
@@ -467,7 +467,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; toIndex <<= 2; outIndex <<= 2;
+		index <<= 2; toIndex <<= 2; var outIndex:Int = outIndex << 2;
 		// benchmarks:
     //    http://jsperf.com/quaternion-slerp-implementations
 
@@ -523,7 +523,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		var a0 = this[index+0], a1 = this[index+1], a2 = this[index+2], a3 = this[index+3];
 		var dot = a0*a0 + a1*a1 + a2*a2 + a3*a3;
 		if (dot == 0)
@@ -553,7 +553,7 @@ abstract QuatArray(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 
 		out[outIndex+0] = -this[index+0];
     out[outIndex+1] = -this[index+1];

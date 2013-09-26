@@ -80,7 +80,7 @@ abstract Vec3Array(SingleVector)
 	**/
 	public function copyTo(index:Int, out:Vec3Array, outIndex:Int)
 	{
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		out[outIndex] = this[index];
 		out[outIndex+1] = this[index+1];
 		out[outIndex+2] = this[index+2];
@@ -117,7 +117,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		out[outIndex] = this[index] + b[bIndex];
 		out[outIndex+1] = this[index+1] + b[bIndex+1];
@@ -142,7 +142,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		out[outIndex] = this[index] - b[bIndex];
 		out[outIndex+1] = this[index+1] - b[bIndex+1];
@@ -167,7 +167,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		out[outIndex] = this[index] * b[bIndex];
 		out[outIndex+1] = this[index+1] * b[bIndex+1];
@@ -192,7 +192,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		out[outIndex] = this[index] / b[bIndex];
 		out[outIndex+1] = this[index+1] / b[bIndex+1];
@@ -217,7 +217,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		var t0 = this[index], t1 = this[index+1], t2 = this[index+2];
 		var b0 = b[bIndex], b1 = b[bIndex+1], b2 = b[bIndex+2];
@@ -244,7 +244,7 @@ abstract Vec3Array(SingleVector)
 		}
 		index <<= 2;
 		bIndex <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		var t0 = this[index], t1 = this[index+1], t2 = this[index+2];
 		var b0 = b[bIndex], b1 = b[bIndex+1], b2 = b[bIndex+2];
@@ -346,7 +346,7 @@ abstract Vec3Array(SingleVector)
 				outIndex = index;
 		}
 		index <<= 2;
-		outIndex <<= 2;
+		var outIndex:Int = outIndex << 2;
 
 		out[outIndex] = this[index] * scalar;
 		out[outIndex+1] = this[index+1] * scalar;
@@ -413,7 +413,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		out[outIndex] = -x;
 		out[outIndex+1] = -y;
@@ -436,7 +436,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2;
 		normalize_inline(index,out,outIndex);
 
 		return out;
@@ -480,7 +480,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2; toIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2; toIndex <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var bx = to[toIndex], by = to[toIndex+1], bz = to[toIndex+2];
 
@@ -506,7 +506,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2; mIndex <<= 4;
+		index <<= 2; var outIndex:Int = outIndex << 2; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6],
@@ -534,7 +534,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2; mIndex <<= 4;
+		index <<= 2; var outIndex:Int = outIndex << 2; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2], m3 = m[mIndex + 3],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6], m7 = m[mIndex + 7],
@@ -561,7 +561,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; outIndex <<= 2; qIndex <<= 2;
+		index <<= 2; var outIndex:Int = outIndex << 2; qIndex <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var qx = q[qIndex], qy = q[qIndex+1], qz = q[qIndex+2], qw = q[qIndex+3];
         // calculate quat * vec

@@ -80,7 +80,7 @@ abstract Vec2Array(SingleVector)
 	**/
 	public function copyTo(index:Int, out:Vec2Array, outIndex:Int)
 	{
-		index <<= 1; outIndex <<= 1;
+		index <<= 1; var outIndex:Int = outIndex << 1;
 		out[outIndex] = this[index];
 		out[outIndex+1] = this[index+1];
 		return out;
@@ -115,7 +115,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		out[outIndex] = this[index] + b[bIndex];
 		out[outIndex+1] = this[index+1] + b[bIndex+1];
@@ -139,7 +139,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		out[outIndex] = this[index] - b[bIndex];
 		out[outIndex+1] = this[index+1] - b[bIndex+1];
@@ -163,7 +163,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		out[outIndex] = this[index] * b[bIndex];
 		out[outIndex+1] = this[index+1] * b[bIndex+1];
@@ -187,7 +187,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		out[outIndex] = this[index] / b[bIndex];
 		out[outIndex+1] = this[index+1] / b[bIndex+1];
@@ -211,7 +211,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		var t0 = this[index], t1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
@@ -237,7 +237,7 @@ abstract Vec2Array(SingleVector)
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		var t0 = this[index], t1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
@@ -332,7 +332,7 @@ abstract Vec2Array(SingleVector)
 				outIndex = index;
 		}
 		index <<= 1;
-		outIndex <<= 1;
+		var outIndex:Int = outIndex << 1;
 
 		out[outIndex] = this[index] * scalar;
 		out[outIndex+1] = this[index+1] * scalar;
@@ -398,7 +398,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1;
+		index <<= 1; var outIndex:Int = outIndex << 1;
 		var x = this[index], y = this[index+1];
 		out[outIndex] = -x;
 		out[outIndex+1] = -y;
@@ -420,7 +420,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1;
+		index <<= 1; var outIndex:Int = outIndex << 1;
 		normalize_inline(index,out,outIndex);
 
 		return out;
@@ -463,7 +463,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1; toIndex <<= 1;
+		index <<= 1; var outIndex:Int = outIndex << 1; toIndex <<= 1;
 		var x = this[index], y = this[index+1];
 		var bx = to[toIndex], by = to[toIndex+1];
 
@@ -487,7 +487,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1; mIndex <<= 2;
+		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 2;
 
 		var x = this[index+0], y = this[index+1];
 		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y;
@@ -510,7 +510,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1; mIndex <<= 3;
+		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 3;
 
 		var x = this[index+0], y = this[index+1];
 		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y + m[mIndex+4];
@@ -534,7 +534,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1; mIndex <<= 4;
+		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 4;
 		var x = this[index], y = this[index+1];
 		var m0 = m[mIndex], m1 = m[mIndex+1],  m3 = m[mIndex + 3],
 				m4 = m[mIndex + 4],  m6 = m[mIndex + 6], m7 = m[mIndex + 7];
@@ -560,7 +560,7 @@ abstract Vec2Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 1; outIndex <<= 1; mIndex <<= 4;
+		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var m0 = m[mIndex], m1 = m[mIndex+1],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5],
