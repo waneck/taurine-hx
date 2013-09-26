@@ -73,6 +73,24 @@ abstract Mat4(SingleVector) to Mat4Array
     return this.length > 16;
   }
 
+	/**
+		Returns the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function matval(row:Int, column:Int):Single
+	{
+		return this[(row << 2) + column];
+	}
+
+	/**
+		Sets the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setMatval(row:Int, column:Int, v:Single):Single
+	{
+		return this[(row << 2) + column] = v;
+	}
+
   /**
     Clones the current Mat4
   **/

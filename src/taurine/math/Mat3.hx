@@ -58,6 +58,24 @@ abstract Mat3(SingleVector) to Mat3Array
     return untyped SingleVector.alloc(9);
   }
 
+	/**
+		Returns the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function matval(row:Int, column:Int):Single
+	{
+		return this[(row*3 + column)];
+	}
+
+	/**
+		Sets the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setMatval(row:Int, column:Int, v:Single):Single
+	{
+		return this[(row*3 + column)] = v;
+	}
+
   /**
     Tells whether this Mat3 has more than one Mat3 element
   **/

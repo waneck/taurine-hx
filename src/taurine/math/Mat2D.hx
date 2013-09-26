@@ -69,6 +69,45 @@ abstract Mat2D(SingleVector) to Mat2DArray
     return untyped SingleVector.alloc(6);
   }
 
+	/**
+		Easily create or convert a mat2d from the following types:
+			*	6 Float elements - representing a,b,c,d,tx,ty
+				*returns a Mat2D element*
+			*	Constant array elements - each containing 6 Float elements
+				*returns a Mat2DArray element. If only one array of elements is passed, returns a Mat2D*
+	**/
+	macro public static function mat2d(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Mat2DArray>
+	{
+		return mat2d_internal(exprs);
+	}
+
+#if macro
+	public static function mat2d_internal(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr
+	{
+		var matlen = 6;
+		var elements = [];
+
+	}
+#end
+
+	/**
+		Returns the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function matval(row:Int, column:Int):Single
+	{
+		return this[(row << 1) + column];
+	}
+
+	/**
+		Sets the value of `this` Matrix, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setMatval(row:Int, column:Int, v:Single):Single
+	{
+		return this[(row << 1) + column] = v;
+	}
+
   /**
     Tells whether this Mat2D has more than one Mat2D element
   **/

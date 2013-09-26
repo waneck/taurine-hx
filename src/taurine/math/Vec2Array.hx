@@ -64,6 +64,60 @@ abstract Vec2Array(SingleVector)
 	}
 
 	/**
+		Returns the `nth` val of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function val(index:Int, nth:Int):Single
+	{
+		return this[(index << 1) + nth];
+	}
+
+	/**
+		Sets the `nth` val of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setVal(index:Int, nth:Int, v:Single):Single
+	{
+		return this[(index << 1) + nth] = v;
+	}
+
+	/**
+		Gets the `x` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function x(index:Int):Single
+	{
+		return this[(index << 1)];
+	}
+
+	/**
+		Sets the `x` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setx(index:Int, v:Single):Single
+	{
+		return this[(index << 1)] = v;
+	}
+
+	/**
+		Gets the `y` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function y(index:Int):Single
+	{
+		return this[(index << 1)+1];
+	}
+
+	/**
+		Sets the `y` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function sety(index:Int, v:Single):Single
+	{
+		return this[(index << 1)+1] = v;
+	}
+
+	/**
 		Creates a copy of the current Vec2Array and returns it
 	**/
 	public function copy():Vec2Array

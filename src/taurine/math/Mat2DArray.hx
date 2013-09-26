@@ -79,6 +79,42 @@ abstract Mat2DArray(SingleVector)
 	}
 
 	/**
+		Returns the `nth` val of `this` Matrix at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function val(index:Int, nth:Int):Single
+	{
+		return this[(index << 3) + nth];
+	}
+
+	/**
+		Sets the `nth` val of `this` Matrix at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setVal(index:Int, nth:Int, v:Single):Single
+	{
+		return this[(index << 3) + nth] = v;
+	}
+
+	/**
+		Returns the value of `this` Matrix at `index`, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function matval(index:Int, row:Int, column:Int):Single
+	{
+		return this[(index << 3) + ( (row << 1) + column)];
+	}
+
+	/**
+		Sets the value of `this` Matrix at `index`, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setMatval(index:Int, row:Int, column:Int, v:Single):Single
+	{
+		return this[ (index << 3) + ( (row << 1) + column)] = v;
+	}
+
+	/**
 		Creates a copy of the current Mat2DArray and returns it
 	**/
 	public function copy():Mat2DArray

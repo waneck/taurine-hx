@@ -64,6 +64,78 @@ abstract Vec3Array(SingleVector)
 	}
 
 	/**
+		Returns the `nth` val of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function val(index:Int, nth:Int):Single
+	{
+		return this[(index << 2) + nth];
+	}
+
+	/**
+		Sets the `nth` val of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setVal(index:Int, nth:Int, v:Single):Single
+	{
+		return this[(index << 2) + nth] = v;
+	}
+
+	/**
+		Gets the `x` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function x(index:Int):Single
+	{
+		return this[(index << 2)];
+	}
+
+	/**
+		Sets the `x` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setx(index:Int, v:Single):Single
+	{
+		return this[(index << 2)] = v;
+	}
+
+	/**
+		Gets the `y` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function y(index:Int):Single
+	{
+		return this[(index << 2)+1];
+	}
+
+	/**
+		Sets the `y` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function sety(index:Int, v:Single):Single
+	{
+		return this[(index << 2)+1] = v;
+	}
+
+	/**
+		Gets the `z` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function z(index:Int):Single
+	{
+		return this[(index << 2)+2];
+	}
+
+	/**
+		Sets the `z` component of `this` Vector at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setz(index:Int, v:Single):Single
+	{
+		return this[(index << 2)+2] = v;
+	}
+
+	/**
 		Creates a copy of the current Vec3Array and returns it
 	**/
 	public function copy():Vec3Array

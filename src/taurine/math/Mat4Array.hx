@@ -1055,6 +1055,42 @@ abstract Mat4Array(SingleVector)
 		return lookAt(index,eye,0,center,0,up);
 	}
 
+	/**
+		Returns the `nth` val of `this` Matrix at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function val(index:Int, nth:Int):Single
+	{
+		return this[(index << 4) + nth];
+	}
+
+	/**
+		Sets the `nth` val of `this` Matrix at `index`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setVal(index:Int, nth:Int, v:Single):Single
+	{
+		return this[(index << 4) + nth] = v;
+	}
+
+	/**
+		Returns the value of `this` Matrix at `index`, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function matval(index:Int, row:Int, column:Int):Single
+	{
+		return this[(index << 4) + ( (row << 2) + column)];
+	}
+
+	/**
+		Sets the value of `this` Matrix at `index`, located at `row` and `column`
+		Does not perform bounds check
+	**/
+	@:extern inline public function setMatval(index:Int, row:Int, column:Int, v:Single):Single
+	{
+		return this[ (index << 4) + ( (row << 2) + column)] = v;
+	}
+
 	public function eq(index:Int, b:Mat4Array, bIndex:Int):Bool
 	{
 		index <<= 4; bIndex <<= 4;
