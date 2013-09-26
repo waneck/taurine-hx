@@ -119,7 +119,7 @@ class Path
 		return path().resolve(to);
 	}
 
-	function splitPath(filename:String):Array<String>
+	public static function splitPath(filename:String):Array<String>
 	{
 		return path().splitPath(filename);
 	}
