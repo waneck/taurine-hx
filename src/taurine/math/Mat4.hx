@@ -395,6 +395,14 @@ abstract Mat4(SingleVector) to Mat4Array
 		return !a.eq(b);
 	}
 
+	/**
+		Transforms a Vec4 by a matrix
+	**/
+	@:op(A*B) @:extern inline public static function opTransformVec(a:Mat4, b:Vec4):Vec4
+	{
+		return b.transformMat4(a,Vec4.mk());
+	}
+
 	//boilerplate
   @:extern inline private function get_a00():Single return this[0];
   @:extern inline private function set_a00(val:Single):Single return this[0] = val;

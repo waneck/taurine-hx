@@ -353,6 +353,14 @@ abstract Quat(SingleVector) to QuatArray
 		return !a.eq(b);
 	}
 
+	/**
+		Rotates the point `b` with `a`
+	**/
+	@:op(A*B) @:extern inline public static function opTransformVec(a:Quat, b:Vec3):Vec3
+	{
+		return b.transformQuat(a, Vec3.mk());
+	}
+
 	public function toString():String
 	{
 		var buf = new StringBuf();
