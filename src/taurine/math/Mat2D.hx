@@ -1,24 +1,24 @@
 /* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+	 Redistribution and use in source and binary forms, with or without modification,
+	 are permitted provided that the following conditions are met:
 
-  * Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
-  * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package taurine.math;
 
 //This library was ported from the JavaScript library `glMatrix` - copyright above
@@ -41,50 +41,46 @@ import taurine.Single;
 	 tx,ty,1]
 	```
 	The last column is ignored so the array is shorter and operations are faster
-**/
-@:arrayAccess
+ **/
+	@:arrayAccess
 abstract Mat2D(SingleVector) //to Mat2DArray
 {
-  public var a(get,set):Single;
-  public var b(get,set):Single;
-  public var c(get,set):Single;
-  public var d(get,set):Single;
-  public var tx(get,set):Single;
-  public var ty(get,set):Single;
+	public var a(get,set):Single;
+	public var b(get,set):Single;
+	public var c(get,set):Single;
+	public var d(get,set):Single;
+	public var tx(get,set):Single;
+	public var ty(get,set):Single;
 
 	/**
 		Creates a new identity Mat2D
-	**/
+	 **/
 	@:extern public inline function new()
 	{
 		this = SingleVector.alloc(6);
 		this[0] = this[3] = 1;
 	}
 
-  /**
-    Creates an empty Mat2D
-  **/
-  @:extern inline public static function mk():Mat2D
-  {
-    return untyped SingleVector.alloc(6);
-  }
+	/**
+		Creates an empty Mat2D
+	 **/
+	@:extern inline public static function mk():Mat2D
+	{
+		return untyped SingleVector.alloc(6);
+	}
 
 	/**
-		Easily create or convert a mat2d from the following types:
-			*	6 Float elements - representing a,b,c,d,tx,ty
-				*returns a Mat2D element*
-			*	Constant array elements - each containing 6 Float elements
-				*returns a Mat2DArray element. If only one array of elements is passed, returns a Mat2D*
-	**/
+		@see taurine.math.Geom.mat2d
+	 **/
 	macro public static function mat2d(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Mat2DArray>
 	{
-		return GeoTools.mat2d_internal(exprs);
+		return Geom.mat2d_internal(exprs);
 	}
 
 	/**
 		Returns the value of `this` Matrix, located at `row` and `column`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function matval(row:Int, column:Int):Single
 	{
 		return this[(row << 1) + column];
@@ -93,49 +89,49 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	/**
 		Sets the value of `this` Matrix, located at `row` and `column`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function setMatval(row:Int, column:Int, v:Single):Single
 	{
 		return this[(row << 1) + column] = v;
 	}
 
-  /**
-    Tells whether this Mat2D has more than one Mat2D element
-  **/
-  @:extern inline public function hasMultiple():Bool
-  {
-    return this.length > 6;
-  }
+	/**
+		Tells whether this Mat2D has more than one Mat2D element
+	 **/
+	@:extern inline public function hasMultiple():Bool
+	{
+		return this.length > 6;
+	}
 
-  /**
-    Clones the current Mat2D
-  **/
-  public function clone():Mat2D
-  {
-    var ret = mk();
-    for (i in 0...6) ret[i] = this[i];
-    return ret;
-  }
+	/**
+		Clones the current Mat2D
+	 **/
+	public function clone():Mat2D
+	{
+		var ret = mk();
+		for (i in 0...6) ret[i] = this[i];
+		return ret;
+	}
 
-  /**
-    Copies `this` matrix to `dest`, and returns `dest`
-  **/
-  public function copyTo(dest:Mat2D):Mat2D
-  {
-    for (i in 0...6)
-      dest[i] = this[i];
-    return dest;
-  }
+	/**
+		Copies `this` matrix to `dest`, and returns `dest`
+	 **/
+	public function copyTo(dest:Mat2D):Mat2D
+	{
+		for (i in 0...6)
+			dest[i] = this[i];
+		return dest;
+	}
 
 	@:extern private inline function t():Mat2D return untyped this; //get `this` as the abstract type
 
-  /**
-    Reinterpret `this` Matrix as an array (of length 1)
-  **/
-  @:to @:extern inline public function array():Mat2DArray
-  {
-    return untyped this;
-  }
+	/**
+		Reinterpret `this` Matrix as an array (of length 1)
+	 **/
+	@:to @:extern inline public function array():Mat2DArray
+	{
+		return untyped this;
+	}
 
 	@:extern public inline function getData():SingleVector
 	{
@@ -145,8 +141,8 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	/**
 		Set the Mat2D at `index` to the identity matrix.
 
-			Returns itself
-	**/
+		Returns itself
+	 **/
 	public function identity():Mat2D
 	{
 		this[0] = this[3] = 1;
@@ -157,54 +153,54 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	/**
 		Inverts current matrix and stores the value at `out` matrix
 
-			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Mat2D`; If the operation fails, returns `null`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Mat2D`; If the operation fails, returns `null`
+	 **/
 	@:extern inline public function invert(?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.invert(this, 0, out, 0).first();
+		return Mat2DArray.invert(this, 0, out, 0).first();
 	}
 
 	/**
 		Calculates de determinant of the Mat2D
-	**/
+	 **/
 	@:extern inline public function determinant():Float
 	{
-    return Mat2DArray.determinant(this,0);
+		return Mat2DArray.determinant(this,0);
 	}
 
 	/**
 		Multiplies current matrix with matrix `b`,
 		and stores the value on `out` matrix
 
-			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Mat2D`
-	**/
-  @:extern inline public function mul(b:Mat2D, ?out:Mat2D):Mat2D
-  {
-    return Mat2DArray.mul(this, 0, b, 0, out, 0).first();
-  }
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Mat2D`
+	 **/
+	@:extern inline public function mul(b:Mat2D, ?out:Mat2D):Mat2D
+	{
+		return Mat2DArray.mul(this, 0, b, 0, out, 0).first();
+	}
 
-  @:op(A*B) @:extern inline public static function opMult(a:Mat2D, b:Mat2D):Mat2D
-  {
-    return Mat2DArray.mul(a.getData(),0,b,0,mk(),0).first();
-  }
+	@:op(A*B) @:extern inline public static function opMult(a:Mat2D, b:Mat2D):Mat2D
+	{
+		return Mat2DArray.mul(a.getData(),0,b,0,mk(),0).first();
+	}
 
 	/**
 		Translates the mat4 with `x`, `y`.
 
-			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Mat2D`
-	**/
-  @:extern inline public function translate(x:Single, y:Single, ?out:Mat2D):Mat2D
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Mat2D`
+	 **/
+	@:extern inline public function translate(x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.translate(this,0,x,y,out).first();
+		return Mat2DArray.translate(this,0,x,y,out).first();
 	}
 
 	/**
 		Translates the mat4 with the `vec` Vec2
 		@see Mat2D#translate
-	**/
+	 **/
 	@:extern inline public function translate_v(vec:Vec2, ?out:Mat2D):Mat2D
 	{
 		return translate(vec[0],vec[1],out);
@@ -213,12 +209,12 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	/**
 		Scales the mat4 by `x`, `y`
 
-			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Mat2D`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Mat2D`
+	 **/
 	@:extern inline public function scale(x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.scale(this,0,x,y,out,0).first();
+		return Mat2DArray.scale(this,0,x,y,out,0).first();
 	}
 
 	@:extern inline public function scale_v(vec:Vec2, ?out:Mat2D):Mat2D
@@ -229,12 +225,12 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	/**
 		Rotates `this` matrix by the given angle at the (`x`, `y`) vector
 
-			If `out` is null, it will implicitly be considered itself;
-			Returns the changed `Mat2D`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Mat2D`
+	 **/
 	@:extern inline public function rotate(angle:Rad, x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.rotate(this,0,angle,x,y,out,0).first();
+		return Mat2DArray.rotate(this,0,angle,x,y,out,0).first();
 	}
 
 	@:extern inline public function rotate_v(angle:Rad, vec:Vec2, ?out:Mat2D):Mat2D
@@ -246,27 +242,27 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	{
 		var buf = new StringBuf();
 		var support = [], maxn = 0;
-    buf.add('mat2d(');
-    for (i in 0...6)
-    {
-      var s = support[ i ] = this[ i ] + "";
-      if (s.length > maxn) maxn = s.length;
-    }
+		buf.add('mat2d(');
+				for (i in 0...6)
+				{
+					var s = support[ i ] = this[ i ] + "";
+					if (s.length > maxn) maxn = s.length;
+				}
 
-    var fst = true;
-    for (j in 0...3)
-    {
-      buf.add('\n      ');
-      for (k in 0...2)
-      {
-        buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
-				buf.add(", ");
-      }
-			buf.add( j == 2 ? "1" : "0");
-    }
-    buf.add(")");
+				var fst = true;
+				for (j in 0...3)
+				{
+					buf.add('\n      ');
+					for (k in 0...2)
+		{
+			buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
+			buf.add(", ");
+		}
+		buf.add( j == 2 ? "1" : "0");
+				}
+				buf.add(")");
 
-		return buf.toString();
+				return buf.toString();
 	}
 
 	public function eq(b:Mat2D):Bool
@@ -292,16 +288,16 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	}
 
 	//boilerplate
-  @:extern inline private function get_a():Single return this[0];
-  @:extern inline private function set_a(val:Single):Single return this[0] = val;
-  @:extern inline private function get_b():Single return this[1];
-  @:extern inline private function set_b(val:Single):Single return this[1] = val;
-  @:extern inline private function get_c():Single return this[2];
-  @:extern inline private function set_c(val:Single):Single return this[2] = val;
-  @:extern inline private function get_d():Single return this[3];
-  @:extern inline private function set_d(val:Single):Single return this[3] = val;
-  @:extern inline private function get_tx():Single return this[4];
-  @:extern inline private function set_tx(val:Single):Single return this[4] = val;
-  @:extern inline private function get_ty():Single return this[5];
-  @:extern inline private function set_ty(val:Single):Single return this[5] = val;
+	@:extern inline private function get_a():Single return this[0];
+	@:extern inline private function set_a(val:Single):Single return this[0] = val;
+	@:extern inline private function get_b():Single return this[1];
+	@:extern inline private function set_b(val:Single):Single return this[1] = val;
+	@:extern inline private function get_c():Single return this[2];
+	@:extern inline private function set_c(val:Single):Single return this[2] = val;
+	@:extern inline private function get_d():Single return this[3];
+	@:extern inline private function set_d(val:Single):Single return this[3] = val;
+	@:extern inline private function get_tx():Single return this[4];
+	@:extern inline private function set_tx(val:Single):Single return this[4] = val;
+	@:extern inline private function get_ty():Single return this[5];
+	@:extern inline private function set_ty(val:Single):Single return this[5] = val;
 }

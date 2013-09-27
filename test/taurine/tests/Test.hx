@@ -4,6 +4,7 @@ import taurine.tests.io.GlobTests;
 import taurine.tests.io.UriTests;
 import utest.Runner;
 import utest.ui.Report;
+import taurine.math.Geom.*;
 
 /**
  * ...
@@ -16,8 +17,9 @@ class Test
 	{
 		// var v = new taurine.math.Vec2();
 		// trace(taurine.math.Vec2.normalize);
-		trace(taurine.math.Geom.mat2d(1,2,3,4,5,6));
-		trace(taurine.math.Geom.mat2d(
+		trace(mat2d(1,2,3,4,5,6));
+		trace(mat2d([1,2,3,4,5,6]));
+		trace(mat2d(
 					[1,2,3,4,5,6],
 					[1,0,
 					 0,1,

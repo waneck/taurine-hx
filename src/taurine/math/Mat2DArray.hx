@@ -1,24 +1,24 @@
 /* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
+	 Redistribution and use in source and binary forms, with or without modification,
+	 are permitted provided that the following conditions are met:
 
-  * Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
-  * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
-    and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this
+ list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the documentation
+ and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package taurine.math;
 
 //This library was ported from the JavaScript library `glMatrix` - copyright above
@@ -29,25 +29,25 @@ import taurine.Single;
 	2x3 Matrix
 	A Mat2D contains six elements defined as:
 	```
-	[a, b,
-	 c, d,
-	 tx,ty]
+		[a, b,
+		c, d,
+		tx,ty]
 	```
 
 	This is a short form for the 3x3 matrix:
 	```
-	[a, b, 0
-	 c, d, 0
-	 tx,ty,1]
+		[a, b, 0
+		c, d, 0
+		tx,ty,1]
 	```
 	The last column is ignored so the array is shorter and operations are faster
-**/
+ **/
 abstract Mat2DArray(SingleVector)
 {
 	/**
 		Creates a new Mat2DArray with the given size.
 		All elements will be 0, and not identity matrices
-	**/
+	 **/
 	@:extern public inline function new(len:Int)
 	{
 		this = SingleVector.alloc(len << 3); //WARNING: because of the storage overhead, access isn't aligned!
@@ -55,7 +55,7 @@ abstract Mat2DArray(SingleVector)
 
 	/**
 		The number of Mat2D elements contained in this array
-	**/
+	 **/
 	public var length(get,never):Int;
 
 	@:extern private inline function get_length():Int
@@ -67,7 +67,7 @@ abstract Mat2DArray(SingleVector)
 
 	/**
 		Reinterpret `this` array as its first `Mat2D`
-	**/
+	 **/
 	@:extern inline public function first():Mat2D
 	{
 		return untyped this;
@@ -81,7 +81,7 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Returns the `nth` val of `this` Matrix at `index`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function val(index:Int, nth:Int):Single
 	{
 		return this[(index << 3) + nth];
@@ -90,7 +90,7 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Sets the `nth` val of `this` Matrix at `index`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function setVal(index:Int, nth:Int, v:Single):Single
 	{
 		return this[(index << 3) + nth] = v;
@@ -99,7 +99,7 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Returns the value of `this` Matrix at `index`, located at `row` and `column`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function matval(index:Int, row:Int, column:Int):Single
 	{
 		return this[(index << 3) + ( (row << 1) + column)];
@@ -108,7 +108,7 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Sets the value of `this` Matrix at `index`, located at `row` and `column`
 		Does not perform bounds check
-	**/
+	 **/
 	@:extern inline public function setMatval(index:Int, row:Int, column:Int, v:Single):Single
 	{
 		return this[ (index << 3) + ( (row << 1) + column)] = v;
@@ -116,7 +116,7 @@ abstract Mat2DArray(SingleVector)
 
 	/**
 		Creates a copy of the current Mat2DArray and returns it
-	**/
+	 **/
 	public function copy():Mat2DArray
 	{
 		var len = this.length;
@@ -127,8 +127,8 @@ abstract Mat2DArray(SingleVector)
 
 	/**
 		Copies Mat2D at `index` to `out`, at `outIndex`
-			Returns `out` object
-	**/
+		Returns `out` object
+	 **/
 	public function copyTo(index:Int, out:Mat2DArray, outIndex:Int)
 	{
 		index <<= 3; var outIndex:Int = outIndex << 3;
@@ -140,8 +140,8 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Set the Mat2D at `index` to the identity matrix.
 
-			Returns itself
-	**/
+		Returns itself
+	 **/
 	public function identity(index:Int):Mat2DArray
 	{
 		index = index << 3;
@@ -153,10 +153,10 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Inverts current matrix at `index` and stores the value at `outIndex` on `out` matrix array
 
-			If `out` is null, it will implicitly be considered itself;
-			If `outIndex` is null, it will be considered to be the same as `index`.
-			Returns the changed `Mat2DArray`; If the operation fails, returns `null`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		If `outIndex` is null, it will be considered to be the same as `index`.
+		Returns the changed `Mat2DArray`; If the operation fails, returns `null`
+	 **/
 	public function invert(index:Int, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
@@ -176,9 +176,9 @@ abstract Mat2DArray(SingleVector)
 	@:extern inline private function invert_inline(index:Int, outIndex:Int, out:Mat2DArray):Mat2DArray
 	{
 		var aa = this[index+0], ab = this[index+1], ac = this[index+2], ad = this[index+3],
-        atx = this[index+4], aty = this[index+5];
+				atx = this[index+4], aty = this[index+5];
 
-    var det = aa * ad - ab * ac;
+		var det = aa * ad - ab * ac;
 		if (det == 0)
 		{
 			return null;
@@ -198,7 +198,7 @@ abstract Mat2DArray(SingleVector)
 
 	/**
 		Calculates de determinant of the Mat2D at `index`
-	**/
+	 **/
 	public function determinant(index:Int):Float
 	{
 		index <<= 3;
@@ -209,10 +209,10 @@ abstract Mat2DArray(SingleVector)
 		Multiplies current matrix at `index` with matrix array `b` at `bIndex`,
 		and stores the value at `outIndex` on `out` matrix array
 
-			If `out` is null, it will implicitly be considered itself;
-			If `outIndex` is null, it will be considered to be the same as `index`.
-			Returns the changed `Mat2DArray`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		If `outIndex` is null, it will be considered to be the same as `index`.
+		Returns the changed `Mat2DArray`
+	 **/
 	public function mul(index:Int, b:Mat2DArray, bIndex:Int, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
@@ -233,26 +233,26 @@ abstract Mat2DArray(SingleVector)
 
 	@:extern inline private function multiply_inline(index:Int, b:Mat2DArray, bIndex:Int, outIndex:Int, out:Mat2DArray)
 	{
-    var aa = this[index+0], ab = this[index+1], ac = this[index+2], ad = this[index+3],
-        atx = this[index+4], aty = this[index+5],
-        ba = b[bIndex+0], bb = b[bIndex+1], bc = b[bIndex+2], bd = b[bIndex+3],
-        btx = b[bIndex+4], bty = b[bIndex+5];
+		var aa = this[index+0], ab = this[index+1], ac = this[index+2], ad = this[index+3],
+				atx = this[index+4], aty = this[index+5],
+				ba = b[bIndex+0], bb = b[bIndex+1], bc = b[bIndex+2], bd = b[bIndex+3],
+				btx = b[bIndex+4], bty = b[bIndex+5];
 
-    out[outIndex+0] = aa*ba + ab*bc;
-    out[outIndex+1] = aa*bb + ab*bd;
-    out[outIndex+2] = ac*ba + ad*bc;
-    out[outIndex+3] = ac*bb + ad*bd;
-    out[outIndex+4] = ba*atx + bc*aty + btx;
-    out[outIndex+5] = bb*atx + bd*aty + bty;
+		out[outIndex+0] = aa*ba + ab*bc;
+		out[outIndex+1] = aa*bb + ab*bd;
+		out[outIndex+2] = ac*ba + ad*bc;
+		out[outIndex+3] = ac*bb + ad*bd;
+		out[outIndex+4] = ba*atx + bc*aty + btx;
+		out[outIndex+5] = bb*atx + bd*aty + bty;
 	}
 
 	/**
 		Translates the Mat2D at `index` with `x` and `y`
 
-			If `out` is null, it will implicitly be considered itself;
-			If `outIndex` is null, it will be considered to be the same as `index`.
-			Returns the changed `Mat2DArray`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		If `outIndex` is null, it will be considered to be the same as `index`.
+		Returns the changed `Mat2DArray`
+	 **/
 	public function translate(index:Int, x:Single, y:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
@@ -263,12 +263,12 @@ abstract Mat2DArray(SingleVector)
 		}
 
 		index <<= 3;
-    out[outIndex+0] = this[index+0];
-    out[outIndex+1] = this[index+1];
-    out[outIndex+2] = this[index+2];
-    out[outIndex+3] = this[index+3];
-    out[outIndex+4] = this[index+4] + x;
-    out[outIndex+5] = this[index+5] + y;
+		out[outIndex+0] = this[index+0];
+		out[outIndex+1] = this[index+1];
+		out[outIndex+2] = this[index+2];
+		out[outIndex+3] = this[index+3];
+		out[outIndex+4] = this[index+4] + x;
+		out[outIndex+5] = this[index+5] + y;
 
 		return out;
 	}
@@ -276,7 +276,7 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Translates the Mat2D with the `vec` Vec2
 		@see Mat2DArray#translate
-	**/
+	 **/
 	@:extern inline public function translate_v(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		return translate(index,vec[0],vec[1],out,outIndex);
@@ -285,10 +285,10 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Scales the Mat2D by `x`, `y`
 
-			If `out` is null, it will implicitly be considered itself;
-			If `outIndex` is null, it will be considered to be the same as `index`.
-			Returns the changed `Mat2DArray`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		If `outIndex` is null, it will be considered to be the same as `index`.
+		Returns the changed `Mat2DArray`
+	 **/
 	public function scale(index:Int, vx:Single, vy:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
@@ -302,12 +302,12 @@ abstract Mat2DArray(SingleVector)
 		var outIndex:Int = outIndex << 3;
 		index <<= 3;
 
-    out[outIndex+0] = this[index+0] * vx;
-    out[outIndex+1] = this[index+1] * vy;
-    out[outIndex+2] = this[index+2] * vx;
-    out[outIndex+3] = this[index+3] * vy;
-    out[outIndex+4] = this[index+4] * vx;
-    out[outIndex+5] = this[index+5] * vy;
+		out[outIndex+0] = this[index+0] * vx;
+		out[outIndex+1] = this[index+1] * vy;
+		out[outIndex+2] = this[index+2] * vx;
+		out[outIndex+3] = this[index+3] * vy;
+		out[outIndex+4] = this[index+4] * vx;
+		out[outIndex+5] = this[index+5] * vy;
 		return out;
 	}
 
@@ -319,10 +319,10 @@ abstract Mat2DArray(SingleVector)
 	/**
 		Rotates `this` matrix by the given angle at the (`x`, `y`) vector
 
-			If `out` is null, it will implicitly be considered itself;
-			If `outIndex` is null, it will be considered to be the same as `index`.
-			Returns the changed `Mat2DArray`
-	**/
+		If `out` is null, it will implicitly be considered itself;
+		If `outIndex` is null, it will be considered to be the same as `index`.
+		Returns the changed `Mat2DArray`
+	 **/
 	public function rotate(index:Int, angle:Rad, x:Single, y:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
@@ -336,21 +336,21 @@ abstract Mat2DArray(SingleVector)
 		var outIndex:Int = outIndex << 3;
 		index <<= 3;
 
-    var aa = this[index+0],
-        ab = this[index+1],
-        ac = this[index+2],
-        ad = this[index+3],
-        atx = this[index+4],
-        aty = this[index+5],
-        st = angle.sin(),
-        ct = angle.cos();
+		var aa = this[index+0],
+				ab = this[index+1],
+				ac = this[index+2],
+				ad = this[index+3],
+				atx = this[index+4],
+				aty = this[index+5],
+				st = angle.sin(),
+				ct = angle.cos();
 
-    out[outIndex+0] = aa*ct + ab*st;
-    out[outIndex+1] = -aa*st + ab*ct;
-    out[outIndex+2] = ac*ct + ad*st;
-    out[outIndex+3] = -ac*st + ct*ad;
-    out[outIndex+4] = ct*atx + st*aty;
-    out[outIndex+5] = ct*aty - st*atx;
+		out[outIndex+0] = aa*ct + ab*st;
+		out[outIndex+1] = -aa*st + ab*ct;
+		out[outIndex+2] = ac*ct + ad*st;
+		out[outIndex+3] = -ac*st + ct*ad;
+		out[outIndex+4] = ct*atx + st*aty;
+		out[outIndex+5] = ct*aty - st*atx;
 		return out;
 	}
 
@@ -381,43 +381,43 @@ abstract Mat2DArray(SingleVector)
 		buf.add('mat2d[');
 		buf.add(len);
 		buf.add(']\n{');
-		var support = [], maxn = 0;
-		for (i in 0...len)
-		{
-			buf.add('\n\t');
-			buf.add('mat2d(');
-			for (j in 0...6)
+			var support = [], maxn = 0;
+			for (i in 0...len)
 			{
-				var s = support[ j ] = this[ (i << 3) + j ] + "";
-				if (s.length > maxn) maxn = s.length;
-			}
+				buf.add('\n\t');
+				buf.add('mat2d(');
+						for (j in 0...6)
+						{
+							var s = support[ j ] = this[ (i << 3) + j ] + "";
+							if (s.length > maxn) maxn = s.length;
+						}
 
-			var fst = true;
-			for (j in 0...3)
-			{
-				if (fst) fst = false; else buf.add('\n\t      ');
-				for (k in 0...2)
+						var fst = true;
+						for (j in 0...3)
+						{
+							if (fst) fst = false; else buf.add('\n\t      ');
+							for (k in 0...2)
 				{
 					buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
 					buf.add(", ");
 				}
 				buf.add( j == 2 ? "1" : "0");
-			}
-			buf.add("), ");
+						}
+						buf.add("), ");
+						}
+						buf.add("\n}");
+
+						return buf.toString();
 		}
-		buf.add("\n}");
 
-		return buf.toString();
+		@:arrayAccess inline private function getRaw(idx:Int):Single
+		{
+			return this[idx];
+		}
+
+		@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+		{
+			return this[idx] = v;
+		}
+
 	}
-
-	@:arrayAccess inline private function getRaw(idx:Int):Single
-	{
-		return this[idx];
-	}
-
-	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
-	{
-		return this[idx] = v;
-	}
-
-}
