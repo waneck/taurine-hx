@@ -78,17 +78,8 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	macro public static function mat2d(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Mat2DArray>
 	{
-		return mat2d_internal(exprs);
+		return GeoTools.mat2d_internal(exprs);
 	}
-
-#if macro
-	public static function mat2d_internal(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr
-	{
-		var matlen = 6;
-		var elements = [];
-
-	}
-#end
 
 	/**
 		Returns the value of `this` Matrix, located at `row` and `column`
