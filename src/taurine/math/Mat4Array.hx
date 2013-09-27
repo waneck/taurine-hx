@@ -484,7 +484,7 @@ abstract Mat4Array(SingleVector)
 		return out;
 	}
 
-	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int)
 	{
 			var a00 = this[index+0] * x, a01 = this[index+1] * x, a02 = this[index+2] * x, a03 = this[index+3] * x,
 					a10 = this[index+4] * y, a11 = this[index+5] * y, a12 = this[index+6] * y, a13 = this[index+7] * y,
@@ -503,7 +503,7 @@ abstract Mat4Array(SingleVector)
 			out[outIndex+9] = a21;
 			out[outIndex+10] = a22;
 			out[outIndex+11] = a23;
-			if (out != this || index != outIndex)
+			if (out != t() || index != outIndex)
 			{
 				out[outIndex+12] = a30;
 				out[outIndex+13] = a31;
@@ -545,10 +545,17 @@ abstract Mat4Array(SingleVector)
 	{
 		var a00 = this[index+0], a01 = this[index+1], a02 = this[index+2], a03 = this[index+3],
 				a10 = this[index+4], a11 = this[index+5], a12 = this[index+6], a13 = this[index+7],
-				a20 = this[index+8], a21 = this[index+9], a22 = this[index+10], a23 = this[index+11],
-				a30 = this[index+12], a31 = this[index+13], a32 = this[index+14], a33 = this[index+15];
+				a20 = this[index+8], a21 = this[index+9], a22 = this[index+10], a23 = this[index+11];
 		var c = angle.cos(), s = angle.sin();
-		var t = 1 - cos;
+		var t = 1 - c;
+
+		var len = FastMath.invsqrt(x*x + y*y + z*z);
+		x *= len; y *= len; z *= len;
+
+		// Construct the elements of the rotation matrix
+		var b00 = x * x * t + c, b01 = y * x * t + z * s, b02 = z * x * t - y * s,
+		    b10 = x * y * t - z * s, b11 = y * y * t + c, b12 = z * y * t + x * s,
+		    b20 = x * z * t + y * s, b21 = y * z * t - x * s, b22 = z * z * t + c;
 
     // Perform rotation-specific matrix multiplication
     out[outIndex+0] = a00 * b00 + a10 * b01 + a20 * b02;
@@ -564,11 +571,11 @@ abstract Mat4Array(SingleVector)
     out[outIndex+10] = a02 * b20 + a12 * b21 + a22 * b22;
     out[outIndex+11] = a03 * b20 + a13 * b21 + a23 * b22;
 
-    if (a != out || index != outIndex) { // If the source and destination differ, copy the unchanged last row
-        out[outIndex+12] = a[12];
-        out[outIndex+13] = a[13];
-        out[outIndex+14] = a[14];
-        out[outIndex+15] = a[15];
+    if ( (untyped this) != out || index != outIndex) { // If the source and destination differ, copy the unchanged last row
+        out[outIndex+12] = this[index+12];
+        out[outIndex+13] = this[index+13];
+        out[outIndex+14] = this[index+14];
+        out[outIndex+15] = this[index+15];
     }
 	}
 
@@ -602,9 +609,9 @@ abstract Mat4Array(SingleVector)
 		return out;
 	}
 
-	@:extern inline private function rotateX_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
+	@:extern inline private function rotateX_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int)
 	{
-		var s = angle.sin(), c = angle.cos()
+		var s = angle.sin(), c = angle.cos(),
         a10 = this[index+4],
         a11 = this[index+5],
         a12 = this[index+6],
@@ -614,7 +621,7 @@ abstract Mat4Array(SingleVector)
         a22 = this[index+10],
         a23 = this[index+11];
 
-    if (a != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
+    if (t() != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
         out[outIndex+0]  = this[index+0];
         out[outIndex+1]  = this[index+1];
         out[outIndex+2]  = this[index+2];
@@ -661,9 +668,9 @@ abstract Mat4Array(SingleVector)
 		return out;
 	}
 
-	@:extern inline private function rotateY_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
+	@:extern inline private function rotateY_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int)
 	{
-		var s = angle.sin(), c = angle.cos()
+		var s = angle.sin(), c = angle.cos(),
         a00 = this[index+0],
         a01 = this[index+1],
         a02 = this[index+2],
@@ -673,7 +680,7 @@ abstract Mat4Array(SingleVector)
         a22 = this[index+10],
         a23 = this[index+11];
 
-    if (a != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
+    if (t() != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
         out[outIndex+4]  = this[index+4];
         out[outIndex+5]  = this[index+5];
         out[outIndex+6]  = this[index+6];
@@ -720,38 +727,38 @@ abstract Mat4Array(SingleVector)
 		return out;
 	}
 
-	@:extern inline private function rotateZ_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
+	@:extern inline private function rotateZ_inline(index:Int, angle:Rad, out:Mat4Array, outIndex:Int)
 	{
-		var s = angle.sin(), c = angle.cos()
-        a00 = a[0],
-        a01 = a[1],
-        a02 = a[2],
-        a03 = a[3],
-        a10 = a[4],
-        a11 = a[5],
-        a12 = a[6],
-        a13 = a[7];
-
-    if (a != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
-        out[8]  = a[8];
-        out[9]  = a[9];
-        out[10] = a[10];
-        out[11] = a[11];
-        out[12] = a[12];
-        out[13] = a[13];
-        out[14] = a[14];
-        out[15] = a[15];
-    }
+		var s = angle.sin(), c = angle.cos(),
+        a00 = this[index+0],
+        a01 = this[index+1],
+        a02 = this[index+2],
+        a03 = this[index+3],
+        a10 = this[index+4],
+        a11 = this[index+5],
+        a12 = this[index+6],
+        a13 = this[index+7];
 
     // Perform axis-specific matrix multiplication
-    out[0] = a00 * c + a10 * s;
-    out[1] = a01 * c + a11 * s;
-    out[2] = a02 * c + a12 * s;
-    out[3] = a03 * c + a13 * s;
-    out[4] = a10 * c - a00 * s;
-    out[5] = a11 * c - a01 * s;
-    out[6] = a12 * c - a02 * s;
-    out[7] = a13 * c - a03 * s;
+    out[outIndex+0] = a00 * c + a10 * s;
+    out[outIndex+1] = a01 * c + a11 * s;
+    out[outIndex+2] = a02 * c + a12 * s;
+    out[outIndex+3] = a03 * c + a13 * s;
+    out[outIndex+4] = a10 * c - a00 * s;
+    out[outIndex+5] = a11 * c - a01 * s;
+    out[outIndex+6] = a12 * c - a02 * s;
+    out[outIndex+7] = a13 * c - a03 * s;
+
+    if (t() != out || index != outIndex) { // If the source and destination differ, copy the unchanged rows
+        out[outIndex+8]  = this[index+8];
+        out[outIndex+9]  = this[index+9];
+        out[outIndex+10] = this[index+10];
+        out[outIndex+11] = this[index+11];
+        out[outIndex+12] = this[index+12];
+        out[outIndex+13] = this[index+13];
+        out[outIndex+14] = this[index+14];
+        out[outIndex+15] = this[index+15];
+    }
 	}
 
 	/**
@@ -869,7 +876,7 @@ abstract Mat4Array(SingleVector)
 		return t();
 	}
 
-	@:extern inline private function frustum(index:Int, left:Single, right:Single, bottom:Single, top:Single, near:Single, far:Single):Mat4Array
+	@:extern inline private function frustum_inline(index:Int, left:Single, right:Single, bottom:Single, top:Single, near:Single, far:Single)
 	{
     var rl = 1 / (right - left),
         tb = 1 / (top - bottom),
@@ -910,7 +917,7 @@ abstract Mat4Array(SingleVector)
 
 	@:extern inline private function perspective_inline(index:Int, fovy:Rad, aspect:Single, near:Single, far:Single)
 	{
-    var f = 1.0 / Math.tan(fovy.toFloat() / 2),
+    var f = 1.0 / Math.tan(fovy.float() / 2),
         nf = 1 / (near - far);
     this[index+0] = f / aspect;
     this[index+1] = this[index+2] = this[index+3] = this[index+4] = 0;
@@ -985,7 +992,7 @@ abstract Mat4Array(SingleVector)
         FastMath.abs(eyey - centery) < FastMath.EPSILON &&
         FastMath.abs(eyez - centerz) < FastMath.EPSILON)
 		{
-			this.identity(index);
+			identity(index);
     } else {
 			var x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
 			z0 = eyex - centerx;
@@ -1138,6 +1145,16 @@ abstract Mat4Array(SingleVector)
 		buf.add("\n}");
 
 		return buf.toString();
+	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
 	}
 
 }

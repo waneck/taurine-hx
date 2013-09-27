@@ -29,7 +29,7 @@ import taurine.Single;
 	4x4 Matrix
 **/
 @:arrayAccess
-abstract Mat4(SingleVector) to Mat4Array
+abstract Mat4(SingleVector) //to Mat4Array
 {
   public var a00(get,set):Single;
   public var a01(get,set):Single;
@@ -116,7 +116,7 @@ abstract Mat4(SingleVector) to Mat4Array
   /**
     Reinterpret `this` Matrix as an array (of length 1)
   **/
-  @:extern inline public function array():Mat4Array
+  @:to @:extern inline public function array():Mat4Array
   {
     return untyped this;
   }
@@ -148,7 +148,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function transpose(?out:Mat4):Mat4
 	{
-    return Mat4Array.transpose(t(),0,out,0);
+    return Mat4Array.transpose(this,0,out,0).first();
 	}
 
 	/**
@@ -159,7 +159,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function invert(?out:Mat4):Mat4
 	{
-    return Mat4Array.invert(t(), 0, out, 0);
+    return Mat4Array.invert(this, 0, out, 0).first();
 	}
 
 	/**
@@ -170,7 +170,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function adjoint(?out:Mat4):Mat4
 	{
-    return Mat4Array.adjoint(t(),0,out,0);
+    return Mat4Array.adjoint(this,0,out,0).first();
 	}
 
 	/**
@@ -178,7 +178,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function determinant():Float
 	{
-    return Mat4Array.determinant(t(),0);
+    return Mat4Array.determinant(this,0);
 	}
 
 	/**
@@ -190,12 +190,12 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
   @:extern inline public function mul(b:Mat4, ?out:Mat4):Mat4
   {
-    return Mat4Array.mul(t(), 0, b, 0, out, 0);
+    return Mat4Array.mul(this, 0, b, 0, out, 0).first();
   }
 
   @:op(A*B) @:extern inline public static function opMult(a:Mat4, b:Mat4):Mat4
   {
-    return Mat4Array.mul(a,0,b,0,mk(),0);
+    return Mat4Array.mul(a.getData(),0,b,0,mk(),0).first();
   }
 
 	/**
@@ -206,7 +206,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
   @:extern inline public function translate(x:Single, y:Single, z:Single, ?out:Mat4):Mat4
 	{
-    return Mat4Array.translate(t(),x,y,z,out);
+    return Mat4Array.translate(this,0,x,y,z,out).first();
 	}
 
 	/**
@@ -226,7 +226,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function scale(x:Single, y:Single, z:Single, ?out:Mat4):Mat4
 	{
-    return Mat4Array.scale(t(),0,x,y,z,out,0);
+    return Mat4Array.scale(this,0,x,y,z,out,0).first();
 	}
 
 	@:extern inline public function scale_v(vec:Vec3, ?out:Mat4):Mat4
@@ -242,7 +242,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function rotate(angle:Rad, x:Single, y:Single, z:Single, ?out:Mat4):Mat4
 	{
-    return Mat4Array.rotate(t(),0,angle,x,y,z,out,0);
+    return Mat4Array.rotate(this,0,angle,x,y,z,out,0).first();
 	}
 
 	@:extern inline public function rotate_v(angle:Rad, vec:Vec3, ?out:Mat4):Mat4
@@ -258,7 +258,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function rotateX(angle:Rad, ?out:Mat4):Mat4
 	{
-    return Mat4Array.rotateX(array(),0,angle,out,0);
+    return Mat4Array.rotateX(this,0,angle,out,0).first();
 	}
 
 	/**
@@ -269,7 +269,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function rotateY(angle:Rad, ?out:Mat4):Mat4
 	{
-    return Mat4Array.rotateY(array(),0,angle,out,0);
+    return Mat4Array.rotateY(this,0,angle,out,0).first();
 	}
 
 	/**
@@ -281,7 +281,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function rotateZ(angle:Rad, ?out:Mat4):Mat4
 	{
-    return Mat4Array.rotateZ(array(),0,angle,out,0);
+    return Mat4Array.rotateZ(this,0,angle,out,0).first();
 	}
 
 	/**
@@ -292,7 +292,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
   @:extern inline public function fromQuatPos(quat:Quat, x:Single, y:Single, z:Single):Mat4
 	{
-    return Mat4Array.fromQuatPos(t(),0,quat,0,x,y,z);
+    return Mat4Array.fromQuatPos(this,0,quat,0,x,y,z).first();
 	}
 
 	/**
@@ -311,7 +311,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
   @:extern inline public function fromQuat(quat:Quat):Mat4
 	{
-    return Mat4Array.fromQuat(array(),0,quat,0);
+    return Mat4Array.fromQuat(this,0,quat,0).first();
 	}
 
 	/**
@@ -319,7 +319,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
   @:extern inline public function frustum(left:Single, right:Single, bottom:Single, top:Single, near:Single, far:Single):Mat4
 	{
-    return Mat4Array.frustum(array(),0,left,right,bottom,top,near,far);
+    return Mat4Array.frustum(this,0,left,right,bottom,top,near,far).first();
 	}
 
 	/**
@@ -332,7 +332,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function perspective(fovy:Rad, aspect:Single, near:Single, far:Single):Mat4
 	{
-    return Mat4Array.perspective(array(),0,fovy,aspect,near,far);
+    return Mat4Array.perspective(this,0,fovy,aspect,near,far).first();
 	}
 
 	/**
@@ -340,7 +340,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function ortho(left:Single, right:Single, bottom:Single, top:Single, near:Single, far:Single):Mat4
 	{
-    return Mat4Array.ortho(array(),0,left,right,bottom,top,near,far);
+    return Mat4Array.ortho(this,0,left,right,bottom,top,near,far).first();
 	}
 
 	/**
@@ -354,7 +354,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function lookAt(eye:Vec3, center:Vec3, up:Vec3):Mat4
 	{
-    return Mat4Array.lookAt(array(),0,eye,0,center,0,up);
+    return Mat4Array.lookAt(this,0,eye,0,center,0,up).first();
 	}
 
 	/**
@@ -363,7 +363,7 @@ abstract Mat4(SingleVector) to Mat4Array
 	**/
 	@:extern inline public function lookAt_v(eye:Vec3, center:Vec3, up:Vec3):Mat4
 	{
-    return Mat4Array.lookAt(array(),0,eye,0,center,0,up);
+    return Mat4Array.lookAt(this,0,eye,0,center,0,up).first();
 	}
 
 	public function toString():String

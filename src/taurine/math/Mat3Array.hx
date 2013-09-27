@@ -229,7 +229,7 @@ abstract Mat3Array(SingleVector)
 
 		var b01 = a22 * a11 - a12 * a21,
         b11 = -a22 * a10 + a12 * a20,
-        b21 = a21 * a10 - a11 * a20,
+        b21 = a21 * a10 - a11 * a20;
 
         // Calculate the determinant
     var det = a00 * b01 + a01 * b11 + a02 * b21;
@@ -343,7 +343,7 @@ abstract Mat3Array(SingleVector)
 		var a00 = this[index+0], a01 = this[index+1], a02 = this[index+2],
 				a10 = this[index+3], a11 = this[index+4], a12 = this[index+5],
 				a20 = this[index+6], a21 = this[index+7], a22 = this[index+8];
-        b00 = b[bIndex+0], b01 = b[bIndex+1], b02 = b[bIndex+2],
+    var b00 = b[bIndex+0], b01 = b[bIndex+1], b02 = b[bIndex+2],
         b10 = b[bIndex+3], b11 = b[bIndex+4], b12 = b[bIndex+5],
         b20 = b[bIndex+6], b21 = b[bIndex+7], b22 = b[bIndex+8];
 
@@ -453,7 +453,7 @@ abstract Mat3Array(SingleVector)
 		return out;
 	}
 
-	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int)
 	{
 		var a00 = this[index+0] * x, a01 = this[index+1] * x, a02 = this[index+2] * x,
 				a10 = this[index+3] * y, a11 = this[index+4] * y, a12 = this[index+5] * y,
@@ -465,7 +465,7 @@ abstract Mat3Array(SingleVector)
 			out[outIndex+3] = a10;
 			out[outIndex+4] = a11;
 			out[outIndex+5] = a12;
-			if (out != this || index != outIndex)
+			if (out != t() || index != outIndex)
 			{
 				out[outIndex+6] = a20;
 				out[outIndex+7] = a21;
@@ -508,7 +508,7 @@ abstract Mat3Array(SingleVector)
 				a10 = this[index+3], a11 = this[index+4], a12 = this[index+5],
 				a20 = this[index+6], a21 = this[index+7], a22 = this[index+8];
 		var c = angle.cos(), s = angle.sin();
-		var t = 1 - cos;
+		var t = 1 - c;
 
     out[outIndex+0] = c * a00 + s * a10;
     out[outIndex+1] = c * a01 + s * a11;
@@ -689,4 +689,13 @@ abstract Mat3Array(SingleVector)
 		return buf.toString();
 	}
 
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
 }

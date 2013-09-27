@@ -29,7 +29,7 @@ import taurine.Single;
 	3 Dimensional Vector
 **/
 @:arrayAccess
-abstract Vec3(SingleVector) to Vec3Array
+abstract Vec3(SingleVector) //to Vec3Array
 {
 	public var x(get,set):Single;
 	public var y(get,set):Single;
@@ -93,7 +93,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	/**
 		Reinterpret `this` array as an array (of length 1)
 	**/
-	@:extern inline public function array():Vec3Array
+	@:to @:extern inline public function array():Vec3Array
 	{
 		return untyped this;
 	}
@@ -219,7 +219,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function max(b:Vec3, ?out:Vec3):Vec3
 	{
-		return Vec3Array.maxFrom(t(),0,b,0,out,0);
+		return Vec3Array.maxFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -230,7 +230,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function min(b:Vec3, ?out:Vec3):Vec3
 	{
-		return Vec3Array.minFrom(t(),0,b,0,out,0);
+		return Vec3Array.minFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -241,7 +241,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function scale(scalar:Single, ?out:Vec3):Vec3
 	{
-		return Vec3Array.scale(t(),0,scalar,out,0);
+		return Vec3Array.scale(this,0,scalar,out,0).first();
 	}
 
 	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec3, b:Single):Vec3
@@ -259,7 +259,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function dist(b:Vec3):Float
 	{
-		return Vec3Array.dist(t(), 0, b, 0);
+		return Vec3Array.dist(this, 0, b, 0);
 	}
 
 	/**
@@ -267,7 +267,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function sqrdist(b:Vec3):Float
 	{
-		return Vec3Array.sqrdist(t(),0,b,0);
+		return Vec3Array.sqrdist(this,0,b,0);
 	}
 
 	/**
@@ -296,7 +296,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function neg(?out:Vec3):Vec3
 	{
-		return Vec3Array.neg(t(),0,out,0);
+		return Vec3Array.neg(this,0,out,0).first();
 	}
 
 	@:op(-A) @:extern inline public static function opNeg(v:Vec3):Vec3
@@ -312,7 +312,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function normalize(?out:Vec3):Vec3
 	{
-		return Vec3Array.normalize(t(),0,out,0);
+		return Vec3Array.normalize(this,0,out,0).first();
 	}
 
 	/**
@@ -330,16 +330,16 @@ abstract Vec3(SingleVector) to Vec3Array
 			If `out` is null, it will implicitly be considered itself;
 			Returns the changed `Vec3`
 	**/
-	public function lerp(to:Vec3, t:Float, ?out:Vec3):Vec3
+	public function lerp(to:Vec3, amount:Float, ?out:Vec3):Vec3
 	{
 		if (out == null)
 			out = t();
 		var x = this[0], y = this[1], z = this[2];
 		var bx = to[0], by = to[1], bz = to[2];
 
-		out[0] = x + t * (bx - x);
-		out[1] = y + t * (by - y);
-		out[2] = z + t * (bz - z);
+		out[0] = x + amount * (bx - x);
+		out[1] = y + amount * (by - y);
+		out[2] = z + amount * (bz - z);
 		return out;
 	}
 
@@ -351,7 +351,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function transformMat4(m:Mat4, ?out:Vec3):Vec3
 	{
-		return Vec3Array.transformMat4(t(),0,m,0,out,0);
+		return Vec3Array.transformMat4(this,0,m,0,out,0).first();
 	}
 
 	/**
@@ -362,7 +362,7 @@ abstract Vec3(SingleVector) to Vec3Array
 	**/
 	@:extern inline public function transformQuat(q:Quat, ?out:Vec3):Vec3
 	{
-		return Vec3Array.transformQuat(t(),0,q,0,out,0);
+		return Vec3Array.transformQuat(this,0,q,0,out,0).first();
 	}
 
 	/**

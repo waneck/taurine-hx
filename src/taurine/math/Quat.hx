@@ -30,7 +30,7 @@ import taurine.Single;
 **/
 @:access(taurine.math)
 @:arrayAccess
-abstract Quat(SingleVector) to QuatArray
+abstract Quat(SingleVector)// to QuatArray
 {
 	public var x(get,set):Single;
 	public var y(get,set):Single;
@@ -77,13 +77,13 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function copyTo(dest:Quat):Quat
 	{
-		return untyped Vec4.copyTo(this,dest);
+		return untyped Vec4.copyTo(this,untyped dest);
 	}
 
 	/**
 		Reinterpret `this` array as an array (of length 1)
 	**/
-	@:extern inline public function array():QuatArray
+	@:to @:extern inline public function array():QuatArray
 	{
 		return untyped this;
 	}
@@ -117,7 +117,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function rotationTo(a:Vec3, b:Vec3):Quat
 	{
-		return QuatArray.rotationTo(t(),0,a,0,b,0).first();
+		return QuatArray.rotationTo(this,0,a,0,b,0).first();
 	}
 
 	/**
@@ -131,7 +131,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function setAxes(view:Vec3, right:Vec3, up:Vec3):Quat
 	{
-		return QuatArray.setAxes(t(),0,view,0,right,0,up,0).first();
+		return QuatArray.setAxes(this,0,view,0,right,0,up,0).first();
 	}
 
 	/**
@@ -141,7 +141,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function identity():Quat
 	{
-		return QuatArray.identity(t(),0).first();
+		return QuatArray.identity(this,0).first();
 	}
 
 	/**
@@ -153,7 +153,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function setAxisAngle(axisX:Single, axisY:Single, axisZ:Single, rad:Rad):Quat
 	{
-		return QuatArray.setAxisAngle(t(),0,axisX,axisY,axisZ,rad).first();
+		return QuatArray.setAxisAngle(this,0,axisX,axisY,axisZ,rad).first();
 	}
 
 	@:extern inline public function setAxisAngle_v(index:Int, axis:Vec3, rad:Rad):QuatArray
@@ -169,7 +169,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function add(b:Quat, ?out:Quat):Quat
 	{
-		return cast Vec4Array.add(cast t(), 0, cast b, 0, cast out, 0);
+		return cast Vec4Array.add(this, 0, cast b, 0, cast out, 0);
 	}
 
 	@:op(A+B) @:extern inline public static function opAdd(a:Quat, b:Quat):Quat
@@ -185,7 +185,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function mul(b:Quat, ?out:Quat):Quat
 	{
-		return QuatArray(t(),0,b,0,out,0).first();
+		return QuatArray.mul(this,0,b,0,out,0).first();
 	}
 
 	@:op(A*B) @:extern inline public static function opMul(a:Quat, b:Quat):Quat
@@ -201,7 +201,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function scale(scalar:Single, ?out:Quat):Quat
 	{
-		return QuatArray.scale(t(),0,scalar,out,0).first();
+		return QuatArray.scale(this,0,scalar,out,0).first();
 	}
 
 	@:op(A*B) @:extern inline public static function opMulScalar(a:Quat, b:Single):Quat
@@ -219,7 +219,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function rotateX(rad:Rad, ?out:Quat):Quat
 	{
-		return QuatArray.rotateX(t(),0,rad,out,0).first();
+		return QuatArray.rotateX(this,0,rad,out,0).first();
 	}
 
 	/**
@@ -227,7 +227,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function rotateY(rad:Rad, ?out:Quat):Quat
 	{
-		return QuatArray.rotateY(t(),0,rad,out,0).first();
+		return QuatArray.rotateY(this,0,rad,out,0).first();
 	}
 
 	/**
@@ -235,7 +235,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function rotateZ(rad:Rad, ?out:Quat):Quat
 	{
-		return QuatArray.rotateZ(t(),0,rad,out,0).first();
+		return QuatArray.rotateZ(this,0,rad,out,0).first();
 	}
 
 	/**
@@ -246,7 +246,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function calculateW():Quat
 	{
-		return QuatArray.calculateW(t(),0).first();
+		return QuatArray.calculateW(this,0).first();
 	}
 
 	/**
@@ -254,7 +254,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function dot(b:Quat):Float
 	{
-		return QuatArray.dot(t(), 0, b, 0);
+		return QuatArray.dot(this, 0, b, 0);
 	}
 
 	/**
@@ -265,7 +265,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function lerp(to:Quat, t:Float, ?out:Quat):Quat
 	{
-		return QuatArray.lerp(t(),0,to,0,t,out,0).first();
+		return QuatArray.lerp(this,0,to,0,t,out,0).first();
 	}
 
 	/**
@@ -276,7 +276,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function slerp(to:Quat, t:Float, ?out:Quat):Quat
 	{
-		return QuatArray.slerp(t(),0,to,0,t,out,0).first();
+		return QuatArray.slerp(this,0,to,0,t,out,0).first();
 	}
 
 	/**
@@ -287,7 +287,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function invert(?out:Quat):Quat
 	{
-		return QuatArray.invert(t(),0,out,0).first();
+		return QuatArray.invert(this,0,out,0).first();
 	}
 
 	/**
@@ -297,7 +297,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function conjugate(?out:Quat):Quat
 	{
-		return QuatArray.conjugate(t(),0,out,0).first();
+		return QuatArray.conjugate(this,0,out,0).first();
 	}
 
 	/**
@@ -305,7 +305,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function length():Float
 	{
-		return QuatArray.lengthAt(t(),0);
+		return QuatArray.lengthAt(this,0);
 	}
 
 	/**
@@ -313,7 +313,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function sqrlen():Float
 	{
-		return QuatArray.sqrlenAt(t(),0);
+		return QuatArray.sqrlenAt(this,0);
 	}
 
 	/**
@@ -321,7 +321,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function normalize(?out:Quat):Quat
 	{
-		return QuatArray.normalize(t(),0,out,0).first();
+		return QuatArray.normalize(this,0,out,0).first();
 	}
 
 	/**
@@ -332,7 +332,7 @@ abstract Quat(SingleVector) to QuatArray
 	**/
 	@:extern inline public function fromMat3(m:Mat3):Quat
 	{
-		return QuatArray.fromMat3(t(),0,m,0).first();
+		return QuatArray.fromMat3(this,0,m,0).first();
 	}
 
 	/**
@@ -370,7 +370,7 @@ abstract Quat(SingleVector) to QuatArray
 			for (j in 0...4)
 			{
 				if (fst) fst = false; else buf.add(", ");
-				buf.add(this[ (i << 4) + j ]);
+				buf.add(this[ j ]);
 			}
 			buf.add(")");
 		}

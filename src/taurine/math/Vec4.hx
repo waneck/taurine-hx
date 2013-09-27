@@ -29,7 +29,7 @@ import taurine.Single;
 	4 Dimensional Vector
 **/
 @:arrayAccess
-abstract Vec4(SingleVector) to Vec4Array
+abstract Vec4(SingleVector) //to Vec4Array
 {
 	public var x(get,set):Single;
 	public var y(get,set):Single;
@@ -96,7 +96,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	/**
 		Reinterpret `this` array as an array (of length 1)
 	**/
-	@:extern inline public function array():Vec4Array
+	@:to @:extern inline public function array():Vec4Array
 	{
 		return untyped this;
 	}
@@ -227,7 +227,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function max(b:Vec4, ?out:Vec4):Vec4
 	{
-		return Vec4Array.maxFrom(t(),0,b,0,out,0);
+		return Vec4Array.maxFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -238,7 +238,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function min(b:Vec4, ?out:Vec4):Vec4
 	{
-		return Vec4Array.minFrom(t(),0,b,0,out,0);
+		return Vec4Array.minFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -249,7 +249,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function scale(scalar:Single, ?out:Vec4):Vec4
 	{
-		return Vec4Array.scale(t(),0,scalar,out,0);
+		return Vec4Array.scale(this,0,scalar,out,0).first();
 	}
 
 	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec4, b:Single):Vec4
@@ -267,7 +267,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function dist(b:Vec4):Float
 	{
-		return Vec4Array.dist(t(), 0, b, 0);
+		return Vec4Array.dist(this, 0, b, 0);
 	}
 
 	/**
@@ -275,7 +275,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function sqrdist(b:Vec4):Float
 	{
-		return Vec4Array.sqrdist(t(),0,b,0);
+		return Vec4Array.sqrdist(this,0,b,0);
 	}
 
 	/**
@@ -304,7 +304,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function neg(?out:Vec4):Vec4
 	{
-		return Vec4Array.neg(t(),0,out,0);
+		return Vec4Array.neg(this,0,out,0).first();
 	}
 
 	@:op(-A) @:extern inline public static function opNeg(v:Vec4):Vec4
@@ -320,7 +320,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function normalize(?out:Vec4):Vec4
 	{
-		return Vec4Array.normalize(t(),0,out,0);
+		return Vec4Array.normalize(this,0,out,0).first();
 	}
 
 	/**
@@ -338,17 +338,17 @@ abstract Vec4(SingleVector) to Vec4Array
 			If `out` is null, it will implicitly be considered itself;
 			Returns the changed `Vec4`
 	**/
-	public function lerp(to:Vec4, t:Float, ?out:Vec4):Vec4
+	public function lerp(to:Vec4, amount:Float, ?out:Vec4):Vec4
 	{
 		if (out == null)
 			out = t();
 		var x = this[0], y = this[1], z = this[2], w = this[3];
 		var bx = to[0], by = to[1], bz = to[2], bw = to[3];
 
-		out[0] = x + t * (bx - x);
-		out[1] = y + t * (by - y);
-		out[2] = z + t * (bz - z);
-		out[3] = w + t * (bw - w);
+		out[0] = x + amount * (bx - x);
+		out[1] = y + amount * (by - y);
+		out[2] = z + amount * (bz - z);
+		out[3] = w + amount * (bw - w);
 		return out;
 	}
 
@@ -360,7 +360,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function transformMat4(m:Mat4, ?out:Vec4):Vec4
 	{
-		return Vec4Array.transformMat4(t(),0,m,0,out,0);
+		return Vec4Array.transformMat4(this,0,m,0,out,0).first();
 	}
 
 	/**
@@ -371,7 +371,7 @@ abstract Vec4(SingleVector) to Vec4Array
 	**/
 	@:extern inline public function transformQuat(q:Quat, ?out:Vec4):Vec4
 	{
-		return Vec4Array.transformQuat(t(),0,q,0,out,0);
+		return Vec4Array.transformQuat(this,0,q,0,out,0).first();
 	}
 
 	/**
@@ -401,7 +401,7 @@ abstract Vec4(SingleVector) to Vec4Array
 			for (j in 0...4)
 			{
 				if (fst) fst = false; else buf.add(", ");
-				buf.add(this[ (i << 4) + j ]);
+				buf.add(this[ j ]);
 			}
 			buf.add(")");
 		}

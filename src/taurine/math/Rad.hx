@@ -16,7 +16,7 @@ abstract Rad(Float) from Float
 
 	@:from public static inline function fromDegrees(deg:Degrees):Rad
 	{
-		return deg.toFloat() * _fromDeg;
+		return new Rad(deg.toFloat() * _fromDeg);
 	}
 
 	@:to public inline function toDeg():Degrees

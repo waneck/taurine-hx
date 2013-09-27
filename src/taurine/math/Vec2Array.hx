@@ -401,8 +401,8 @@ abstract Vec2Array(SingleVector)
 		index <<= 1; bIndex <<= 1;
 		var a0 = this[index], a1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
-		a0 -= b0; a1 -= b1; a2 -= b2;
-		return FastMath.sqrt(a0*a0 + a1*a1 + a2*a2);
+		a0 -= b0; a1 -= b1;
+		return FastMath.sqrt(a0*a0 + a1*a1);
 	}
 
 	/**
@@ -413,8 +413,8 @@ abstract Vec2Array(SingleVector)
 		index <<= 1; bIndex <<= 1;
 		var a0 = this[index], a1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
-		a0 -= b0; a1 -= b1; a2 -= b2;
-		return (a0*a0 + a1*a1 + a2*a2);
+		a0 -= b0; a1 -= b1;
+		return (a0*a0 + a1*a1);
 	}
 
 	/**
@@ -509,7 +509,7 @@ abstract Vec2Array(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `Vec2Array`
 	**/
-	public function lerp(index:Int, to:Vec2Array, toIndex:Int, t:Float, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	public function lerp(index:Int, to:Vec2Array, toIndex:Int, amount:Float, ?out:Vec2Array, ?outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
@@ -521,8 +521,8 @@ abstract Vec2Array(SingleVector)
 		var x = this[index], y = this[index+1];
 		var bx = to[toIndex], by = to[toIndex+1];
 
-		out[outIndex] = x + t * (bx - x);
-		out[outIndex+1] = y + t * (by - y);
+		out[outIndex] = x + amount * (bx - x);
+		out[outIndex+1] = y + amount * (by - y);
 		return out;
 	}
 
@@ -533,21 +533,21 @@ abstract Vec2Array(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `Vec2Array`
 	**/
-	public function transformMat2(index:Int, m:Mat2Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
-	{
-		if (out == null)
-		{
-			out = t();
-			if (outIndex == null)
-				outIndex = index;
-		}
-		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 2;
+	// public function transformMat2(index:Int, m:Mat2Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	// {
+	// 	if (out == null)
+	// 	{
+	// 		out = t();
+	// 		if (outIndex == null)
+	// 			outIndex = index;
+	// 	}
+	// 	index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 2;
 
-		var x = this[index+0], y = this[index+1];
-		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y;
-    out[outIndex+1] = m[mIndex+1] * x + m[mIndex+3] * y;
-		return out;
-	}
+	// 	var x = this[index+0], y = this[index+1];
+	// 	out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y;
+    // out[outIndex+1] = m[mIndex+1] * x + m[mIndex+3] * y;
+	// 	return out;
+	// }
 
 	/**
 		Transforms the `Vec2` with a `Mat2D`
@@ -619,8 +619,8 @@ abstract Vec2Array(SingleVector)
 		var m0 = m[mIndex], m1 = m[mIndex+1],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5],
 				m12 = m[mIndex + 12], m13 = m[mIndex + 13];
-    out[outIndex+0] = m0 * x + m4 * y + m8 * z + m12;
-    out[outIndex+1] = m1 * x + m5 * y + m9 * z + m13;
+    out[outIndex+0] = m0 * x + m4 * y + m12;
+    out[outIndex+1] = m1 * x + m5 * y + m13;
 
 		return out;
 	}
@@ -666,6 +666,16 @@ abstract Vec2Array(SingleVector)
 		buf.add("\n}");
 
 		return buf.toString();
+	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
 	}
 
 }

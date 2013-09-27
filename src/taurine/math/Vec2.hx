@@ -29,7 +29,7 @@ import taurine.Single;
 	2 Dimensional Vector
 **/
 @:arrayAccess
-abstract Vec2(SingleVector) to Vec2Array
+abstract Vec2(SingleVector)// to Vec2Array You can only declare from/to with compatible types
 {
 	public var x(get,set):Single;
 	public var y(get,set):Single;
@@ -90,7 +90,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	/**
 		Reinterpret `this` array as an array (of length 1)
 	**/
-	@:extern inline public function array():Vec2Array
+	@:to @:extern inline public function array():Vec2Array
 	{
 		return untyped this;
 	}
@@ -195,7 +195,6 @@ abstract Vec2(SingleVector) to Vec2Array
 
 		out[0] = x / b0;
 		out[1] = y / b1;
-		out[2] = z / b2;
 		return out;
 	}
 
@@ -212,7 +211,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function max(b:Vec2, ?out:Vec2):Vec2
 	{
-		return Vec2Array.maxFrom(t(),0,b,0,out,0);
+		return Vec2Array.maxFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -223,7 +222,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function min(b:Vec2, ?out:Vec2):Vec2
 	{
-		return Vec2Array.minFrom(t(),0,b,0,out,0);
+		return Vec2Array.minFrom(this,0,b,0,out,0).first();
 	}
 
 	/**
@@ -234,7 +233,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function scale(scalar:Single, ?out:Vec2):Vec2
 	{
-		return Vec2Array.scale(t(),0,scalar,out,0);
+		return Vec2Array.scale(this,0,scalar,out,0).first();
 	}
 
 	@:op(A*B) @:extern inline public static function opMulScalar(a:Vec2, b:Single):Vec2
@@ -252,7 +251,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function dist(b:Vec2):Float
 	{
-		return Vec2Array.dist(t(), 0, b, 0);
+		return Vec2Array.dist(this, 0, b, 0);
 	}
 
 	/**
@@ -260,7 +259,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function sqrdist(b:Vec2):Float
 	{
-		return Vec2Array.sqrdist(t(),0,b,0);
+		return Vec2Array.sqrdist(this,0,b,0);
 	}
 
 	/**
@@ -269,7 +268,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	public function length():Float
 	{
 		var x = this[0], y = this[1];
-		return FastMath.sqrt(x*x + y*y + z*z);
+		return FastMath.sqrt(x*x + y*y);
 	}
 
 	/**
@@ -278,7 +277,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	public function sqrlen():Float
 	{
 		var x = this[0], y = this[1];
-		return (x*x + y*y + z*z);
+		return (x*x + y*y);
 	}
 
 	/**
@@ -289,7 +288,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function neg(?out:Vec2):Vec2
 	{
-		return Vec2Array.neg(t(),0,out,0);
+		return Vec2Array.neg(this,0,out,0).first();
 	}
 
 	@:op(-A) @:extern inline public static function opNeg(v:Vec2):Vec2
@@ -305,7 +304,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function normalize(?out:Vec2):Vec2
 	{
-		return Vec2Array.normalize(t(),0,out,0);
+		return Vec2Array.normalize(this,0,out,0).first();
 	}
 
 	/**
@@ -323,15 +322,15 @@ abstract Vec2(SingleVector) to Vec2Array
 			If `out` is null, it will implicitly be considered itself;
 			Returns the changed `Vec2`
 	**/
-	public function lerp(to:Vec2, t:Float, ?out:Vec2):Vec2
+	public function lerp(to:Vec2, amount:Float, ?out:Vec2):Vec2
 	{
 		if (out == null)
 			out = t();
 		var x = this[0], y = this[1];
 		var bx = to[0], by = to[1];
 
-		out[0] = x + t * (bx - x);
-		out[1] = y + t * (by - y);
+		out[0] = x + amount * (bx - x);
+		out[1] = y + amount * (by - y);
 		return out;
 	}
 
@@ -342,10 +341,10 @@ abstract Vec2(SingleVector) to Vec2Array
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `Vec2`
 	**/
-	@:extern inline public function transformMat2(m:Mat2Array, ?out:Vec2):Vec2
-	{
-		return Vec2Array.transformMat2(t(),0,m,0,out,0).first();
-	}
+	// @:extern inline public function transformMat2(m:Mat2Array, ?out:Vec2):Vec2
+	// {
+	// 	return Vec2Array.transformMat2(this,0,m,0,out,0).first();
+	// }
 
 	/**
 		Transforms the `Vec2` with a `Mat2D`
@@ -356,7 +355,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function transformMat2D(m:Mat2DArray, ?out:Vec2):Vec2
 	{
-		return Vec2Array.transformMat2D(t(),0,m,0,out,0).first();
+		return Vec2Array.transformMat2D(this,0,m,0,out,0).first();
 	}
 
 	/**
@@ -369,7 +368,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	@:extern inline public function transformMat3(m:Mat3Array, ?out:Vec2):Vec2
 	{
-		return Vec2Array.transformMat3(t(),0,m,0,out,0).first();
+		return Vec2Array.transformMat3(this,0,m,0,out,0).first();
 	}
 
 	/**
@@ -382,7 +381,7 @@ abstract Vec2(SingleVector) to Vec2Array
 	**/
 	public function transformMat4(m:Mat4Array, ?out:Vec2):Vec2
 	{
-		return Vec2Array.transformMat4(t(),0,m,0,out,0).first();
+		return Vec2Array.transformMat4(this,0,m,0,out,0).first();
 	}
 
 	public function toString():String

@@ -2,6 +2,7 @@ package taurine.math;
 
 /**
 	Implements faster, but lower precision Math intrinsics.
+	Unimplemented APIs fall back to the original Math functions
 **/
 class FastMath
 {
@@ -9,7 +10,7 @@ class FastMath
 	public static inline var POSITIVE_INFINITY = #if cpp Math.POSITIVE_INFINITY #else 1. / 0 #end;
 	public static inline var NEGATIVE_INFINITY = #if cpp Math.NEGATIVE_INFINITY #else -1. / 0 #end;
 
-  public static inline EPSILON = 0.000001;
+  public static inline var EPSILON = 0.000001;
 
 	inline public static function invsqrt(v:Float):Float
 	{
@@ -37,4 +38,19 @@ class FastMath
   {
     return Math.sqrt(v); //TODO: optimize
   }
+
+	inline public static function sin(v:Float):Float
+	{
+		return Math.sin(v);
+	}
+
+	inline public static function cos(v:Float):Float
+	{
+		return Math.cos(v);
+	}
+
+	inline public static function acos(v:Float):Float
+	{
+		return Math.acos(v);
+	}
 }

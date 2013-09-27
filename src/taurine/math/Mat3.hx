@@ -29,7 +29,7 @@ import taurine.Single;
 	3x3 Matrix
 **/
 @:arrayAccess
-abstract Mat3(SingleVector) to Mat3Array
+abstract Mat3(SingleVector) //to Mat3Array
 {
   public var a00(get,set):Single;
   public var a01(get,set):Single;
@@ -109,7 +109,7 @@ abstract Mat3(SingleVector) to Mat3Array
   /**
     Reinterpret `this` Matrix as an array (of length 1)
   **/
-  @:extern inline public function array():Mat3Array
+  @:to @:extern inline public function array():Mat3Array
   {
     return untyped this;
   }
@@ -140,7 +140,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function transpose(?out:Mat3):Mat3
 	{
-    return Mat3Array.transpose(t(),0,out,0);
+    return Mat3Array.transpose(this,0,out,0).first();
 	}
 
 	/**
@@ -151,7 +151,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function invert(?out:Mat3):Mat3
 	{
-    return Mat3Array.invert(t(), 0, out, 0);
+    return Mat3Array.invert(this, 0, out, 0).first();
 	}
 
 	/**
@@ -162,7 +162,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function adjoint(?out:Mat3):Mat3
 	{
-    return Mat3Array.adjoint(t(),0,out,0);
+    return Mat3Array.adjoint(this,0,out,0).first();
 	}
 
 	/**
@@ -170,7 +170,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function determinant():Float
 	{
-    return Mat3Array.determinant(t(),0);
+    return Mat3Array.determinant(this,0);
 	}
 
 	/**
@@ -182,12 +182,12 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
   @:extern inline public function mul(b:Mat3, ?out:Mat3):Mat3
   {
-    return Mat3Array.mul(t(), 0, b, 0, out, 0);
+    return Mat3Array.mul(this, 0, b, 0, out, 0).first();
   }
 
   @:op(A*B) @:extern inline public static function opMult(a:Mat3, b:Mat3):Mat3
   {
-    return Mat3Array.mul(a,0,b,0,mk(),0);
+    return Mat3Array.mul(a.getData(),0,b,0,mk(),0).first();
   }
 
 	/**
@@ -198,16 +198,16 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
   @:extern inline public function translate(x:Single, y:Single, ?out:Mat3):Mat3
 	{
-    return Mat3Array.translate(t(),x,y,out);
+    return Mat3Array.translate(this,0,x,y,out,0).first();
 	}
 
 	/**
-		Translates the mat4 with the `vec` Vec3
+		Translates the mat4 with the `vec` Vec2
 		@see Mat3#translate
 	**/
-	@:extern inline public function translate_v(vec:Vec3, ?out:Mat3):Mat3
+	@:extern inline public function translate_v(vec:Vec2, ?out:Mat3):Mat3
 	{
-		return translate(vec[0],vec[1],vec[2],out);
+		return translate(vec[0],vec[1],out);
 	}
 
 	/**
@@ -218,12 +218,12 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function scale(x:Single, y:Single, ?out:Mat3):Mat3
 	{
-    return Mat3Array.scale(t(),0,x,y,out,0);
+    return Mat3Array.scale(this,0,x,y,out,0).first();
 	}
 
-	@:extern inline public function scale_v(vec:Vec3, ?out:Mat3):Mat3
+	@:extern inline public function scale_v(vec:Vec2, ?out:Mat3):Mat3
 	{
-		return scale(vec[0],vec[1],vec[2],out);
+		return scale(vec[0],vec[1],out);
 	}
 
 	/**
@@ -234,12 +234,12 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function rotate(angle:Rad, x:Single, y:Single, ?out:Mat3):Mat3
 	{
-    return Mat3Array.rotate(t(),0,angle,x,y,out,0).first();
+    return Mat3Array.rotate(this,0,angle,x,y,out,0).first();
 	}
 
-	@:extern inline public function rotate_v(angle:Rad, vec:Vec3, ?out:Mat3):Mat3
+	@:extern inline public function rotate_v(angle:Rad, vec:Vec2, ?out:Mat3):Mat3
 	{
-		return rotate(angle,vec[0],vec[1],vec[2],out);
+		return rotate(angle,vec[0],vec[1],out);
 	}
 
 	/**
@@ -247,7 +247,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function fromMat2D(b:Mat2D):Mat3
 	{
-		return Mat3Array.fromMat2D(t(),0,b,0).first();
+		return Mat3Array.fromMat2D(this,0,b,0).first();
 	}
 
 	/**
@@ -258,7 +258,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
   @:extern inline public function fromQuat(quat:QuatArray):Mat3
 	{
-    return Mat3Array.fromQuat(array(),0,quat,0).first();
+    return Mat3Array.fromQuat(this,0,quat,0).first();
 	}
 
 	/**
@@ -266,7 +266,7 @@ abstract Mat3(SingleVector) to Mat3Array
 	**/
 	@:extern inline public function normalFromMat4(b:Mat4):Mat3
 	{
-		return Mat3Array.normalFromMat4(t(),0,b,0).first();
+		return Mat3Array.normalFromMat4(this,0,b,0).first();
 	}
 
 	public function toString():String

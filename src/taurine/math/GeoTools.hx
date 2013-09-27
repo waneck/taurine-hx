@@ -16,7 +16,9 @@ class GeoTools
 
 	macro public static function mat2d(exprs:Array<Expr>):Expr
 	{
-		return mat2d_internal(exprs);
+		var ret = mat2d_internal(exprs);
+		trace(haxe.macro.ExprTools.toString(ret));
+		return ret;
 	}
 
 // #if macro
@@ -28,7 +30,7 @@ class GeoTools
 		var matlen = 6, name = "Mat2D", matlen_real = 8;
 		var ret = [], cindex = 0;
 		var p = Context.getPosInfos(pos);
-		var ename = new haxe.io.Path(p.file).dir + "_" + p.min;
+		var ename = new haxe.io.Path(p.file).file + "_" + p.min;
 		var main = { expr: EConst(CIdent(ename)), pos: pos };
 
 		function processArr(adecl:Array<Expr>, pos)
@@ -49,7 +51,7 @@ class GeoTools
 			switch(e.expr)
 			{
 				case EArrayDecl(adecl):
-					processArr(adecl);
+					processArr(adecl, e.pos);
 				default:
 					if (ret.length == 0)
 					{
@@ -73,8 +75,18 @@ class GeoTools
 		if (ret.length == matlen)
 		{
 			//is not array
+			ret.unshift(macro var $ename = taurine.math.$name.mk());
+			decl = main;
+		} else {
+			var ename2 = ename + "tmp", size = Std.int(ret.length / matlen);
+			decl = macro $i{ename2};
+			ret.unshift(macro var $ename2 = new taurine.math.$name($v{size}));
+			ret.insert(1, macro var $ename = $decl.getData());
 		}
 
+		ret.push(decl);
+
+		return { expr:EBlock(ret), pos:pos };
 	}
 // #end
 }

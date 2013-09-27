@@ -43,7 +43,7 @@ import taurine.Single;
 	The last column is ignored so the array is shorter and operations are faster
 **/
 @:arrayAccess
-abstract Mat2D(SingleVector) to Mat2DArray
+abstract Mat2D(SingleVector) //to Mat2DArray
 {
   public var a(get,set):Single;
   public var b(get,set):Single;
@@ -132,7 +132,7 @@ abstract Mat2D(SingleVector) to Mat2DArray
   /**
     Reinterpret `this` Matrix as an array (of length 1)
   **/
-  @:extern inline public function array():Mat2DArray
+  @:to @:extern inline public function array():Mat2DArray
   {
     return untyped this;
   }
@@ -149,7 +149,7 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	public function identity():Mat2D
 	{
-		this[0] = this[3] = 1
+		this[0] = this[3] = 1;
 		this[1] = this[2] = this[4] =	this[5] = 0;
 		return t();
 	}
@@ -162,7 +162,7 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	@:extern inline public function invert(?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.invert(t(), 0, out, 0).first();
+    return Mat2DArray.invert(this, 0, out, 0).first();
 	}
 
 	/**
@@ -170,7 +170,7 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	@:extern inline public function determinant():Float
 	{
-    return Mat2DArray.determinant(t(),0);
+    return Mat2DArray.determinant(this,0);
 	}
 
 	/**
@@ -182,12 +182,12 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
   @:extern inline public function mul(b:Mat2D, ?out:Mat2D):Mat2D
   {
-    return Mat2DArray.mul(t(), 0, b, 0, out, 0);
+    return Mat2DArray.mul(this, 0, b, 0, out, 0).first();
   }
 
   @:op(A*B) @:extern inline public static function opMult(a:Mat2D, b:Mat2D):Mat2D
   {
-    return Mat2DArray.mul(a,0,b,0,mk(),0);
+    return Mat2DArray.mul(a.getData(),0,b,0,mk(),0).first();
   }
 
 	/**
@@ -198,16 +198,16 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
   @:extern inline public function translate(x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.translate(t(),x,y,out).first();
+    return Mat2DArray.translate(this,0,x,y,out).first();
 	}
 
 	/**
-		Translates the mat4 with the `vec` Vec3
+		Translates the mat4 with the `vec` Vec2
 		@see Mat2D#translate
 	**/
-	@:extern inline public function translate_v(vec:Vec3, ?out:Mat2D):Mat2D
+	@:extern inline public function translate_v(vec:Vec2, ?out:Mat2D):Mat2D
 	{
-		return translate(vec[0],vec[1],vec[2],out);
+		return translate(vec[0],vec[1],out);
 	}
 
 	/**
@@ -218,12 +218,12 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	@:extern inline public function scale(x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.scale(t(),0,x,y,out,0).first();
+    return Mat2DArray.scale(this,0,x,y,out,0).first();
 	}
 
-	@:extern inline public function scale_v(vec:Vec3, ?out:Mat2D):Mat2D
+	@:extern inline public function scale_v(vec:Vec2, ?out:Mat2D):Mat2D
 	{
-		return scale(vec[0],vec[1],vec[2],out);
+		return scale(vec[0],vec[1],out);
 	}
 
 	/**
@@ -234,12 +234,12 @@ abstract Mat2D(SingleVector) to Mat2DArray
 	**/
 	@:extern inline public function rotate(angle:Rad, x:Single, y:Single, ?out:Mat2D):Mat2D
 	{
-    return Mat2DArray.rotate(t(),0,angle,x,y,out,0).first();
+    return Mat2DArray.rotate(this,0,angle,x,y,out,0).first();
 	}
 
-	@:extern inline public function rotate_v(angle:Rad, vec:Vec3, ?out:Mat2D):Mat2D
+	@:extern inline public function rotate_v(angle:Rad, vec:Vec2, ?out:Mat2D):Mat2D
 	{
-		return rotate(angle,vec[0],vec[1],vec[2],out);
+		return rotate(angle,vec[0],vec[1],out);
 	}
 
 	public function toString():String

@@ -544,7 +544,7 @@ abstract Vec3Array(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `Vec3Array`
 	**/
-	public function lerp(index:Int, to:Vec3Array, toIndex:Int, t:Float, ?out:Vec3Array, ?outIndex:Int):Vec3Array
+	public function lerp(index:Int, to:Vec3Array, toIndex:Int, amount:Float, ?out:Vec3Array, ?outIndex:Int):Vec3Array
 	{
 		if (out == null)
 		{
@@ -556,9 +556,9 @@ abstract Vec3Array(SingleVector)
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var bx = to[toIndex], by = to[toIndex+1], bz = to[toIndex+2];
 
-		out[outIndex] = x + t * (bx - x);
-		out[outIndex+1] = y + t * (by - y);
-		out[outIndex+2] = z + t * (bz - z);
+		out[outIndex] = x + amount * (bx - x);
+		out[outIndex+1] = y + amount * (by - y);
+		out[outIndex+2] = z + amount * (bz - z);
 		return out;
 	}
 
@@ -691,6 +691,16 @@ abstract Vec3Array(SingleVector)
 		buf.add("\n}");
 
 		return buf.toString();
+	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
 	}
 
 }

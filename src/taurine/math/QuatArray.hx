@@ -174,7 +174,7 @@ abstract QuatArray(SingleVector)
 		var bx = b[bIndex], by = b[bIndex+1], bz = b[bIndex+2];
 		if (dot < -0.999999) {
 			// vec3.cross(tmpvec3, xUnitVec3, a);
-			var tmp0 = 0, tmp1 = - az, tmp2 = ay;
+			var tmp0 = .0, tmp1 = - az, tmp2 = ay;
 			var tmplen = FastMath.sqrt(tmp1*tmp1+tmp2*tmp2);
 			if (tmplen < 0.000001)
 			{
@@ -497,7 +497,7 @@ abstract QuatArray(SingleVector)
 		}
 		index <<= 2; var outIndex:Int = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
-        bz = FastMath.sin(rad), bw = FastMath.cos(rad);
+        bz = rad.sin(), bw = rad.cos();
 
     out[outIndex+0] = ax * bw + ay * bz;
     out[outIndex+1] = ay * bw - ax * bz;
@@ -512,14 +512,14 @@ abstract QuatArray(SingleVector)
 		Any existing W component will be ignored
 		Modifies the value in-place and returns it
 	**/
-	public function calculateW(index:Int)
+	public function calculateW(index:Int):QuatArray
 	{
 		index <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2];
 
 		var val = 1.0 - x*x - y*y - z*z;
 		this[index+3] = -FastMath.sqrt( val < 0 ? -val : val );
-		return this;
+		return t();
 	}
 
 	/**
@@ -539,7 +539,7 @@ abstract QuatArray(SingleVector)
 	**/
 	@:extern inline public function lerp(index:Int, to:QuatArray, toIndex:Int, t:Float, ?out:QuatArray, ?outIndex:Int):QuatArray
 	{
-		return cast Vec4Array.lerp(cast t(), index, cast to, toIndex, t, cast out, outIndex);
+		return cast Vec4Array.lerp(this, index, cast to, toIndex, t, cast out, outIndex);
 	}
 
 	/**
@@ -549,7 +549,7 @@ abstract QuatArray(SingleVector)
 			If `outIndex` is null, it will be considered to be the same as `index`.
 			Returns the changed `QuatArray`
 	**/
-	public function slerp(index:Int, to:QuatArray, toIndex:Int, t:Float, ?out:QuatArray, ?outIndex:Int):QuatArray
+	public function slerp(index:Int, to:QuatArray, toIndex:Int, amount:Float, ?out:QuatArray, ?outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
@@ -581,13 +581,13 @@ abstract QuatArray(SingleVector)
         // standard case (slerp)
         omega  = FastMath.acos(cosom);
         sinom  = FastMath.sin(omega);
-        scale0 = FastMath.sin((1.0 - t) * omega) / sinom;
-        scale1 = FastMath.sin(t * omega) / sinom;
+        scale0 = FastMath.sin((1.0 - amount) * omega) / sinom;
+        scale1 = FastMath.sin(amount * omega) / sinom;
     } else {
         // "from" and "to" quaternions are very close
         //  ... so we can do a linear interpolation
-        scale0 = 1.0 - t;
-        scale1 = t;
+        scale0 = 1.0 - amount;
+        scale1 = amount;
     }
     // calculate final values
     out[outIndex+0] = scale0 * ax + scale1 * bx;
@@ -673,12 +673,12 @@ abstract QuatArray(SingleVector)
 	**/
 	@:extern inline public function normalize(index:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
 	{
-		return Vec4Array.normalize(cast this, index, cast out, outIndex);
+		return untyped Vec4Array.normalize(this, index, cast out, outIndex);
 	}
 
 	private function normalize_internal(index:Int, out:QuatArray, outIndex:Int):QuatArray
 	{
-		Vec4Array.normalize_inline(cast this, index, out, outIndex);
+		Vec4Array.normalize_inline(this, index,cast out, outIndex);
 		return out;
 	}
 
@@ -726,6 +726,16 @@ abstract QuatArray(SingleVector)
 		buf.add("\n}");
 
 		return buf.toString();
+	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
 	}
 
 }

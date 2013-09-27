@@ -145,7 +145,7 @@ abstract Mat2DArray(SingleVector)
 	public function identity(index:Int):Mat2DArray
 	{
 		index = index << 3;
-		this[index] = this[index+3] = 1
+		this[index] = this[index+3] = 1;
 		this[index+1] = this[index+2] = this[index+4] =	this[index+5] = 0;
 		return t();
 	}
@@ -408,6 +408,16 @@ abstract Mat2DArray(SingleVector)
 		buf.add("\n}");
 
 		return buf.toString();
+	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
 	}
 
 }
