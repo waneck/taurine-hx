@@ -256,13 +256,12 @@ abstract Mat2D(SingleVector) //to Mat2DArray
     var fst = true;
     for (j in 0...3)
     {
-      if (fst) fst = false; else buf.add('      ');
+      buf.add('\n      ');
       for (k in 0...2)
       {
-        buf.add(StringTools.rpad(support[ (j * 3) + k ], " ", maxn));
+        buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
 				buf.add(", ");
       }
-			buf.add(", ");
 			buf.add( j == 2 ? "1" : "0");
     }
     buf.add(")");
