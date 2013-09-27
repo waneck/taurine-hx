@@ -144,7 +144,6 @@ abstract Mat3Array(SingleVector)
 		Transpose the values of a Mat3 at `index` and stores the result at `out` (at `outIndex`).
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
 	@:extern public inline function transpose(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -157,8 +156,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		outIndex = outIndex * 9;
@@ -207,7 +205,6 @@ abstract Mat3Array(SingleVector)
 		Inverts current matrix at `index` and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`; If the operation fails, returns `null`
 	 **/
 	@:extern public inline function invert(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -220,8 +217,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -267,7 +263,6 @@ abstract Mat3Array(SingleVector)
 		Calculates the adjugate of a Mat3Array at `index`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`;
 	 **/
 	@:extern public inline function adjoint(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -280,8 +275,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -332,7 +326,6 @@ abstract Mat3Array(SingleVector)
 		and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
 	@:extern public inline function mul(index:Int, b:Mat3Array, bIndex:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -345,8 +338,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -384,7 +376,6 @@ abstract Mat3Array(SingleVector)
 		Translates the mat4 at `index` with `x` and `y`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
 	@:extern public inline function translate(index:Int, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -397,8 +388,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		if (out == t() && outIndex == index)
@@ -459,7 +449,6 @@ abstract Mat3Array(SingleVector)
 		Scales the mat4 by `x`, `y`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
 	@:extern public inline function scale(index:Int, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -472,8 +461,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -513,7 +501,6 @@ abstract Mat3Array(SingleVector)
 		Rotates `this` matrix by the given angle at the (`x`, `y`) vector
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
 	@:extern public inline function rotate(index:Int, angle:Rad, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
@@ -526,8 +513,7 @@ abstract Mat3Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>

@@ -392,7 +392,6 @@ abstract QuatArray(SingleVector)
 		Adds `this` Quat at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern inline public function add(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -404,7 +403,6 @@ abstract QuatArray(SingleVector)
 		Multiplies `this` Quat at `index` with `b` at `bIndex`, and store the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern public inline function mul(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -417,8 +415,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; bIndex <<= 2; outIndex = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
@@ -435,7 +432,6 @@ abstract QuatArray(SingleVector)
 		Scales a Quat by a scalar number
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern inline public function scale(index:Int, scalar:Single, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -456,8 +452,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		var rad = rad.float() * .5;
@@ -484,8 +479,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		var rad = rad.float() * .5;
@@ -512,8 +506,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
@@ -554,7 +547,6 @@ abstract QuatArray(SingleVector)
 		Performs a linear interpolation between two quat's
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern inline public function lerp(index:Int, to:QuatArray, toIndex:Int, t:Float, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -566,7 +558,6 @@ abstract QuatArray(SingleVector)
 		Performs a spherical linear interpolation between two quat's
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern inline public function slerp(index:Int, to:QuatArray, toIndex:Int, amount:Float, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -579,8 +570,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; toIndex <<= 2; outIndex = outIndex << 2;
 		// benchmarks:
@@ -627,7 +617,6 @@ abstract QuatArray(SingleVector)
 		Calculates the inverse of a Quat at `index`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
 	@:extern public inline function invert(index:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
@@ -640,8 +629,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		var a0 = this[index+0], a1 = this[index+1], a2 = this[index+2], a3 = this[index+3];
@@ -675,8 +663,7 @@ abstract QuatArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 

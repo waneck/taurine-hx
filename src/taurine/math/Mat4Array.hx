@@ -106,7 +106,6 @@ abstract Mat4Array(SingleVector)
 		Transpose the values of a Mat4 at `index` and stores the result at `out` (at `outIndex`).
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function transpose(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -119,8 +118,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		outIndex = outIndex << 4;
@@ -188,7 +186,6 @@ abstract Mat4Array(SingleVector)
 		Inverts current matrix at `index` and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`; If the operation fails, returns `null`
 	 **/
 	@:extern public inline function invert(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -201,8 +198,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -265,7 +261,6 @@ abstract Mat4Array(SingleVector)
 		Calculates the adjugate of a Mat4Array at `index`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`;
 	 **/
 	@:extern public inline function adjoint(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -278,8 +273,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -354,7 +348,6 @@ abstract Mat4Array(SingleVector)
 		and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function mul(index:Int, b:Mat4Array, bIndex:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -367,8 +360,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -416,7 +408,6 @@ abstract Mat4Array(SingleVector)
 		Translates the mat4 at `index` with `x`, `y` and `z`.
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function translate(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -429,8 +420,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		index <<= 4;
@@ -489,7 +479,6 @@ abstract Mat4Array(SingleVector)
 		Scales the mat4 by `x`, `y`, `z`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function scale(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -502,8 +491,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -551,7 +539,6 @@ abstract Mat4Array(SingleVector)
 		Rotates `this` matrix by the given angle at the (`x`, `y`, `z`) vector
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function rotate(index:Int, angle:Rad, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -564,8 +551,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -623,7 +609,6 @@ abstract Mat4Array(SingleVector)
 		Rotates `this` matrix by the given angle at the X axis
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function rotateX(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -636,8 +621,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -687,7 +671,6 @@ abstract Mat4Array(SingleVector)
 		Rotates `this` matrix by the given angle at the Y axis
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function rotateY(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -700,8 +683,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -751,7 +733,6 @@ abstract Mat4Array(SingleVector)
 		Rotates `this` matrix by the given angle at the Z axis
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
 	@:extern public inline function rotateZ(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
@@ -764,8 +745,7 @@ abstract Mat4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>

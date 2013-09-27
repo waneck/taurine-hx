@@ -154,7 +154,6 @@ abstract Mat2DArray(SingleVector)
 		Inverts current matrix at `index` and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`; If the operation fails, returns `null`
 	 **/
 	@:extern public inline function invert(index:Int, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
@@ -167,8 +166,7 @@ abstract Mat2DArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+      outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -220,7 +218,6 @@ abstract Mat2DArray(SingleVector)
 		and stores the value at `outIndex` on `out` matrix array
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
 	@:extern public inline function mul(index:Int, b:Mat2DArray, bIndex:Int, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
@@ -233,8 +230,7 @@ abstract Mat2DArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+      outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -265,7 +261,6 @@ abstract Mat2DArray(SingleVector)
 		Translates the Mat2D at `index` with `x` and `y`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
 	@:extern public inline function translate(index:Int, x:Single, y:Single, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
@@ -278,8 +273,7 @@ abstract Mat2DArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+      outIndex = index;
 		}
 
 		index <<= 3;
@@ -307,7 +301,6 @@ abstract Mat2DArray(SingleVector)
 		Scales the Mat2D by `x`, `y`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
 	@:extern public inline function scale(index:Int, vx:Single, vy:Single, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
@@ -320,8 +313,7 @@ abstract Mat2DArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+      outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
@@ -346,7 +338,6 @@ abstract Mat2DArray(SingleVector)
 		Rotates `this` matrix by the given angle at the (`x`, `y`) vector
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
 	@:extern public inline function rotate(index:Int, angle:Rad, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
@@ -359,8 +350,7 @@ abstract Mat2DArray(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+      outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>

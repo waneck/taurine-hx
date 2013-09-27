@@ -196,7 +196,6 @@ abstract Vec4Array(SingleVector)
 		Adds `this` Vec4 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function add(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -209,8 +208,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -227,7 +225,6 @@ abstract Vec4Array(SingleVector)
 		Subtracts `this` Vec4 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function sub(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -240,8 +237,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -258,7 +254,6 @@ abstract Vec4Array(SingleVector)
 		Multiplies `this` Vec4 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function mul(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -271,8 +266,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -289,7 +283,6 @@ abstract Vec4Array(SingleVector)
 		Divides `this` Vec4 at `index` to `b` at `bIndex`, and stores the result at `out` (at `outIndex`)
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function div(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -302,8 +295,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -320,7 +312,6 @@ abstract Vec4Array(SingleVector)
 		Returns the maximum of two vec4's
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function maxFrom(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -333,8 +324,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -353,7 +343,6 @@ abstract Vec4Array(SingleVector)
 		Returns the minimum of two vec4's
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function minFrom(index:Int, b:Vec4Array, bIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -366,8 +355,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		bIndex <<= 2;
@@ -469,7 +457,6 @@ abstract Vec4Array(SingleVector)
 		Scales a Vec4 by a scalar number
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function scale(index:Int, scalar:Single, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -482,8 +469,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2;
 		outIndex = outIndex << 2;
@@ -543,7 +529,6 @@ abstract Vec4Array(SingleVector)
 		Negates the components of a Vec4 at `index`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function neg(index:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -556,8 +541,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
@@ -572,7 +556,6 @@ abstract Vec4Array(SingleVector)
 		Normalize a Vec4Array at `index`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function normalize(index:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -585,8 +568,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
 		normalize_inline(index,out,outIndex);
@@ -622,7 +604,6 @@ abstract Vec4Array(SingleVector)
 		Performs a linear interpolation between two Vec4's
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function lerp(index:Int, to:Vec4Array, toIndex:Int, amount:Float, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -635,8 +616,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2; toIndex <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
@@ -653,7 +633,6 @@ abstract Vec4Array(SingleVector)
 		Transforms the `Vec4` with a `Mat4`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function transformMat4(index:Int, m:Mat4Array, mIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -666,8 +645,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
@@ -687,7 +665,6 @@ abstract Vec4Array(SingleVector)
 		Transforms the `Vec4` with a `Quat`
 
 		If `out` is null, it will implicitly be considered itself;
-		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec4Array`
 	 **/
 	@:extern public inline function transformQuat(index:Int, q:QuatArray, qIndex:Int, ?out:Vec4Array, outIndex:Int=-1):Vec4Array
@@ -700,8 +677,7 @@ abstract Vec4Array(SingleVector)
 		if (out == null)
 		{
 			out = t();
-			if (outIndex < 0)
-				outIndex = index;
+			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2; qIndex <<= 2;
 		var x = this[index], y = this[index+1], z = this[index+2], w = this[index+3];
