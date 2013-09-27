@@ -16,7 +16,16 @@ class Test
 	{
 		// var v = new taurine.math.Vec2();
 		// trace(taurine.math.Vec2.normalize);
-		trace(taurine.math.GeoTools.mat2d(1,2,3,4,5,6));
+		trace(taurine.math.Geom.mat2d(1,2,3,4,5,6));
+		trace(taurine.math.Geom.mat2d(
+					[1,2,3,4,5,6],
+					[1,0,
+					 0,1,
+					 0,0],
+					[1,1,
+					 2,2,
+					 3,3]
+					));
 		var runner = new Runner();
 
 		runner.addCase(new PathTests());

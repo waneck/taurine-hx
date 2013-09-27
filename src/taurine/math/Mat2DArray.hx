@@ -376,7 +376,7 @@ abstract Mat2DArray(SingleVector)
 	public function toString():String
 	{
 		var buf = new StringBuf();
-		var len = Std.int(this.length >>> 3);
+		var len = (this.length >>> 3);
 		if (len << 3 > this.length) len--; //be safe
 		buf.add('mat2d[');
 		buf.add(len);
@@ -398,9 +398,9 @@ abstract Mat2DArray(SingleVector)
 				if (fst) fst = false; else buf.add('\n\t      ');
 				for (k in 0...2)
 				{
-					buf.add(StringTools.rpad(support[ (j * 3) + k ], " ", maxn));
+					buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
+					buf.add(", ");
 				}
-				buf.add(", ");
 				buf.add( j == 2 ? "1" : "0");
 			}
 			buf.add("), ");
