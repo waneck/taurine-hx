@@ -147,16 +147,21 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
-	public function transpose(index:Int, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function transpose(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return transpose_impl(index, out, outIndex);
+	}
+
+	private function transpose_impl(index:Int, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 
 		if (outIndex == index && out == t())
@@ -205,17 +210,22 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`; If the operation fails, returns `null`
 	 **/
-	public function invert(index:Int, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function invert(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return invert_impl(index, out, outIndex);
+	}
+
+	private function invert_impl(index:Int, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 
 		return invert_inline(index,outIndex,out);
@@ -260,17 +270,22 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`;
 	 **/
-	public function adjoint(index:Int, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function adjoint(index:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return adjoint_impl(index, out, outIndex);
+	}
+
+	private function adjoint_impl(index:Int, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 
 		adjoint_inline(index,outIndex,out);
@@ -320,17 +335,22 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
-	public function mul(index:Int, b:Mat3Array, bIndex:Int, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function mul(index:Int, b:Mat3Array, bIndex:Int, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return mul_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function mul_impl(index:Int, b:Mat3Array, bIndex:Int, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 		bIndex *= 9;
 
@@ -367,12 +387,17 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
-	public function translate(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function translate(index:Int, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return translate_impl(index, x, y, out, outIndex);
+	}
+
+	private function translate_impl(index:Int, x:Single, y:Single, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
@@ -384,7 +409,7 @@ abstract Mat3Array(SingleVector)
 		} else {
 			index *= 9;
 			// force outIndex to be Int, not Null<Int>
-			var outIndex:Int = outIndex * 9;
+			outIndex = outIndex * 9;
 
 			translate_inline_diff(index,x,y,out,outIndex);
 		}
@@ -425,7 +450,7 @@ abstract Mat3Array(SingleVector)
 		Translates the mat4 with the `vec` Vec2
 		@see Mat3Array#translate
 	 **/
-	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
 	{
 		return translate(index,vec[0],vec[1],out,outIndex);
 	}
@@ -437,24 +462,29 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
-	public function scale(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function scale(index:Int, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return scale_impl(index, x, y, out, outIndex);
+	}
+
+	private function scale_impl(index:Int, x:Single, y:Single, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 
 		scale_inline(index,x,y,out,outIndex);
 		return out;
 	}
 
-	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int)
+	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, out:Mat3Array, outIndex:Int)
 	{
 		var a00 = this[index+0] * x, a01 = this[index+1] * x, a02 = this[index+2] * x,
 				a10 = this[index+3] * y, a11 = this[index+4] * y, a12 = this[index+5] * y,
@@ -474,7 +504,7 @@ abstract Mat3Array(SingleVector)
 		}
 	}
 
-	@:extern inline public function scale_v(index:Int, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline public function scalev(index:Int, vec:Vec2, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
 	{
 		return scale(index,vec[0],vec[1],out,outIndex);
 	}
@@ -486,17 +516,22 @@ abstract Mat3Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat3Array`
 	 **/
-	public function rotate(index:Int, angle:Rad, x:Single, y:Single, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern public inline function rotate(index:Int, angle:Rad, x:Single, y:Single, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
+	{
+		return rotate_impl(index, angle, x, y, out, outIndex);
+	}
+
+	private function rotate_impl(index:Int, angle:Rad, x:Single, y:Single, out:Mat3Array, outIndex:Int):Mat3Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex * 9;
+		outIndex = outIndex * 9;
 		index *= 9;
 
 		rotate_inline(index,angle,x,y,out,outIndex);
@@ -524,7 +559,7 @@ abstract Mat3Array(SingleVector)
 		out[outIndex+8] = a22;
 	}
 
-	@:extern inline public function rotatev(index:Int, angle:Rad, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline public function rotatev(index:Int, angle:Rad, vec:Vec2, ?out:Mat3Array, outIndex:Int=-1):Mat3Array
 	{
 		return rotate(index,angle,vec[0],vec[1],out,outIndex);
 	}
@@ -667,29 +702,29 @@ abstract Mat3Array(SingleVector)
 		buf.add('mat3[');
 		buf.add(len);
 		buf.add(']\n{');
-			var support = [], maxn = 0;
-			for (i in 0...len)
+		var support = [], maxn = 0;
+		for (i in 0...len)
+		{
+			buf.add('\n\t');
+			buf.add('mat3(');
+			for (j in 0...9)
 			{
-				buf.add('\n\t');
-				buf.add('mat3(');
-				for (j in 0...9)
-				{
-					var s = support[ j ] = this[ (i * 9) + j ] + "";
-					if (s.length > maxn) maxn = s.length;
-				}
-
-				var fst = true;
-				for (j in 0...3)
-				{
-					if (fst) fst = false; else buf.add('\n\t     ');
-					for (k in 0...3)
-					{
-						buf.add(StringTools.rpad(support[ (j * 3) + k ], " ", maxn));
-					}
-				}
-				buf.add("), ");
+				var s = support[ j ] = this[ (i * 9) + j ] + "";
+				if (s.length > maxn) maxn = s.length;
 			}
-			buf.add("\n}");
+
+			var fst = true;
+			for (j in 0...3)
+			{
+				if (fst) fst = false; else buf.add('\n\t     ');
+				for (k in 0...3)
+				{
+					buf.add(StringTools.rpad(support[ (j * 3) + k ], " ", maxn));
+				}
+			}
+			buf.add("), ");
+		}
+		buf.add("\n}");
 
 		return buf.toString();
 	}

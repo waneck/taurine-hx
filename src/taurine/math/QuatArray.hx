@@ -327,7 +327,7 @@ abstract QuatArray(SingleVector)
 	 **/
 	public function copyTo(index:Int, out:QuatArray, outIndex:Int)
 	{
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 		out[outIndex] = this[index];
 		out[outIndex+1] = this[index+1];
 		out[outIndex+2] = this[index+2];
@@ -395,7 +395,7 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	@:extern inline public function add(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function add(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
 	{
 		return cast Vec4Array.add(cast t(), index, cast b, bIndex, cast out, outIndex);
 	}
@@ -407,15 +407,20 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	public function mul(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function mul(index:Int, b:QuatArray, bIndex:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return mul_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function mul_impl(index:Int, b:QuatArray, bIndex:Int, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; bIndex <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; bIndex <<= 2; outIndex = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
 				bx = b[bIndex+0], by = b[bIndex+1], bz = b[bIndex+2], bw = b[bIndex+3];
 
@@ -433,7 +438,7 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	@:extern inline public function scale(index:Int, scalar:Single, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function scale(index:Int, scalar:Single, ?out:QuatArray, outIndex:Int=-1):QuatArray
 	{
 		return cast Vec4Array.scale(cast t(), index, scalar, cast out, outIndex);
 	}
@@ -441,15 +446,20 @@ abstract QuatArray(SingleVector)
 	/**
 		Rotates a quaternion by the given angle about the x axis
 	 **/
-	public function rotateX(index:Int, rad:Rad, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function rotateX(index:Int, rad:Rad, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return rotateX_impl(index, rad, out, outIndex);
+	}
+
+	private function rotateX_impl(index:Int, rad:Rad, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 		var rad = rad.float() * .5;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
 				bx = FastMath.sin(rad), bw = FastMath.cos(rad);
@@ -464,15 +474,20 @@ abstract QuatArray(SingleVector)
 	/**
 		Rotates a quaternion by the given angle about the y axis
 	 **/
-	public function rotateY(index:Int, rad:Rad, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function rotateY(index:Int, rad:Rad, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return rotateY_impl(index, rad, out, outIndex);
+	}
+
+	private function rotateY_impl(index:Int, rad:Rad, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 		var rad = rad.float() * .5;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
 				by = FastMath.sin(rad), bw = FastMath.cos(rad);
@@ -487,15 +502,20 @@ abstract QuatArray(SingleVector)
 	/**
 		Rotates a quaternion by the given angle about the z axis
 	 **/
-	public function rotateZ(index:Int, rad:Rad, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function rotateZ(index:Int, rad:Rad, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return rotateZ_impl(index, rad, out, outIndex);
+	}
+
+	private function rotateZ_impl(index:Int, rad:Rad, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
 				bz = rad.sin(), bw = rad.cos();
 
@@ -537,7 +557,7 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	@:extern inline public function lerp(index:Int, to:QuatArray, toIndex:Int, t:Float, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function lerp(index:Int, to:QuatArray, toIndex:Int, t:Float, ?out:QuatArray, outIndex:Int=-1):QuatArray
 	{
 		return cast Vec4Array.lerp(this, index, cast to, toIndex, t, cast out, outIndex);
 	}
@@ -549,15 +569,20 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	public function slerp(index:Int, to:QuatArray, toIndex:Int, amount:Float, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function slerp(index:Int, to:QuatArray, toIndex:Int, amount:Float, ?out:QuatArray, outIndex:Int=-1):QuatArray
 	{
+    return slerp_impl(index,to,toIndex,amount,out,outIndex);
+  }
+
+  private function slerp_impl(index:Int, to:QuatArray, toIndex:Int, amount:Float, out:QuatArray, outIndex:Int):QuatArray
+  {
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; toIndex <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; toIndex <<= 2; outIndex = outIndex << 2;
 		// benchmarks:
 		//    http://jsperf.com/quaternion-slerp-implementations
 
@@ -605,15 +630,20 @@ abstract QuatArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `QuatArray`
 	 **/
-	public function invert(index:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function invert(index:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return invert_impl(index, out, outIndex);
+	}
+
+	private function invert_impl(index:Int, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 		var a0 = this[index+0], a1 = this[index+1], a2 = this[index+2], a3 = this[index+3];
 		var dot = a0*a0 + a1*a1 + a2*a2 + a3*a3;
 		if (dot == 0)
@@ -635,15 +665,20 @@ abstract QuatArray(SingleVector)
 		If the quaternion is normalized, this function is faster than `inverse`
 		and produces the same result
 	 **/
-	public function conjugate(index:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern public inline function conjugate(index:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
+	{
+		return conjugate_impl(index, out, outIndex);
+	}
+
+	private function conjugate_impl(index:Int, out:QuatArray, outIndex:Int):QuatArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2;
+		index <<= 2; outIndex = outIndex << 2;
 
 		out[outIndex+0] = -this[index+0];
 		out[outIndex+1] = -this[index+1];
@@ -671,7 +706,7 @@ abstract QuatArray(SingleVector)
 	/**
 		Normalize a `Quat` at `index`
 	 **/
-	@:extern inline public function normalize(index:Int, ?out:QuatArray, ?outIndex:Int):QuatArray
+	@:extern inline public function normalize(index:Int, ?out:QuatArray, outIndex:Int=-1):QuatArray
 	{
 		return untyped Vec4Array.normalize(this, index, cast out, outIndex);
 	}

@@ -76,8 +76,10 @@ class MacroMath
 	{
 		var str = f + "";
 		var dif = f - Std.parseFloat(str);
-
-		return macro $v{f} + $v{dif};
+		if (dif == 0)
+			return macro $v{f};
+		else
+			return macro $v{f} + $v{dif};
 	}
 #end
 }

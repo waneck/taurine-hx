@@ -81,7 +81,7 @@ abstract Mat4Array(SingleVector)
 	 **/
 	public function copyTo(index:Int, out:Mat4Array, outIndex:Int)
 	{
-		index <<= 4; var outIndex:Int = outIndex << 4;
+		index <<= 4; outIndex = outIndex << 4;
 		for (i in 0...16)
 			out[outIndex + i] = this[index + i];
 		return out;
@@ -109,16 +109,21 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function transpose(index:Int, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function transpose(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return transpose_impl(index, out, outIndex);
+	}
+
+	private function transpose_impl(index:Int, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		if (outIndex == index && out == t())
@@ -186,17 +191,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`; If the operation fails, returns `null`
 	 **/
-	public function invert(index:Int, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function invert(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return invert_impl(index, out, outIndex);
+	}
+
+	private function invert_impl(index:Int, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		return invert_inline(index,outIndex,out);
@@ -258,17 +268,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`;
 	 **/
-	public function adjoint(index:Int, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function adjoint(index:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return adjoint_impl(index, out, outIndex);
+	}
+
+	private function adjoint_impl(index:Int, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		adjoint_inline(index,outIndex,out);
@@ -342,17 +357,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function mul(index:Int, b:Mat4Array, bIndex:Int, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function mul(index:Int, b:Mat4Array, bIndex:Int, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return mul_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function mul_impl(index:Int, b:Mat4Array, bIndex:Int, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 		bIndex <<= 4;
 
@@ -399,12 +419,17 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function translate(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function translate(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return translate_impl(index, x, y, z, out, outIndex);
+	}
+
+	private function translate_impl(index:Int, x:Single, y:Single, z:Single, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
@@ -415,7 +440,7 @@ abstract Mat4Array(SingleVector)
 			translate_inline_same(index,x,y,z);
 		} else {
 			// force outIndex to be Int, not Null<Int>
-			var outIndex:Int = outIndex << 4;
+			outIndex = outIndex << 4;
 
 			translate_inline_diff(index,x,y,z,out,outIndex);
 		}
@@ -455,7 +480,7 @@ abstract Mat4Array(SingleVector)
 		Translates the mat4 with the `vec` Vec3
 		@see Mat4Array#translate
 	 **/
-	@:extern inline public function translatev(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function translatev(index:Int, vec:Vec3, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
 	{
 		return translate(index,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -467,24 +492,29 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function scale(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function scale(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return scale_impl(index, x, y, z, out, outIndex);
+	}
+
+	private function scale_impl(index:Int, x:Single, y:Single, z:Single, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		scale_inline(index,x,y,z,out,outIndex);
 		return out;
 	}
 
-	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int)
+	@:extern inline private function scale_inline(index:Int, x:Single, y:Single, z:Single, out:Mat4Array, outIndex:Int)
 	{
 		var a00 = this[index+0] * x, a01 = this[index+1] * x, a02 = this[index+2] * x, a03 = this[index+3] * x,
 				a10 = this[index+4] * y, a11 = this[index+5] * y, a12 = this[index+6] * y, a13 = this[index+7] * y,
@@ -512,7 +542,7 @@ abstract Mat4Array(SingleVector)
 		}
 	}
 
-	@:extern inline public function scalev(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function scalev(index:Int, vec:Vec3, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
 	{
 		return scale(index,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -524,17 +554,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function rotate(index:Int, angle:Rad, x:Single, y:Single, z:Single, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function rotate(index:Int, angle:Rad, x:Single, y:Single, z:Single, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return rotate_impl(index, angle, x, y, z, out, outIndex);
+	}
+
+	private function rotate_impl(index:Int, angle:Rad, x:Single, y:Single, z:Single, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		rotate_inline(index,angle,x,y,z,out,outIndex);
@@ -579,7 +614,7 @@ abstract Mat4Array(SingleVector)
 		}
 	}
 
-	@:extern inline public function rotate_v(index:Int, angle:Rad, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function rotatev(index:Int, angle:Rad, vec:Vec3, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
 	{
 		return rotate(index,angle,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -591,17 +626,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function rotateX(index:Int, angle:Rad, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function rotateX(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return rotateX_impl(index, angle, out, outIndex);
+	}
+
+	private function rotateX_impl(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		rotateX_inline(index,angle,out,outIndex);
@@ -650,17 +690,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function rotateY(index:Int, angle:Rad, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function rotateY(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return rotateY_impl(index, angle, out, outIndex);
+	}
+
+	private function rotateY_impl(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		rotateY_inline(index,angle,out,outIndex);
@@ -709,17 +754,22 @@ abstract Mat4Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat4Array`
 	 **/
-	public function rotateZ(index:Int, angle:Rad, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern public inline function rotateZ(index:Int, angle:Rad, ?out:Mat4Array, outIndex:Int=-1):Mat4Array
+	{
+		return rotateZ_impl(index, angle, out, outIndex);
+	}
+
+	private function rotateZ_impl(index:Int, angle:Rad, out:Mat4Array, outIndex:Int):Mat4Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 4;
+		outIndex = outIndex << 4;
 		index <<= 4;
 
 		rotateZ_inline(index,angle,out,outIndex);

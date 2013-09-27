@@ -134,7 +134,7 @@ abstract Vec2Array(SingleVector)
 	 **/
 	public function copyTo(index:Int, out:Vec2Array, outIndex:Int)
 	{
-		index <<= 1; var outIndex:Int = outIndex << 1;
+		index <<= 1; outIndex = outIndex << 1;
 		out[outIndex] = this[index];
 		out[outIndex+1] = this[index+1];
 		return out;
@@ -159,17 +159,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function add(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function add(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return add_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function add_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		out[outIndex] = this[index] + b[bIndex];
 		out[outIndex+1] = this[index+1] + b[bIndex+1];
@@ -183,17 +188,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function sub(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function sub(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return sub_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function sub_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		out[outIndex] = this[index] - b[bIndex];
 		out[outIndex+1] = this[index+1] - b[bIndex+1];
@@ -207,17 +217,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function mul(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function mul(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return mul_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function mul_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		out[outIndex] = this[index] * b[bIndex];
 		out[outIndex+1] = this[index+1] * b[bIndex+1];
@@ -231,17 +246,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function div(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function div(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return div_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function div_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		out[outIndex] = this[index] / b[bIndex];
 		out[outIndex+1] = this[index+1] / b[bIndex+1];
@@ -255,17 +275,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function maxFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function maxFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return maxFrom_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function maxFrom_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		var t0 = this[index], t1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
@@ -281,17 +306,22 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function minFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function minFrom(index:Int, b:Vec2Array, bIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return minFrom_impl(index, b, bIndex, out, outIndex);
+	}
+
+	private function minFrom_impl(index:Int, b:Vec2Array, bIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
 		bIndex <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		var t0 = this[index], t1 = this[index+1];
 		var b0 = b[bIndex], b1 = b[bIndex+1];
@@ -311,6 +341,7 @@ abstract Vec2Array(SingleVector)
 	 **/
 	public function max(startIndex:Int=0, endIndex:Int=-1, out:Vec2Array, outIndex:Int):Vec2Array
 	{
+		outIndex <<= 1;
 		var mx, my;
 		mx = my = FastMath.NEGATIVE_INFINITY;
 
@@ -347,6 +378,7 @@ abstract Vec2Array(SingleVector)
 	 **/
 	public function min(startIndex:Int=0, endIndex:Int=-1, out:Vec2Array, outIndex:Int):Vec2Array
 	{
+		outIndex <<=1;
 		var mx, my;
 		mx = my = FastMath.NEGATIVE_INFINITY;
 
@@ -377,16 +409,21 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function scale(index:Int, scalar:Single, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function scale(index:Int, scalar:Single, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return scale_impl(index, scalar, out, outIndex);
+	}
+
+	private function scale_impl(index:Int, scalar:Single, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 		index <<= 1;
-		var outIndex:Int = outIndex << 1;
+		outIndex = outIndex << 1;
 
 		out[outIndex] = this[index] * scalar;
 		out[outIndex+1] = this[index+1] * scalar;
@@ -444,15 +481,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function neg(index:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function neg(index:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return neg_impl(index, out, outIndex);
+	}
+
+	private function neg_impl(index:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1;
+		index <<= 1; outIndex = outIndex << 1;
 		var x = this[index], y = this[index+1];
 		out[outIndex] = -x;
 		out[outIndex+1] = -y;
@@ -466,15 +508,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function normalize(index:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function normalize(index:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return normalize_impl(index, out, outIndex);
+	}
+
+	private function normalize_impl(index:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1;
+		index <<= 1; outIndex = outIndex << 1;
 		normalize_inline(index,out,outIndex);
 
 		return out;
@@ -509,15 +556,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function lerp(index:Int, to:Vec2Array, toIndex:Int, amount:Float, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function lerp(index:Int, to:Vec2Array, toIndex:Int, amount:Float, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return lerp_impl(index, to, toIndex, amount, out, outIndex);
+	}
+
+	private function lerp_impl(index:Int, to:Vec2Array, toIndex:Int, amount:Float, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1; toIndex <<= 1;
+		index <<= 1; outIndex = outIndex << 1; toIndex <<= 1;
 		var x = this[index], y = this[index+1];
 		var bx = to[toIndex], by = to[toIndex+1];
 
@@ -533,15 +585,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	// public function transformMat2(index:Int, m:Mat2Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	// @:extern public inline function transformMat2(index:Int, m:Mat2Array, mIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	// {
+	// 	return function _impltransformMat2(index, m, mIndex, out, outIndex);
+	// }
+
+	// private function transformMat2_impl(index:Int, m:Mat2Array, mIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	// {
 	// 	if (out == null)
 	// 	{
 	// 		out = t();
-	// 		if (outIndex == null)
+	// 		if (outIndex < 0)
 	// 			outIndex = index;
 	// 	}
-	// 	index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 2;
+	// 	index <<= 1; outIndex = outIndex << 1; mIndex <<= 2;
 
 	// 	var x = this[index+0], y = this[index+1];
 	// 	out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y;
@@ -556,15 +613,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function transformMat2D(index:Int, m:Mat2DArray, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function transformMat2D(index:Int, m:Mat2DArray, mIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return transformMat2D_impl(index, m, mIndex, out, outIndex);
+	}
+
+	private function transformMat2D_impl(index:Int, m:Mat2DArray, mIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 3;
+		index <<= 1; outIndex = outIndex << 1; mIndex <<= 3;
 
 		var x = this[index+0], y = this[index+1];
 		out[outIndex+0] = m[mIndex+0] * x + m[mIndex+2] * y + m[mIndex+4];
@@ -580,15 +642,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function transformMat3(index:Int, m:Mat3Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function transformMat3(index:Int, m:Mat3Array, mIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return transformMat3_impl(index, m, mIndex, out, outIndex);
+	}
+
+	private function transformMat3_impl(index:Int, m:Mat3Array, mIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 4;
+		index <<= 1; outIndex = outIndex << 1; mIndex <<= 4;
 		var x = this[index], y = this[index+1];
 		var m0 = m[mIndex], m1 = m[mIndex+1],  m3 = m[mIndex + 3],
 				m4 = m[mIndex + 4],  m6 = m[mIndex + 6], m7 = m[mIndex + 7];
@@ -606,15 +673,20 @@ abstract Vec2Array(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Vec2Array`
 	 **/
-	public function transformMat4(index:Int, m:Mat4Array, mIndex:Int, ?out:Vec2Array, ?outIndex:Int):Vec2Array
+	@:extern public inline function transformMat4(index:Int, m:Mat4Array, mIndex:Int, ?out:Vec2Array, outIndex:Int=-1):Vec2Array
+	{
+		return transformMat4_impl(index, m, mIndex, out, outIndex);
+	}
+
+	private function transformMat4_impl(index:Int, m:Mat4Array, mIndex:Int, out:Vec2Array, outIndex:Int):Vec2Array
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
-		index <<= 1; var outIndex:Int = outIndex << 1; mIndex <<= 4;
+		index <<= 1; outIndex = outIndex << 1; mIndex <<= 4;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var m0 = m[mIndex], m1 = m[mIndex+1],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5],

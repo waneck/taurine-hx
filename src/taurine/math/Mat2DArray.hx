@@ -131,7 +131,7 @@ abstract Mat2DArray(SingleVector)
 	 **/
 	public function copyTo(index:Int, out:Mat2DArray, outIndex:Int)
 	{
-		index <<= 3; var outIndex:Int = outIndex << 3;
+		index <<= 3; outIndex = outIndex << 3;
 		for (i in 0...6)
 			out[outIndex + i] = this[index + i];
 		return out;
@@ -157,17 +157,22 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`; If the operation fails, returns `null`
 	 **/
-	public function invert(index:Int, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern public inline function invert(index:Int, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
+  {
+    return invert_impl(index, out, outIndex);
+  }
+
+	private function invert_impl(index:Int, out:Mat2DArray, outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 3;
+		outIndex = outIndex << 3;
 		index <<= 3;
 
 		return invert_inline(index,outIndex,out);
@@ -218,17 +223,22 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
-	public function mul(index:Int, b:Mat2DArray, bIndex:Int, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern public inline function mul(index:Int, b:Mat2DArray, bIndex:Int, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
+  {
+    return mul_impl(index, b, bIndex, out, outIndex);
+  }
+
+	private function mul_impl(index:Int, b:Mat2DArray, bIndex:Int, out:Mat2DArray, outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 3;
+		outIndex = outIndex << 3;
 		index <<= 3;
 		bIndex <<= 3;
 
@@ -258,17 +268,22 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
-	public function translate(index:Int, x:Single, y:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern public inline function translate(index:Int, x:Single, y:Single, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
+  {
+    return translate_impl(index, x, y, out, outIndex);
+  }
+
+	private function translate_impl(index:Int, x:Single, y:Single, ?out:Mat2DArray, outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		index <<= 3;
-		var outIndex:Int = outIndex << 3;
+		outIndex = outIndex << 3;
 		out[outIndex+0] = this[index+0];
 		out[outIndex+1] = this[index+1];
 		out[outIndex+2] = this[index+2];
@@ -283,7 +298,7 @@ abstract Mat2DArray(SingleVector)
 		Translates the Mat2D with the `vec` Vec2
 		@see Mat2DArray#translate
 	 **/
-	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
 	{
 		return translate(index,vec[0],vec[1],out,outIndex);
 	}
@@ -295,17 +310,22 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
-	public function scale(index:Int, vx:Single, vy:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern public inline function scale(index:Int, vx:Single, vy:Single, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
+  {
+    return scale_impl(index, vx, vy, out, outIndex);
+  }
+
+	private function scale_impl(index:Int, vx:Single, vy:Single, out:Mat2DArray, outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 3;
+		outIndex = outIndex << 3;
 		index <<= 3;
 
 		out[outIndex+0] = this[index+0] * vx;
@@ -317,7 +337,7 @@ abstract Mat2DArray(SingleVector)
 		return out;
 	}
 
-	@:extern inline public function scalev(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern inline public function scalev(index:Int, vec:Vec2, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
 	{
 		return scale(index,vec[0],vec[1],out,outIndex);
 	}
@@ -329,17 +349,22 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
-	public function rotate(index:Int, angle:Rad, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern public inline function rotate(index:Int, angle:Rad, ?out:Mat2DArray, outIndex:Int=-1):Mat2DArray
+  {
+    return rotate_impl(index, angle, out, outIndex);
+  }
+
+	private function rotate_impl(index:Int, angle:Rad, out:Mat2DArray, outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
 			out = t();
-			if (outIndex == null)
+			if (outIndex < 0)
 				outIndex = index;
 		}
 
 		// force outIndex to be Int, not Null<Int>
-		var outIndex:Int = outIndex << 3;
+		outIndex = outIndex << 3;
 		index <<= 3;
 
 		var aa = this[index+0],
