@@ -455,7 +455,7 @@ abstract Mat4Array(SingleVector)
 		Translates the mat4 with the `vec` Vec3
 		@see Mat4Array#translate
 	 **/
-	@:extern inline public function translate_v(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function translatev(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
 	{
 		return translate(index,vec[0],vec[1],vec[2],out,outIndex);
 	}
@@ -512,7 +512,7 @@ abstract Mat4Array(SingleVector)
 		}
 	}
 
-	@:extern inline public function scale_v(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
+	@:extern inline public function scalev(index:Int, vec:Vec3, ?out:Mat4Array, ?outIndex:Int):Mat4Array
 	{
 		return scale(index,vec[0],vec[1],vec[2],out,outIndex);
 	}

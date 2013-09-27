@@ -20,7 +20,8 @@ class MacroMath
 			else
 				return macro taurine.math.FastMath.NEGATIVE_INFINITY;
 		else
-			return { expr: EConst(CFloat(ret + "")), pos: e.pos };
+			return toPrecision(ret);
+			// return { expr: EConst(CFloat(ret + "")), pos: e.pos };
 	}
 
 #if macro
@@ -69,6 +70,14 @@ class MacroMath
 				}
 			default: throw new Error('Unsupported evaluation for this expression', e.pos);
 		};
+	}
+
+	public static function toPrecision(f:Float):Expr
+	{
+		var str = f + "";
+		var dif = f - Std.parseFloat(str);
+
+		return macro $v{f} + $v{dif};
 	}
 #end
 }

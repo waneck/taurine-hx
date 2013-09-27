@@ -10,7 +10,7 @@ class MatrixTests
 	}
 
 	//https://github.com/toji/gl-matrix/blob/master/spec/gl-matrix/mat2d-spec.js
-	public function test_mat_2d()
+	public function test_mat2d()
 	{
 		var out, matA, matB, identity, result, oldA, oldB;
 		var arr:Mat2DArray;
@@ -119,6 +119,16 @@ class MatrixTests
 		eq(matB,mat2d(25, 28, 57, 64, 100, 112),0);
 		eq(matA,arr,oldA);
 		reset();
+		//operator overloading
+		arr.copyTo(matA,out1,0);
+		var out2 = new Mat2D();
+		arr.copyTo(matB,out2,0);
+		var out3 = out1 * out2;
+		Assert.notEquals(out3,out1);
+		Assert.notEquals(out3,out2);
+		eq(matA,out1,0);
+		eq(matB,out2,0);
+		Assert.isTrue(out3.eq(mat2d(25, 28, 57, 64, 100, 112)));
 
 		//rotate
 		//separate output
@@ -162,5 +172,83 @@ class MatrixTests
 		result = arr.translatev(matA,vecA,arr,matA);
 		eq(matA,mat2d(1, 2, 3, 4, 7, 9),0);
 		Assert.equals(result,arr);
+	}
+
+	public function test_mat3()
+	{
+		var out, matA, matB, identity, result, oldA, oldB;
+		var arr:Mat3Array;
+		function reset()
+		{
+			arr = mat3(
+					[-1,-1,-1,-1,-1,-1,-1,-1,-1], //don't let matA be the index 0 otherwise we can miss some errors
+					matA = [1, 0, 0,
+									0, 1, 0,
+									1, 2, 1],
+
+					oldA = [1, 0, 0,
+									0, 1, 0,
+									1, 2, 1],
+
+					matB = [1, 0, 0,
+									0, 1, 0,
+									3, 4, 1],
+
+					oldB = [1, 0, 0,
+									0, 1, 0,
+									3, 4, 1],
+
+					out =  [0, 0, 0,
+									0, 0, 0,
+									0, 0, 0],
+
+					identity = [1, 0, 0,
+											0, 1, 0,
+											0, 0, 1]
+			);
+		}
+
+		inline function eq(idx:Int, mat:Mat3Array, idx2:Int=0,?pos:haxe.PosInfos)
+		{
+			Assert.isTrue(arr.eq(idx, mat, idx2),pos);
+		}
+		reset();
+		//basics
+		eq(0,arr,0);
+		eq(matA,arr,oldA);
+		eq(matB,arr,oldB);
+		Assert.isFalse(arr.eq(matA,arr,matB));
+		Assert.isFalse(arr.eq(matB,arr,matA));
+		Assert.isFalse(arr.eq(identity,arr,matA));
+		Assert.isFalse(arr.eq(identity,arr,out));
+
+		//normal from mat4
+		var m1 = mat4(1,0,0,0,
+									0,1,0,0,
+									0,0,1,0,
+									0,0,0,1);
+		var result = arr.normalFromMat4(out,m1,0);
+		Assert.equals(result,arr);
+		//translation
+		m1.translatev(vec3(2,4,6));
+		m1.rotateX(Math.PI/2);
+		result = arr.normalFromMat4(out,m1,0);
+		Assert.equals(result,arr);
+		eq(out,mat3(1,0,0,
+								0,0,1,
+								0,-1,0));
+		//scale
+		m1.scale(2,3,4);
+		result = arr.normalFromMat4(out,m1,0);
+		eq(out,mat3(.5, 0,   0,
+								 0, 0,   0.333333,
+								 0, -.25,0));
+		reset();
+
+		//fromQuat
+		var q = quat(0, -0.7071067811865475, 0, 0.7071067811865475);
+		result = arr.fromQuat(out,q,0);
+		Assert.equals(result,arr);
+		Assert.isTrue(vec(0,0,-1).array().transformMat3(0, arr, out).eq(0,vec(-1,0,0),0));
 	}
 }

@@ -205,7 +205,7 @@ abstract Mat3(SingleVector) //to Mat3Array
 		Translates the mat4 with the `vec` Vec2
 		@see Mat3#translate
 	 **/
-	@:extern inline public function translate_v(vec:Vec2, ?out:Mat3):Mat3
+	@:extern inline public function translatev(vec:Vec2, ?out:Mat3):Mat3
 	{
 		return translate(vec[0],vec[1],out);
 	}
@@ -221,7 +221,7 @@ abstract Mat3(SingleVector) //to Mat3Array
 		return Mat3Array.scale(this,0,x,y,out,0).first();
 	}
 
-	@:extern inline public function scale_v(vec:Vec2, ?out:Mat3):Mat3
+	@:extern inline public function scalev(vec:Vec2, ?out:Mat3):Mat3
 	{
 		return scale(vec[0],vec[1],out);
 	}
@@ -280,13 +280,13 @@ abstract Mat3(SingleVector) //to Mat3Array
 			if (s.length > maxn) maxn = s.length;
 		}
 
-		var fst = true;
 		for (j in 0...3)
 		{
-			if (fst) fst = false; else buf.add('     ');
+			buf.add('\n     ');
 			for (k in 0...3)
 			{
 				buf.add(StringTools.rpad(support[ (j * 3) + k ], " ", maxn));
+				buf.add(", ");
 			}
 		}
 		buf.add(")");
@@ -301,8 +301,11 @@ abstract Mat3(SingleVector) //to Mat3Array
 		else if (this == null || b == null)
 			return false;
 		for (i in 0...9)
-			if (this[i] != b[i])
+		{
+			var v = this[i] - b[i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 

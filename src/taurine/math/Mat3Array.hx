@@ -376,12 +376,13 @@ abstract Mat3Array(SingleVector)
 				outIndex = index;
 		}
 
-		index *= 9;
 		if (out == t() && outIndex == index)
 		{
+			index *= 9;
 			//TODO double check / branch vs simpler check
 			translate_inline_same(index,x,y);
 		} else {
+			index *= 9;
 			// force outIndex to be Int, not Null<Int>
 			var outIndex:Int = outIndex * 9;
 
@@ -424,7 +425,7 @@ abstract Mat3Array(SingleVector)
 		Translates the mat4 with the `vec` Vec2
 		@see Mat3Array#translate
 	 **/
-	@:extern inline public function translate_v(index:Int, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
 	{
 		return translate(index,vec[0],vec[1],out,outIndex);
 	}
@@ -523,7 +524,7 @@ abstract Mat3Array(SingleVector)
 		out[outIndex+8] = a22;
 	}
 
-	@:extern inline public function rotate_v(index:Int, angle:Rad, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
+	@:extern inline public function rotatev(index:Int, angle:Rad, vec:Vec2, ?out:Mat3Array, ?outIndex:Int):Mat3Array
 	{
 		return rotate(index,angle,vec[0],vec[1],out,outIndex);
 	}
@@ -533,7 +534,7 @@ abstract Mat3Array(SingleVector)
 	 **/
 	public function fromMat2D(index:Int, b:Mat2DArray, bIndex:Int):Mat3Array
 	{
-		index *= 9;
+		index *= 9; bIndex <<= 3;
 
 		this[index+0] = b[bIndex+0];
 		this[index+1] = b[bIndex+1];
@@ -599,6 +600,7 @@ abstract Mat3Array(SingleVector)
 	 **/
 	public function normalFromMat4(index:Int, b:Mat4Array, bIndex:Int):Mat3Array
 	{
+		index *= 9; bIndex <<= 4;
 		var a00 = b[bIndex+0], a01 = b[bIndex+1], a02 = b[bIndex+2], a03 = b[bIndex+3],
 				a10 = b[bIndex+4], a11 = b[bIndex+5], a12 = b[bIndex+6], a13 = b[bIndex+7],
 				a20 = b[bIndex+8], a21 = b[bIndex+9], a22 = b[bIndex+10], a23 = b[bIndex+11],
@@ -649,8 +651,11 @@ abstract Mat3Array(SingleVector)
 			return false;
 
 		for(i in 0...9)
-			if (this[index+i] != b[bIndex+i])
+		{
+			var v = this[index+i] - b[bIndex+i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 

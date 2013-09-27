@@ -58,6 +58,61 @@ class Geom
 		return internal_create(2,2,"Vec2",exprs);
 	}
 
+	/**
+		@see vec2
+	**/
+	macro public static function vec3(exprs:Array<Expr>):Expr
+	{
+		return internal_create(3,4,"Vec3",exprs);
+	}
+
+	/**
+		@see vec2
+	**/
+	macro public static function vec4(exprs:Array<Expr>):Expr
+	{
+		return internal_create(4,4,"Vec4",exprs);
+	}
+
+	/**
+		@see vec2
+	**/
+	macro public static function quat(exprs:Array<Expr>):Expr
+	{
+		return internal_create(4,4,"Quat",exprs);
+	}
+
+	/**
+		Easily creates a Vec2, Vec3 or Vec4 - depending on the amount of elements passed
+	**/
+	macro public static function vec(exprs:Array<Expr>):Expr
+	{
+		switch(exprs.length)
+		{
+			case 2:
+				return internal_create(2,2,"Vec2",exprs,false);
+			case 3:
+				return internal_create(3,4,"Vec3",exprs,false);
+			case 4:
+				return internal_create(4,4,"Vec4",exprs,false);
+			case len:
+				return throw new Error('(vec) Invalid number of arguments: $len', Context.currentPos());
+		}
+	}
+
+	/**
+		@see mat2d
+	**/
+	macro public static function mat3(exprs:Array<Expr>):Expr
+	{
+		return internal_create(9,9,"Mat3",exprs);
+	}
+
+	macro public static function mat4(exprs:Array<Expr>):Expr
+	{
+		return internal_create(16,16,"Mat4",exprs);
+	}
+
 #if macro
 	public static function mat2d_internal(exprs:Array<Expr>):Expr
 	{
@@ -65,7 +120,7 @@ class Geom
 		return internal_create(matlen, matlen_real, name, exprs);
 	}
 
-	private static function internal_create(matlen:Int, matlen_real:Int, name:String, exprs:Array<Expr>):Expr
+	private static function internal_create(matlen:Int, matlen_real:Int, name:String, exprs:Array<Expr>, allowArrays=true):Expr
 	{
 		var pos = Context.currentPos();
 		if (exprs.length == 0)
@@ -77,6 +132,8 @@ class Geom
 
 		function processArr(adecl:Array<Expr>, pos)
 		{
+			if (!allowArrays)
+				throw new Error('($name) This function does not allow passing arrays as parameters', pos);
 			if (adecl.length != matlen)
 				throw new Error('($name) Invalid number of arguments for $name definition: Expected $matlen; Got ${adecl.length}', pos);
 			var i = -1;

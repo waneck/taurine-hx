@@ -246,26 +246,26 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		var buf = new StringBuf();
 		var support = [], maxn = 0;
 		buf.add('mat2d(');
-				for (i in 0...6)
-				{
-					var s = support[ i ] = this[ i ] + "";
-					if (s.length > maxn) maxn = s.length;
-				}
-
-				var fst = true;
-				for (j in 0...3)
-				{
-					buf.add('\n      ');
-					for (k in 0...2)
+		for (i in 0...6)
 		{
-			buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
-			buf.add(", ");
+			var s = support[ i ] = this[ i ] + "";
+			if (s.length > maxn) maxn = s.length;
 		}
-		buf.add( j == 2 ? "1" : "0");
-				}
-				buf.add(")");
 
-				return buf.toString();
+		var fst = true;
+		for (j in 0...3)
+		{
+			buf.add('\n      ');
+			for (k in 0...2)
+			{
+				buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
+				buf.add(", ");
+			}
+			buf.add( j == 2 ? "1" : "0");
+		}
+		buf.add(")");
+
+		return buf.toString();
 	}
 
 	public function eq(b:Mat2D):Bool

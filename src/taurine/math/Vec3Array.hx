@@ -606,7 +606,7 @@ abstract Vec3Array(SingleVector)
 			if (outIndex == null)
 				outIndex = index;
 		}
-		index <<= 2; var outIndex:Int = outIndex << 2; mIndex <<= 4;
+		index <<= 2; var outIndex:Int = outIndex << 2; mIndex *= 9;
 		var x = this[index], y = this[index+1], z = this[index+2];
 		var m0 = m[mIndex], m1 = m[mIndex+1], m2 = m[mIndex + 2], m3 = m[mIndex + 3],
 				m4 = m[mIndex + 4], m5 = m[mIndex + 5], m6 = m[mIndex + 6], m7 = m[mIndex + 7],
@@ -665,7 +665,18 @@ abstract Vec3Array(SingleVector)
 	public function eq(index:Int, b:Vec3Array, bIndex:Int):Bool
 	{
 		index <<= 2; bIndex <<= 2;
-		return (this == b.getData() && index == bIndex) || (b != null && this != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2]);
+		if (this == b.getData() && index == bIndex)
+			return true;
+		else if (this == null || b == null)
+			return false;
+
+		for(i in 0...3)
+		{
+			var v = this[index+i] - b[bIndex+i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
+				return false;
+		}
+		return true;
 	}
 
 	public function toString():String

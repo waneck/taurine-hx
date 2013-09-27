@@ -213,7 +213,7 @@ abstract Mat4(SingleVector) //to Mat4Array
 		Translates the mat4 with the `vec` Vec3
 		@see Mat4#translate
 	 **/
-	@:extern inline public function translate_v(vec:Vec3, ?out:Mat4):Mat4
+	@:extern inline public function translatev(vec:Vec3, ?out:Mat4):Mat4
 	{
 		return translate(vec[0],vec[1],vec[2],out);
 	}
@@ -229,7 +229,7 @@ abstract Mat4(SingleVector) //to Mat4Array
 		return Mat4Array.scale(this,0,x,y,z,out,0).first();
 	}
 
-	@:extern inline public function scale_v(vec:Vec3, ?out:Mat4):Mat4
+	@:extern inline public function scalev(vec:Vec3, ?out:Mat4):Mat4
 	{
 		return scale(vec[0],vec[1],vec[2],out);
 	}
