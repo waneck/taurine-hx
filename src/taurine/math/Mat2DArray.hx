@@ -205,6 +205,11 @@ abstract Mat2DArray(SingleVector)
 		return this[index] * this[index+3] - this[index+1] * this[index+2];
 	}
 
+	@:extern inline public function det(index):Float
+	{
+		return determinant(index);
+	}
+
 	/**
 		Multiplies current matrix at `index` with matrix array `b` at `bIndex`,
 		and stores the value at `outIndex` on `out` matrix array
@@ -263,6 +268,7 @@ abstract Mat2DArray(SingleVector)
 		}
 
 		index <<= 3;
+		var outIndex:Int = outIndex << 3;
 		out[outIndex+0] = this[index+0];
 		out[outIndex+1] = this[index+1];
 		out[outIndex+2] = this[index+2];
@@ -277,7 +283,7 @@ abstract Mat2DArray(SingleVector)
 		Translates the Mat2D with the `vec` Vec2
 		@see Mat2DArray#translate
 	 **/
-	@:extern inline public function translate_v(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern inline public function translatev(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		return translate(index,vec[0],vec[1],out,outIndex);
 	}
@@ -311,7 +317,7 @@ abstract Mat2DArray(SingleVector)
 		return out;
 	}
 
-	@:extern inline public function scale_v(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	@:extern inline public function scalev(index:Int, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		return scale(index,vec[0],vec[1],out,outIndex);
 	}
@@ -323,7 +329,7 @@ abstract Mat2DArray(SingleVector)
 		If `outIndex` is null, it will be considered to be the same as `index`.
 		Returns the changed `Mat2DArray`
 	 **/
-	public function rotate(index:Int, angle:Rad, x:Single, y:Single, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
+	public function rotate(index:Int, angle:Rad, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
 	{
 		if (out == null)
 		{
@@ -354,11 +360,6 @@ abstract Mat2DArray(SingleVector)
 		return out;
 	}
 
-	@:extern inline public function rotate_v(index:Int, angle:Rad, vec:Vec2, ?out:Mat2DArray, ?outIndex:Int):Mat2DArray
-	{
-		return rotate(index,angle,vec[0],vec[1],out,outIndex);
-	}
-
 	public function eq(index:Int, b:Mat2DArray, bIndex:Int):Bool
 	{
 		index <<= 3; bIndex <<= 3;
@@ -368,8 +369,11 @@ abstract Mat2DArray(SingleVector)
 			return false;
 
 		for(i in 0...6)
-			if (this[index+i] != b[bIndex+i])
+		{
+			var v = this[index+i] - b[bIndex+i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 
@@ -381,43 +385,43 @@ abstract Mat2DArray(SingleVector)
 		buf.add('mat2d[');
 		buf.add(len);
 		buf.add(']\n{');
-			var support = [], maxn = 0;
-			for (i in 0...len)
+		var support = [], maxn = 0;
+		for (i in 0...len)
+		{
+			buf.add('\n\t');
+			buf.add('mat2d(');
+			for (j in 0...6)
 			{
-				buf.add('\n\t');
-				buf.add('mat2d(');
-						for (j in 0...6)
-						{
-							var s = support[ j ] = this[ (i << 3) + j ] + "";
-							if (s.length > maxn) maxn = s.length;
-						}
+				var s = support[ j ] = this[ (i << 3) + j ] + "";
+				if (s.length > maxn) maxn = s.length;
+			}
 
-						var fst = true;
-						for (j in 0...3)
-						{
-							if (fst) fst = false; else buf.add('\n\t      ');
-							for (k in 0...2)
+			var fst = true;
+			for (j in 0...3)
+			{
+				if (fst) fst = false; else buf.add('\n\t      ');
+				for (k in 0...2)
 				{
 					buf.add(StringTools.rpad(support[ (j * 2) + k ], " ", maxn));
 					buf.add(", ");
 				}
 				buf.add( j == 2 ? "1" : "0");
-						}
-						buf.add("), ");
-						}
-						buf.add("\n}");
-
-						return buf.toString();
+				}
+			buf.add("), ");
 		}
+		buf.add("\n}");
 
-		@:arrayAccess inline private function getRaw(idx:Int):Single
-		{
-			return this[idx];
-		}
-
-		@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
-		{
-			return this[idx] = v;
-		}
-
+		return buf.toString();
 	}
+
+	@:arrayAccess inline private function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline private function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
+
+}

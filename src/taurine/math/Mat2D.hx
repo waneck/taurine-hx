@@ -59,6 +59,9 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 	{
 		this = SingleVector.alloc(6);
 		this[0] = this[3] = 1;
+#if neko
+		this[1] = this[2] = this[4] =	this[5] = 0;
+#end
 	}
 
 	/**
@@ -169,6 +172,11 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		return Mat2DArray.determinant(this,0);
 	}
 
+	@:extern inline public function det():Float
+	{
+		return determinant();
+	}
+
 	/**
 		Multiplies current matrix with matrix `b`,
 		and stores the value on `out` matrix
@@ -201,7 +209,7 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		Translates the mat4 with the `vec` Vec2
 		@see Mat2D#translate
 	 **/
-	@:extern inline public function translate_v(vec:Vec2, ?out:Mat2D):Mat2D
+	@:extern inline public function translatev(vec:Vec2, ?out:Mat2D):Mat2D
 	{
 		return translate(vec[0],vec[1],out);
 	}
@@ -217,7 +225,7 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		return Mat2DArray.scale(this,0,x,y,out,0).first();
 	}
 
-	@:extern inline public function scale_v(vec:Vec2, ?out:Mat2D):Mat2D
+	@:extern inline public function scalev(vec:Vec2, ?out:Mat2D):Mat2D
 	{
 		return scale(vec[0],vec[1],out);
 	}
@@ -228,14 +236,9 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		If `out` is null, it will implicitly be considered itself;
 		Returns the changed `Mat2D`
 	 **/
-	@:extern inline public function rotate(angle:Rad, x:Single, y:Single, ?out:Mat2D):Mat2D
+	@:extern inline public function rotate(angle:Rad, ?out:Mat2D):Mat2D
 	{
-		return Mat2DArray.rotate(this,0,angle,x,y,out,0).first();
-	}
-
-	@:extern inline public function rotate_v(angle:Rad, vec:Vec2, ?out:Mat2D):Mat2D
-	{
-		return rotate(angle,vec[0],vec[1],out);
+		return Mat2DArray.rotate(this,0,angle,out,0).first();
 	}
 
 	public function toString():String
@@ -272,8 +275,11 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		else if (this == null || b == null)
 			return false;
 		for (i in 0...6)
-			if (this[i] != b[i])
+		{
+			var v = this[i] - b[i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 
