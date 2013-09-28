@@ -115,6 +115,18 @@ abstract Mat3Array(SingleVector)
 	}
 
 	/**
+		Clones the matrix at `index`
+	**/
+	public function cloneAt(index:Int):Mat3
+	{
+		var out = Mat3.mk();
+		index *= 9;
+		for (i in 0...9)
+			out[i] = this[index+i];
+		return out;
+	}
+
+	/**
 		Copies Mat3 at `index` to `out`, at `outIndex`
 		Returns `out` object
 	 **/
@@ -568,6 +580,25 @@ abstract Mat3Array(SingleVector)
 		this[index+6] = b[bIndex+4];
 		this[index+7] = b[bIndex+5];
 		this[index+8] = 1;
+
+		return t();
+	}
+
+	/**
+		Copies the upper-left 3x3 values into the given mat3
+	**/
+	public function fromMat4(index:Int, b:Mat4Array, bIndex:Int):Mat3Array
+	{
+		index *= 9; bIndex <<= 4;
+		this[index+0] = b[bIndex+0];
+		this[index+1] = b[bIndex+1];
+		this[index+2] = b[bIndex+2];
+		this[index+3] = b[bIndex+4];
+		this[index+4] = b[bIndex+5];
+		this[index+5] = b[bIndex+6];
+		this[index+6] = b[bIndex+8];
+		this[index+7] = b[bIndex+9];
+		this[index+8] = b[bIndex+10];
 
 		return t();
 	}

@@ -129,6 +129,18 @@ abstract Vec2Array(SingleVector)
 	}
 
 	/**
+		Clones the vector at `index`
+	**/
+	public function cloneAt(index:Int):Vec2
+	{
+		var out = Vec2.mk();
+		index <<= 1;
+		out[0] = this[index];
+		out[1] = this[index+1];
+		return out;
+	}
+
+	/**
 		Copies Vec2 at `index` to `out`, at `outIndex`
 		Returns `out` object
 	 **/

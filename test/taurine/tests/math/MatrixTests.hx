@@ -208,9 +208,10 @@ class MatrixTests
 			);
 		}
 
-		inline function eq(idx:Int, mat:Mat3Array, idx2:Int=0,?pos:haxe.PosInfos)
+		inline function eq(?mat1:Mat3Array, idx:Int, mat:Mat3Array, idx2:Int=0,?pos:haxe.PosInfos)
 		{
-			Assert.isTrue(arr.eq(idx, mat, idx2),pos);
+			if(mat1 == null) mat1 = arr;
+			Assert.isTrue(mat1.eq(idx, mat, idx2),pos);
 		}
 		reset();
 		//basics
@@ -223,23 +224,24 @@ class MatrixTests
 		Assert.isFalse(arr.eq(identity,arr,out));
 
 		//normal from mat4
-		var m1 = mat4(1,0,0,0,
-									0,1,0,0,
-									0,0,1,0,
-									0,0,0,1);
-		var result = arr.normalFromMat4(out,m1,0);
+		var m1 = mat4([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], //index != 0 to catch more errors
+									[1,0,0,0,
+									 0,1,0,0,
+									 0,0,1,0,
+									 0,0,0,1]);
+		var result = arr.normalFromMat4(out,m1,1);
 		Assert.equals(result,arr);
 		//translation
-		m1.translatev(vec3(2,4,6));
-		m1.rotateX(Math.PI/2);
-		result = arr.normalFromMat4(out,m1,0);
+		m1.translatev(1,vec3(2,4,6));
+		m1.rotateX(1,Math.PI/2);
+		result = arr.normalFromMat4(out,m1,1);
 		Assert.equals(result,arr);
 		eq(out,mat3(1,0,0,
 								0,0,1,
 								0,-1,0));
 		//scale
-		m1.scale(2,3,4);
-		result = arr.normalFromMat4(out,m1,0);
+		m1.scale(1, 2,3,4);
+		result = arr.normalFromMat4(out,m1,1);
 		eq(out,mat3(.5, 0,   0,
 								 0, 0,   0.333333,
 								 0, -.25,0));
@@ -250,5 +252,124 @@ class MatrixTests
 		result = arr.fromQuat(out,q,0);
 		Assert.equals(result,arr);
 		Assert.isTrue(vec(0,0,-1).array().transformMat3(0, arr, out).eq(0,vec(-1,0,0),0));
+		reset();
+
+		//fromMat4
+		result = arr.fromMat4(out, mat4([-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],
+																		[1 ,2 ,3 ,4 ,
+																		 5 ,6 ,7 ,8 ,
+																		 9 ,10,11,12,
+																		 13,14,15,16]), 1);
+		Assert.equals(result,arr);
+		eq(out,mat3(1,2,3,
+								5,6,7,
+								9,10,11));
+		//scale
+		result = arr.scalev(matA, vec(2,2), arr, out);
+		Assert.equals(result,arr);
+		eq(out,mat3(2,0,0,
+								0,2,0,
+								1,2,1));
+		eq(matA,arr,oldA);
+
+		//create
+		result = new Mat3();
+		Assert.notEquals(result,arr);
+		eq(identity, result, 0);
+
+		//clone
+		result = arr.cloneAt(matA);
+		Assert.notEquals(result,arr);
+		eq(matA, result, 0);
+
+		//copy
+		result = arr.copy();
+		Assert.notEquals(result,arr);
+		eq(matA,result,matA);
+		eq(out,result,out);
+		eq(identity,result,identity);
+
+		//identity
+		result = arr.identity(out);
+		Assert.equals(result,arr);
+		eq(out,arr,identity);
+
+		//transpose
+		//separate output matrix
+		reset();
+		result = arr.transpose(matA,new Mat3(),0);
+		Assert.notEquals(result,arr);
+		Assert.isTrue(result.eq(0,mat3(
+					1,0,1,
+					0,1,2,
+					0,0,1),0));
+		eq(matA,arr,oldA);
+		//same output
+		result = arr.transpose(matA);
+		Assert.equals(arr,result);
+		eq(matA,mat3(
+					1,0,1,
+					0,1,2,
+					0,0,1));
+		reset();
+
+		//invert
+		//seperate output
+		result = arr.invert(matA,new Mat3(),0);
+		Assert.notEquals(result,arr);
+		Assert.isTrue(result.eq(0,mat3(
+					1,0,0,
+					0,1,0,
+					-1,-2,1),0));
+		eq(matA,arr,oldA);
+		//same output
+		result = arr.invert(matA);
+		Assert.equals(result,arr);
+		eq(matA,mat3(
+					1,0,0,
+					0,1,0,
+					-1,-2,1));
+		reset();
+
+		//adjoint
+		//separate output
+		result = arr.adjoint(matA, new Mat3(),0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat3(
+					1,0,0,
+					0,1,0,
+					-1,-2,1));
+		eq(matA,arr,oldA);
+		//same output
+		result = arr.adjoint(matA);
+		Assert.equals(result,arr);
+		eq(matA,mat3(
+					1,0,0,
+					0,1,0,
+					-1,-2,1));
+		reset();
+
+		//determinant
+		var det = arr.determinant(matA);
+		Assert.equals(det,1);
+
+		//multiply
+		//separate output
+		result = arr.mul(matA,arr,matB,new Mat3(),0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat3(1,0,0, 0,1,0, 4,6,1));
+		eq(matA,arr,oldA);
+		eq(matB,arr,oldB);
+		//matA output
+		result = arr.mul(matA,arr,matB);
+		Assert.equals(result,arr);
+		eq(matA,mat3(1,0,0, 0,1,0, 4,6,1));
+		eq(matB,arr,oldB);
+		reset();
+		//matB output
+		result = arr.mul(matA,arr,matB,arr,matB);
+		Assert.equals(result,arr);
+		eq(matB,mat3(1,0,0, 0,1,0, 4,6,1));
+		eq(matA,arr,oldA);
 	}
 }

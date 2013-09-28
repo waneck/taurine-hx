@@ -48,6 +48,10 @@ abstract Mat3(SingleVector) //to Mat3Array
 	{
 		this = SingleVector.alloc(9);
 		this[0] = this[4] = this[8] = 1;
+#if neko
+		this[1] = this[2] = this[3] =
+			this[5] = this[6] = this[7] = 0;
+#end
 	}
 
 	/**
@@ -248,6 +252,14 @@ abstract Mat3(SingleVector) //to Mat3Array
 	@:extern inline public function fromMat2D(b:Mat2D):Mat3
 	{
 		return Mat3Array.fromMat2D(this,0,b,0).first();
+	}
+
+	/**
+		Copies the upper-left 3x3 values into the given mat3
+	**/
+	@:extern inline public function fromMat4(index:Int, b:Mat4Array, bIndex:Int):Mat3Array
+	{
+		return Mat3Array.fromMat4(this,0,b,0);
 	}
 
 	/**

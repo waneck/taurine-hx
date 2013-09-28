@@ -179,6 +179,20 @@ abstract Vec4Array(SingleVector)
 	}
 
 	/**
+		Clones the vector at `index`
+	**/
+	public function cloneAt(index:Int):Vec4
+	{
+		var out = Vec4.mk();
+		index <<= 2;
+		out[0] = this[index];
+		out[1] = this[index+1];
+		out[2] = this[index+2];
+		out[3] = this[index+3];
+		return out;
+	}
+
+	/**
 		Sets the components of `this` Vec4 at `index`
 		Returns itself
 	 **/

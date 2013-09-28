@@ -147,6 +147,19 @@ abstract Vec3Array(SingleVector)
 	}
 
 	/**
+		Clones the vector at `index`
+	**/
+	public function cloneAt(index:Int):Vec3
+	{
+		var out = Vec3.mk();
+		index <<= 2;
+		out[0] = this[index];
+		out[1] = this[index+1];
+		out[2] = this[index+2];
+		return out;
+	}
+
+	/**
 		Copies Vec3 at `index` to `out`, at `outIndex`
 		Returns `out` object
 	 **/

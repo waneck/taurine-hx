@@ -65,6 +65,18 @@ abstract Mat4Array(SingleVector)
 	}
 
 	/**
+		Clones the matrix at `index`
+	**/
+	public function cloneAt(index:Int):Mat4
+	{
+		var out = Mat4.mk();
+		index <<= 4;
+		for (i in 0...16)
+			out[i] = this[index+i];
+		return out;
+	}
+
+	/**
 		Creates a copy of the current Mat4Array and returns it
 	 **/
 	public function copy():Mat4Array

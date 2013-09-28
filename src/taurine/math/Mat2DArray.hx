@@ -126,6 +126,18 @@ abstract Mat2DArray(SingleVector)
 	}
 
 	/**
+		Clones the matrix at `index`
+	**/
+	public function cloneAt(index:Int):Mat2D
+	{
+		var out = Mat2D.mk();
+		index <<= 3;
+		for (i in 0...6)
+			out[i] = this[index+i];
+		return out;
+	}
+
+	/**
 		Copies Mat2D at `index` to `out`, at `outIndex`
 		Returns `out` object
 	 **/
