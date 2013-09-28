@@ -340,6 +340,11 @@ abstract Mat4(SingleVector) //to Mat4Array
 		return Mat4Array.perspective(this,0,fovy,aspect,near,far).first();
 	}
 
+	@:extern inline public function persp(fovy:Rad, aspect:Single, near:Single, far:Single):Mat4
+	{
+		return perspective(fovy,aspect,near,far);
+	}
+
 	/**
 		Generates an orthogonal matrix with the given bounds and writes on `this` mat array
 	 **/

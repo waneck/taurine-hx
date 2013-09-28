@@ -568,7 +568,78 @@ class MatrixTests
 		eq(matA, mat4(1,0,0,0, 0,rad.cos(),rad.sin(),0, 0,-rad.sin(),rad.cos(),0, 1,2,3,1));
 		reset();
 
+		//rotateY
+		result = arr.rotateY(matA,rad,new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0, mat4(rad.cos(),0,-rad.sin(),0,  0,1,0,0,  rad.sin(), 0, rad.cos(), 0,  1,2,3,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.rotateY(matA,rad);
+		Assert.equals(result,arr);
+		eq(matA, mat4(rad.cos(),0,-rad.sin(),0,  0,1,0,0,  rad.sin(), 0, rad.cos(), 0,  1,2,3,1));
+		reset();
 
+		//rotateZ
+		result = arr.rotateZ(matA,rad,new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0, mat4(rad.cos(),rad.sin(),0,0, -rad.sin(),rad.cos(),0,0, 0,0,1,0, 1,2,3,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.rotateZ(matA,rad);
+		Assert.equals(result,arr);
+		eq(matA, mat4(rad.cos(),rad.sin(),0,0, -rad.sin(),rad.cos(),0,0, 0,0,1,0, 1,2,3,1));
+		reset();
+
+		//frustum
+		result = arr.frustum(out,-1,1,-1,1,-1,1);
+		Assert.equals(result,arr);
+		eq(out, mat4(-1,0,0,0, 0,-1,0,0, 0,0,0,-1, 0,0,1,0));
+
+		//perspective
+		var fovy = rad;
+		result = arr.perspective(out, fovy, 1, 0, 1);
+		Assert.equals(result,arr);
+		eq(out, mat4(1,0,0,0, 0,1,0,0, 0,0,-1,-1, 0,0,0,0));
+
+		//persp
+		result = arr.perspective(out,45 * Math.PI / 180, 640/480, .1, 200);
+		Assert.equals(result,arr);
+		eq(out, mat4(1.81066,0,0,0, 0,2.414213,0,0,  0,0,-1.001,-1, 0,0,-0.2001,0));
+
+		//ortho
+		result = arr.ortho(out, -1, 1, -1, 1, -1, 1);
+		eq(out, mat4(1,0,0,0, 0,1,0,0, 0,0,-1,0, 0,0,0,1));
+		Assert.equals(result,arr);
+
+		//lookAt
+		var eye = vec(0,0,1), center = vec(0,0,-1), up = vec(0,1,0);
+		var view, up, right;
+		//looking down
+		view = vec(0,-1,0);
+		up = vec(0,0,-1);
+		right = vec(1,0,0);
+		result = arr.lookAt(out, vec(0,0,0), 0, view, 0, up);
+		Assert.equals(result,arr);
+		var r1 = view.array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(0,0,-1)));
+		var r1 = up.array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(0,1,0)));
+		var r1 = right.array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(1,0,0)));
+
+		//#74
+		arr.lookAt(out, vec(0,2,0), 0, vec(0,.6,0), 0, vec(0,0,-1));
+		var r1 = vec(0,2,-1).array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(0,1,0)));
+		var r1 = vec(1,2,0).array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(1,0,0)));
+		var r1 = vec(0,1,0).array().transformMat4(0,arr,out).first();
+		Assert.isTrue(r1.eq(vec(0,0,-1)));
+
+		eye = vec(0,0,1); center = vec(0,0,-1); up = vec(0,1,0);
+		result = arr.lookAt(out, eye, 0, center, 0, up);
+		eq(out, mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,-1,1));
+		Assert.equals(result,arr);
 	}
 
 }

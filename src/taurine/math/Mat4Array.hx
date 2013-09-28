@@ -957,6 +957,11 @@ abstract Mat4Array(SingleVector)
 		return t();
 	}
 
+	@:extern inline public function persp(index:Int, fovy:Rad, aspect:Single, near:Single, far:Single):Mat4Array
+	{
+		return perspective(index,fovy,aspect,near,far);
+	}
+
 	@:extern inline private function perspective_inline(index:Int, fovy:Rad, aspect:Single, near:Single, far:Single)
 	{
 		var f = 1.0 / Math.tan(fovy.float() / 2),
