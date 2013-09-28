@@ -55,6 +55,11 @@ abstract Mat4(SingleVector) //to Mat4Array
 	{
 		this = SingleVector.alloc(16);
 		this[0] = this[5] = this[10] = this[15] = 1;
+#if neko
+		this[1] = this[2] = this[3] = this[4] =
+			this[6] = this[7] = this[8] = this[9] =
+			this[11] = this[12] = this[13] = this[14] = 0;
+#end
 	}
 
 	/**
@@ -398,8 +403,11 @@ abstract Mat4(SingleVector) //to Mat4Array
 		else if (this == null || b == null)
 			return false;
 		for (i in 0...16)
-			if (this[i] != b[i])
+		{
+			var v = this[i] - b[i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 

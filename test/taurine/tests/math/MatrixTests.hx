@@ -372,4 +372,83 @@ class MatrixTests
 		eq(matB,mat3(1,0,0, 0,1,0, 4,6,1));
 		eq(matA,arr,oldA);
 	}
+
+	public function test_mat4()
+	{
+		var out, matA, matB, identity, result:Mat4Array, oldA, oldB;
+		var arr:Mat4Array;
+		function reset()
+		{
+			arr = mat4(
+					[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1], //don't let matA be the index 0 otherwise we can miss some errors
+					// Attempting to portray a semi-realistic transform matrix
+					matA = [1, 0, 0, 0,
+									0, 1, 0, 0,
+									0, 0, 1, 0,
+									1, 2, 3, 1],
+
+					matB = [1, 0, 0, 0,
+									0, 1, 0, 0,
+									0, 0, 1, 0,
+									4, 5, 6, 1],
+
+					out =  [0, 0, 0, 0,
+									0, 0, 0, 0,
+									0, 0, 0, 0,
+									0, 0, 0, 0],
+
+					identity = [1, 0, 0, 0,
+											0, 1, 0, 0,
+											0, 0, 1, 0,
+											0, 0, 0, 1],
+
+					oldA = [1, 0, 0, 0,
+									0, 1, 0, 0,
+									0, 0, 1, 0,
+									1, 2, 3, 1],
+
+					oldB = [1, 0, 0, 0,
+									0, 1, 0, 0,
+									0, 0, 1, 0,
+									4, 5, 6, 1]
+
+			);
+		}
+
+		inline function eq(?mat1:Mat4Array, idx:Int, mat:Mat4Array, idx2:Int=0,?pos:haxe.PosInfos)
+		{
+			if(mat1 == null) mat1 = arr;
+			Assert.isTrue(mat1.eq(idx, mat, idx2),pos);
+		}
+		reset();
+		//basics
+		eq(0,arr,0);
+		eq(matA,arr,oldA);
+		eq(matB,arr,oldB);
+		Assert.isFalse(arr.eq(matA,arr,matB));
+		Assert.isFalse(arr.eq(matB,arr,matA));
+		Assert.isFalse(arr.eq(identity,arr,matA));
+		Assert.isFalse(arr.eq(identity,arr,out));
+
+		//create
+		eq(identity,new Mat4());
+
+		//clone
+		result = arr.cloneAt(matA);
+		Assert.notEquals(result,arr);
+		eq(matA, result, 0);
+
+		//copy
+		result = arr.copy();
+		Assert.notEquals(result,arr);
+		eq(matA,result,matA);
+		eq(out,result,out);
+		eq(identity,result,identity);
+
+		//identity
+		result = arr.identity(out);
+		Assert.equals(result,arr);
+		eq(out,arr,identity);
+	}
+
 }

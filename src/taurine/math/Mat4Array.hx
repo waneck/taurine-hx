@@ -1149,8 +1149,11 @@ abstract Mat4Array(SingleVector)
 			return false;
 
 		for(i in 0...16)
-			if (this[index+i] != b[bIndex+i])
+		{
+			var v = this[index+i] - b[bIndex+i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
 				return false;
+		}
 		return true;
 	}
 
