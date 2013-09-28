@@ -26,7 +26,7 @@ abstract SingleVector(SingleVectorData) to SingleVectorData
 	private inline function get_length():Int
 	{
 #if (cpp || (flash9 && !TAURINE_MATH_OPT_MEMORY))
-		return this.byteLength;
+		return this.byteLength >>> 2;
 #else
 		return this.length;
 #end

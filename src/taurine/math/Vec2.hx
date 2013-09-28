@@ -419,6 +419,16 @@ abstract Vec2(SingleVector)// to Vec2Array You can only declare from/to with com
 		return !a.eq(b);
 	}
 
+	@:arrayAccess inline public function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline public function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
+
 	//boilerplate
 	@:extern inline private function get_x():Single return this[0];
 	@:extern inline private function set_x(val:Single):Single return this[0] = val;

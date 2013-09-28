@@ -6,9 +6,9 @@ package taurine.math;
 **/
 class FastMath
 {
-	public static inline var NaN = #if cpp Math.NaN #else 0.0 / 0.0 #end;
-	public static inline var POSITIVE_INFINITY = #if cpp Math.POSITIVE_INFINITY #else 1. / 0 #end;
-	public static inline var NEGATIVE_INFINITY = #if cpp Math.NEGATIVE_INFINITY #else -1. / 0 #end;
+	public static inline var NaN = #if ncpp Math.NaN #else 0.0 / 0.0 #end;
+	public static inline var POSITIVE_INFINITY = #if ncpp Math.POSITIVE_INFINITY #else 1. / 0 #end;
+	public static inline var NEGATIVE_INFINITY = #if ncpp Math.NEGATIVE_INFINITY #else -1. / 0 #end;
 
   public static inline var EPSILON = 0.000001;
 

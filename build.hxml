@@ -3,9 +3,9 @@
 -main taurine.tests.Test
 -debug
 #-neko bin/neko.n
--js bin/js.js
+#-js bin/js.js
 #-php bin/php
-#-cpp bin/cpp
+-cpp bin/cpp
 #-java bin/java
 #-cs bin/cs
 -lib utest

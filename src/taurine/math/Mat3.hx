@@ -331,6 +331,16 @@ abstract Mat3(SingleVector) //to Mat3Array
 		return !a.eq(b);
 	}
 
+	@:arrayAccess inline public function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline public function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
+
 	//boilerplate
 	@:extern inline private function get_a00():Single return this[0];
 	@:extern inline private function set_a00(val:Single):Single return this[0] = val;

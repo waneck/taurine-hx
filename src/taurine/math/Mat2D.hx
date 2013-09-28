@@ -293,6 +293,16 @@ abstract Mat2D(SingleVector) //to Mat2DArray
 		return !a.eq(b);
 	}
 
+	@:arrayAccess inline public function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline public function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
+
 	//boilerplate
 	@:extern inline private function get_a():Single return this[0];
 	@:extern inline private function set_a(val:Single):Single return this[0] = val;

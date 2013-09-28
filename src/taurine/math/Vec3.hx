@@ -421,6 +421,16 @@ abstract Vec3(SingleVector) //to Vec3Array
 		return buf.toString();
 	}
 
+	@:arrayAccess inline public function getRaw(idx:Int):Single
+	{
+		return this[idx];
+	}
+
+	@:arrayAccess inline public function setRaw(idx:Int, v:Single):Single
+	{
+		return this[idx] = v;
+	}
+
 	//boilerplate
 	@:extern inline private function get_x():Single return this[0];
 	@:extern inline private function set_x(val:Single):Single return this[0] = val;
