@@ -124,7 +124,7 @@ abstract Mat3(SingleVector) //to Mat3Array
 	}
 
 	/**
-		Set the Mat3 at `index` to the identity matrix.
+		Set the Mat3 to the identity matrix.
 
 		Returns itself
 	 **/
@@ -257,9 +257,9 @@ abstract Mat3(SingleVector) //to Mat3Array
 	/**
 		Copies the upper-left 3x3 values into the given mat3
 	**/
-	@:extern inline public function fromMat4(index:Int, b:Mat4Array, bIndex:Int):Mat3Array
+	@:extern inline public function fromMat4(b:Mat4Array):Mat3
 	{
-		return Mat3Array.fromMat4(this,0,b,0);
+		return Mat3Array.fromMat4(this,0,b,0).first();
 	}
 
 	/**

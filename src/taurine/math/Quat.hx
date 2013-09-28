@@ -338,9 +338,9 @@ abstract Quat(SingleVector)// to QuatArray
 	/**
 		Returns true if the quaternions are equal
 	 **/
-	public function eq(b:Quat):Bool
+	@:extern inline public function eq(b:Quat):Bool
 	{
-		return this == b.getData() || (b != null && this != null && b[0] == this[0] && b[1] == this[1] && this[2] == b[2] && this[3] == b[3]);
+		return Vec4.eq(this,untyped b);
 	}
 
 	@:op(A==B) @:extern inline public static function opEq(a:Quat, b:Quat):Bool

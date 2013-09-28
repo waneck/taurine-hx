@@ -379,7 +379,17 @@ abstract Vec4(SingleVector) //to Vec4Array
 	 **/
 	public function eq(b:Vec4):Bool
 	{
-		return this == b.getData() || (b != null && this != null && b[0] == this[0] && b[1] == this[1] && this[2] == b[2] && this[3] == b[3]);
+		if (this == b.getData())
+			return true;
+		else if (this == null || b == null)
+			return false;
+		for (i in 0...4)
+		{
+			var v = this[i] - b[i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
+				return false;
+		}
+		return true;
 	}
 
 	@:op(A==B) @:extern inline public static function opEq(a:Vec4, b:Vec4):Bool

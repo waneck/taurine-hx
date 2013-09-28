@@ -725,7 +725,18 @@ abstract Vec4Array(SingleVector)
 	public function eq(index:Int, b:Vec4Array, bIndex:Int):Bool
 	{
 		index <<= 2; bIndex <<= 2;
-		return (this == b.getData() && index == bIndex) || (this != null && b != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2] && b[bIndex+3] == this[index+3]);
+		if (this == b.getData() && index == bIndex)
+			return true;
+		else if (this == null || b == null)
+			return false;
+
+		for(i in 0...4)
+		{
+			var v = this[index+i] - b[bIndex+i];
+			if (v != 0 && (v < 0 && v < -FastMath.EPSILON) || (v > FastMath.EPSILON)) //this != b
+				return false;
+		}
+		return true;
 	}
 
 	public function toString():String

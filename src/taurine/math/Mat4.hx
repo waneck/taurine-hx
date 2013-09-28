@@ -371,7 +371,7 @@ abstract Mat4(SingleVector) //to Mat4Array
 		Alias to lookAt
 		@see lookAt
 	 **/
-	@:extern inline public function lookAt_v(eye:Vec3, center:Vec3, up:Vec3):Mat4
+	@:extern inline public function lookAtv(eye:Vec3, center:Vec3, up:Vec3):Mat4
 	{
 		return Mat4Array.lookAt(this,0,eye,0,center,0,up).first();
 	}

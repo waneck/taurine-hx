@@ -143,6 +143,20 @@ abstract QuatArray(SingleVector)
 	}
 
 	/**
+		Clones the Quat at `index`
+	**/
+	public function cloneAt(index:Int):Quat
+	{
+		var out = Quat.mk();
+		index <<= 2;
+		out[0] = this[index];
+		out[1] = this[index+1];
+		out[2] = this[index+2];
+		out[3] = this[index+3];
+		return out;
+	}
+
+	/**
 		Reinterpret `this` array as its first `Quat`
 	 **/
 	@:extern inline public function first():Quat
@@ -509,8 +523,9 @@ abstract QuatArray(SingleVector)
 			outIndex = index;
 		}
 		index <<= 2; outIndex = outIndex << 2;
+		var rad = rad.float() * .5;
 		var ax = this[index+0], ay = this[index+1], az = this[index+2], aw = this[index+3],
-				bz = rad.sin(), bw = rad.cos();
+				bz = FastMath.sin(rad), bw = FastMath.cos(rad);
 
 		out[outIndex+0] = ax * bw + ay * bz;
 		out[outIndex+1] = ay * bw - ax * bz;
@@ -713,16 +728,16 @@ abstract QuatArray(SingleVector)
 	 **/
 	@:extern inline public function fromMat3(index:Int, m:Mat3Array, mIndex:Int):QuatArray
 	{
+		index <<= 2; mIndex *= 9;
 		return fromMat3_internal(index, m[mIndex+0],m[mIndex+1],m[mIndex+2],m[mIndex+3],m[mIndex+4],m[mIndex+5],m[mIndex+6],m[mIndex+7],m[mIndex+8]);
 	}
 
 	/**
 		Returns true if the quaternions are equal
 	 **/
-	public function eq(index:Int, b:QuatArray, bIndex:Int):Bool
+	@:extern inline public function eq(index:Int, b:QuatArray, bIndex:Int):Bool
 	{
-		index <<= 2; bIndex <<= 2;
-		return (this == b.getData() && index == bIndex) || (this != null && b != null && b[bIndex] == this[index] && b[bIndex+1] == this[index+1] && b[bIndex+2] == this[index+2] && b[bIndex+3] == this[index+3]);
+		return Vec4Array.eq(this,index,cast b, bIndex);
 	}
 
 	public function toString():String

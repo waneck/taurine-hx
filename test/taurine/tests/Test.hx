@@ -33,6 +33,7 @@ class Test
 		runner.addCase(new taurine.tests.mem.RawMemTests.RawMemTestsArray());
 #end
 		runner.addCase(new taurine.tests.math.MatrixTests());
+		runner.addCase(new taurine.tests.math.QuatTests());
 
 		// var report = Report.create(runner);
 		var report = new utest.ui.text.PrintReport(runner);

@@ -355,6 +355,17 @@ abstract Vec3(SingleVector) //to Vec3Array
 	}
 
 	/**
+		Transforms the `Vec3` with a `Mat3`
+
+		If `out` is null, it will implicitly be considered itself;
+		Returns the changed `Vec3`
+	 **/
+	@:extern inline public function transformMat3(m:Mat3, ?out:Vec3):Vec3
+	{
+		return Vec3Array.transformMat3(this,0,m,0,out,0).first();
+	}
+
+	/**
 		Transforms the `Vec3` with a `Quat`
 
 		If `out` is null, it will implicitly be considered itself;
@@ -397,7 +408,7 @@ abstract Vec3(SingleVector) //to Vec3Array
 	{
 		var buf = new StringBuf();
 		{
-			buf.add('vec4(');
+			buf.add('vec3(');
 			var fst = true;
 			for (j in 0...3)
 			{

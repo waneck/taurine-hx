@@ -1104,7 +1104,7 @@ abstract Mat4Array(SingleVector)
 	/**
 		@see lookAt
 	 **/
-	@:extern inline public function lookAt_v(index:Int, eye:Vec3, center:Vec3, up:Vec3):Mat4Array
+	@:extern inline public function lookAtv(index:Int, eye:Vec3, center:Vec3, up:Vec3):Mat4Array
 	{
 		return lookAt(index,eye,0,center,0,up);
 	}
