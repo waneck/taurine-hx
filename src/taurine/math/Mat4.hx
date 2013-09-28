@@ -181,9 +181,9 @@ abstract Mat4(SingleVector) //to Mat4Array
 	/**
 		Calculates de determinant of the Mat4
 	 **/
-	@:extern inline public function determinant():Float
+	@:extern inline public function det():Float
 	{
-		return Mat4Array.determinant(this,0);
+		return Mat4Array.det(this,0);
 	}
 
 	/**

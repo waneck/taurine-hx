@@ -325,7 +325,7 @@ abstract Mat4Array(SingleVector)
 	/**
 		Calculates de determinant of the Mat4 at `index`
 	 **/
-	public function determinant(index:Int):Float
+	public function det(index:Int):Float
 	{
 		index <<= 4;
 		return determinant_inline(index);

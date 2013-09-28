@@ -449,6 +449,126 @@ class MatrixTests
 		result = arr.identity(out);
 		Assert.equals(result,arr);
 		eq(out,arr,identity);
+
+		//transpose
+		//separate
+		result = arr.transpose(matA,new Mat4(),0);
+		Assert.notEquals(result,arr);
+		eq(result, 0, mat4(1,0,0,1, 0,1,0,2, 0,0,1,3, 0,0,0,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.transpose(matA);
+		Assert.equals(result,arr);
+		eq(matA, mat4(1,0,0,1, 0,1,0,2, 0,0,1,3, 0,0,0,1));
+		reset();
+
+		//invert
+		//separate
+		result = arr.invert(matA, new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, -1,-2,-3,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.invert(matA);
+		Assert.equals(result,arr);
+		eq(matA,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, -1,-2,-3,1));
+		reset();
+
+		//adjoint
+		//separate
+		result = arr.adjoint(matA, new Mat4(),0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, -1,-2,-3,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.adjoint(matA);
+		Assert.equals(result,arr);
+		eq(matA,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, -1,-2,-3,1));
+		reset();
+
+		//det
+		var det = arr.det(matA);
+		Assert.equals(det,1);
+
+		//mul
+		//separate
+		result = arr.mul(matA, arr, matB, new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matA,arr,oldA);
+		eq(matB,arr,oldB);
+		//matA
+		result = arr.mul(matA, arr, matB);
+		Assert.equals(result,arr);
+		eq(matA,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matB,arr,oldB);
+		reset();
+		//matB
+		result = arr.mul(matA, arr, matB, arr, matB);
+		Assert.equals(result,arr);
+		eq(matB,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matA,arr,oldA);
+		reset();
+
+		//translate
+		//separate
+		result = arr.translatev(matA, vec(4,5,6), new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matA,arr,oldA);
+		eq(matB,arr,oldB);
+		//matA
+		result = arr.translatev(matA, vec(4,5,6));
+		Assert.equals(result,arr);
+		eq(matA,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matB,arr,oldB);
+		reset();
+		//matB
+		result = arr.translatev(matA, vec(4,5,6), arr, matB);
+		Assert.equals(result,arr);
+		eq(matB,mat4(1,0,0,0, 0,1,0,0, 0,0,1,0, 5,7,9,1));
+		eq(matA,arr,oldA);
+		reset();
+
+		//scale
+		//separate
+		result = arr.scalev(matA, vec(4,5,6), new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0,mat4(4,0,0,0, 0,5,0,0, 0,0,6,0, 1,2,3,1));
+		eq(matA,arr,oldA);
+		//matA
+		result = arr.scalev(matA, vec(4,5,6));
+		Assert.equals(result,arr);
+		eq(matA,mat4(4,0,0,0, 0,5,0,0, 0,0,6,0, 1,2,3,1));
+		reset();
+
+		//rotate
+		var rad = new Rad(Math.PI / 2);
+		var axis = vec(1,0,0);
+		//separate
+		result = arr.rotatev(matA, rad, axis, new Mat4(), 0);
+		eq(result,0,mat4(1,0,0,0, 0, rad.cos(), rad.sin(),0,  0,-rad.sin(), rad.cos(), 0,  1,2,3,1));
+		Assert.notEquals(result,arr);
+		eq(matA,arr,oldA);
+		//matA
+		result = arr.rotatev(matA, rad, axis);
+		eq(matA,mat4(1,0,0,0, 0, rad.cos(), rad.sin(),0,  0,-rad.sin(), rad.cos(), 0,  1,2,3,1));
+		Assert.equals(result,arr);
+		reset();
+
+		//rotateX
+		//separate
+		result = arr.rotateX(matA,rad,new Mat4(), 0);
+		Assert.notEquals(result,arr);
+		eq(result,0, mat4(1,0,0,0, 0,rad.cos(),rad.sin(),0, 0,-rad.sin(),rad.cos(),0, 1,2,3,1));
+		eq(matA,arr,oldA);
+		//same
+		result = arr.rotateX(matA,rad);
+		Assert.equals(result,arr);
+		eq(matA, mat4(1,0,0,0, 0,rad.cos(),rad.sin(),0, 0,-rad.sin(),rad.cos(),0, 1,2,3,1));
+		reset();
+
+
 	}
 
 }
