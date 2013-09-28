@@ -115,9 +115,17 @@ abstract Quat(SingleVector)// to QuatArray
 		`b` - The destination vector
 		Returns itself
 	 **/
-	@:extern inline public function rotationTo(a:Vec3, b:Vec3):Quat
+	@:extern inline public function rotationTo(ax:Single,ay:Single,az:Single, bx:Single,by:Single,bz:Single):Quat
 	{
-		return QuatArray.rotationTo(this,0,a,0,b,0).first();
+		return QuatArray.rotationTo(this,0, ax,ay,az, bx,by,bz).first();
+	}
+
+	/**
+		@see rotationTo
+ 	**/
+	@:extern inline public function rotationTov(a:Vec3, b:Vec3):Quat
+	{
+		return QuatArray.rotationTov(this,0,a,0,b,0).first();
 	}
 
 	/**

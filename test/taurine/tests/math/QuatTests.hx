@@ -128,7 +128,90 @@ class QuatTests
 		eq(out,quat(0.707106, 0, 0, 0.707106));
 
 		//rotationTo
+		//right angle
+		result = arr.rotationTov(out,vec(0,1,0),0,vec(1,0,0),0);
+		eq(out,quat(0,0,-0.707106, 0.707106));
+		//parallel
+		result = arr.rotationTo(out, 0,1,0, 0,1,0);
+		Assert.isTrue(
+				vec(0,1,0).array().transformQuat(0, arr,out)
+				.eq(0,vec(0,1,0),0));
+		//vectors are opposed x
+		result = arr.rotationTo(out, 1,0,0, -1,0,0);
+		Assert.isTrue(
+				vec(1,0,0).array().transformQuat(0, arr,out)
+				.eq(0,vec(-1,0,0),0));
+		//vectors are opposed y
+		result = arr.rotationTo(out, 0,1,0, 0,-1,0);
+		Assert.isTrue(
+				vec(0,1,0).array().transformQuat(0, arr,out)
+				.eq(0,vec(0,-1,0),0));
+		//vectors are opposed z
+		result = arr.rotationTo(out, 0,0,1, 0,0,-1);
+		Assert.isTrue(
+				vec(0,0,1).array().transformQuat(0, arr,out)
+				.eq(0,vec(0,0,-1),0));
 
+		//setAxisAngle
+		result = arr.setAxisAngle(out, 1,0,0, Math.PI/2);
+		Assert.equals(result,arr);
+		eq(out,quat(0.707106, 0, 0, 0.707106));
 
+		//mul
+		reset();
+		result = arr.mul(quatA, arr,quatB, arr,out);
+		eq(out, quat(24,48,48,-6));
+		eq(quatA, quat(1,2,3,4));
+		eq(quatB, quat(5,6,7,8));
+		reset();
+		result = arr.mul(quatA, arr,quatB);
+		eq(quatA, quat(24,48,48,-6));
+		eq(quatB, quat(5,6,7,8));
+		reset();
+		result = arr.mul(quatA, arr,quatB, arr,quatB);
+		eq(quatA, quat(1,2,3,4));
+		eq(quatB, quat(24,48,48,-6));
+		reset();
+
+		//length
+		Assert.floatEquals( arr.lengthAt(quatA), Math.sqrt(30) );
+
+		//normalize
+		arr.setAt(quatA, 5,0,0,0);
+		result = arr.normalize(quatA, arr,out);
+		eq(quatA, quat(5,0,0,0));
+		eq(out, quat(1,0,0,0));
+		result = arr.normalize(quatA);
+		eq(quatA, quat(1,0,0,0));
+
+		//lerp
+		reset();
+		result = arr.lerp(quatA, arr,quatB, .5, arr,out);
+		eq(out, quat(3,4,5,6));
+		eq(quatA, arr,oldA);
+		eq(quatB, arr,oldB);
+		result = arr.lerp(quatA, arr,quatB, .5);
+		eq(quatA, quat(3,4,5,6));
+		eq(quatB, arr,oldB);
+		reset();
+		result = arr.lerp(quatA, arr,quatB, .5, arr,quatB);
+		eq(quatB, quat(3,4,5,6));
+		eq(quatA, arr,oldA);
+
+		//invert
+		reset();
+		result = arr.invert(quatA, arr,out);
+		eq(out, quat(-0.033333, -0.066666, -0.1, 0.133333));
+		eq(quatA,arr,oldA);
+		result = arr.invert(quatA);
+		eq(quatA, quat(-0.033333, -0.066666, -0.1, 0.133333));
+
+		//conjugate
+		reset();
+		result = arr.conjugate(quatA, arr,out);
+		eq(out, quat(-1,-2,-3,4));
+		eq(quatA,arr,oldA);
+		result = arr.conjugate(quatA);
+		eq(quatA, quat(-1,-2,-3,4));
 	}
 }

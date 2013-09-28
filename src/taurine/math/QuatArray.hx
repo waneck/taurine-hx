@@ -170,6 +170,17 @@ abstract QuatArray(SingleVector)
 	}
 
 	/**
+		@see rotationTo
+	 **/
+	public function rotationTov(index:Int, a:Vec3Array, aIndex:Int, b:Vec3Array, bIndex:Int):QuatArray
+	{
+		bIndex <<= 2; aIndex <<= 2;
+		var ax = a[aIndex], ay = a[aIndex+1], az = a[aIndex+2];
+		var bx = b[bIndex], by = b[bIndex+1], bz = b[bIndex+2];
+		return rotationTo(index,ax,ay,az,bx,by,bz);
+	}
+
+	/**
 		Sets a Quaternion to represent the shortes rotation from one Vec3 to another
 
 		Both vectors are assumed to be unit length
@@ -178,14 +189,12 @@ abstract QuatArray(SingleVector)
 		`b` - The destination vector
 		Returns itself
 	 **/
-	public function rotationTo(index:Int, a:Vec3Array, aIndex:Int, b:Vec3Array, bIndex:Int):QuatArray
+	public function rotationTo(index:Int, ax:Single,ay:Single,az:Single, bx:Single,by:Single,bz:Single):QuatArray
 	{
 		//x 1 0 0
 		//y 0 1 0
-		var dot = a.dot(aIndex, b, bIndex);
-		aIndex <<= 2; bIndex <<= 2; index <<= 2;
-		var ax = a[aIndex], ay = a[aIndex+1], az = a[aIndex+2];
-		var bx = b[bIndex], by = b[bIndex+1], bz = b[bIndex+2];
+		var dot = bx * ax + by * ay + bz * az;
+		index <<= 2;
 		if (dot < -0.999999) {
 			// vec3.cross(tmpvec3, xUnitVec3, a);
 			var tmp0 = .0, tmp1 = - az, tmp2 = ay;
