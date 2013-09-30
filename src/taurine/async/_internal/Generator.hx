@@ -76,9 +76,10 @@ class Generator
 			{
 				switch(e.expr)
 				{
-					case EConst(CIdent(i)):
-						if (i != "_")
-							arr.push(i);
+					case EConst(CIdent(c)):
+						var cca = c.charCodeAt(0);
+						if (!( (cca >= 'A'.code && cca <= 'Z'.code) || c == "true" || c == "null" || c == "false" || c == "trace" || c == "_") )
+							arr.push(c);
 					default:
 						iter(e, collectIdents);
 				}
@@ -107,30 +108,35 @@ class Generator
 			modifying = false;
 			return switch(e.expr)
 			{
-			case EMeta({name:"yield"}, val):
+			case EMeta(meta={name:"yield"}, val):
+				var val = switch(val.expr)
+				{
+					case EReturn(val): val;
+					case _: val;
+				};
 				state++;
 				states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
-				map(e, pre);
+				map({ expr:EMeta(meta, val), pos: e.pos }, pre);
 			case EVars(vars):
 				var vars2 = [], needType = false;
 				for (v in vars)
 				{
+					var expr = v.expr != null ? pre(v.expr) : macro untyped __undefined__;
 					var name = mkvar(v.name,v.type);
-					vars2.push({ expr : EBinop(OpAssign, macro $i{name}, v.expr != null ? pre(v.expr) : macro null), pos:e.pos });
+					vars2.push({ expr : EBinop(OpAssign, macro $i{name}, expr), pos:e.pos });
 				}
 
 				{ expr: EMeta({pos:e.pos, params:[], name: ":evars"}, { expr: EBlock(vars2), pos: e.pos }), pos : e.pos };
 			case EFor(efor = { expr:EIn(e1,e2) }, expr):
 				var cstate = state;
 				pushBlock();
-				trace(e1);
 				// var e1 = collectIdents(e1);
 				e2 = pre(e2);
 
 				var ident = collectIdents(e1)[0];
 				var name = mkvar(ident);
 				expr = pre(mk_block(expr));
-				expr = concat(macro @:captureHelper $i{ident} = $i{name}, expr);
+				expr = concat(macro @:captureHelper ($i{name} = $i{ident}), expr);
 				var ret = { expr: EFor({ expr:EIn(e1,e2), pos: efor.pos }, expr), pos: e.pos };
 				popBlock();
 				if (state != cstate)
@@ -153,7 +159,7 @@ class Generator
 					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
 				else
 					ret;
-				// @let myvar <-
+				// @var myvar <-
 			case EFunction(f,_):
 				// pushBlock();
 				// var args = [];
@@ -177,7 +183,7 @@ class Generator
 				{
 					var vals = collectIdents({ expr:EBlock(c.values), pos:e.pos });
 					pushBlock();
-					var exprSet = {expr:EBlock([for (v in vals) { var name = mkvar(v); macro @:captureHelper $i{v} = $i{name}; }]), pos:e.pos};
+					var exprSet = {expr:EBlock([for (v in vals) { var name = mkvar(v); macro @:captureHelper ($i{name} = $i{v}); }]), pos:e.pos};
 					c2.push({ values: c.values, guard: c.guard == null ? null : pre(c.guard), expr: c.expr == null ? exprSet : concat(exprSet,pre(c.expr)) });
 					popBlock();
 				}
@@ -190,7 +196,7 @@ class Generator
 			case EIf(cond,eif,eelse), ETernary(cond,eif,eelse):
 				cond = pre(cond);
 				var cstate = state;
-				eif = pre(eif); eelse = pre(eelse);
+				eif = pre(mk_block(eif)); eelse = eelse == null ? null : pre(mk_block(eelse));
 				var ret = { expr: EIf(cond,eif,eelse), pos: e.pos };
 				if (state != cstate)
 					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
@@ -200,7 +206,7 @@ class Generator
 			case EWhile(cond,expr,flag):
 				cond = pre(cond);
 				var cstate = state;
-				expr = pre(expr);
+				expr = pre(mk_block(expr));
 				var ret = { expr: EWhile(cond,expr,flag), pos: e.pos };
 				if (state != cstate)
 					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
@@ -208,8 +214,9 @@ class Generator
 					ret;
 
 			case EConst(CIdent(c)):
-				var cca = c.charCodeAt(0);
-				if ((cca >= 'A'.code && cca <= 'Z'.code) || c == "true" || c == "null" || c == "false" || c == "trace") {
+				var cr = collectIdents(e)[0];
+				if (cr == null)
+				{
 					e;
 				} else {
 					var s = lookScope(c);
@@ -277,8 +284,59 @@ class Generator
 		}
 
 		trace(typesMap);
-		return null;
 
+		//okay, now we'll start writing our fields:
+		//for each expression, look for @:interruptible meta
+		//if found, add state, and change the expression according to its type
+		//also revert back the name mangling, the @:captureHelper and @:evars
+		var cases = [], block = [];
+		state = 0;
+		function demangle(name:String)
+		{
+			var l = name.lastIndexOf("%");
+			if (l == -1)
+				return name;
+			return name.substr(l+1);
+		}
+		function cleanup(e:Expr):Expr
+		{
+			return switch(e.expr)
+			{
+				case EMeta({name:":evars"},{ expr:EBlock(bl) }):
+					var evars = [for (b in bl) switch(b.expr) {
+						case EBinop(OpAssign, {expr:EConst(CIdent(name))}, e2):
+							switch(e2.expr)
+							{
+								case EUntyped({ expr:EConst(CIdent("__undefined__")) }):
+									e2 = null;
+								default:
+									e2 = cleanup(e2);
+							}
+							{ name: demangle(name), type:typesMap.get(name), expr:e2 };
+						case _: throw "assert";
+					}];
+					{ expr:EVars(evars), pos: e.pos };
+				case EMeta({name:":captureHelper"},_):
+					{ expr:EBlock([]), pos: e.pos }; //no-op
+				case EMeta({name:"yield"}, e):
+					macro return $e;
+				case EConst(CIdent(c)):
+					{ expr: EConst(CIdent( demangle(c) )), pos: e.pos };
+				case _:
+					//@var a <- something()
+					map(e, cleanup);
+			}
+		}
+
+		trace(haxe.macro.ExprTools.toString( cleanup(e) ));
+
+		function loop(e:Expr):Void
+		{
+
+		}
+
+
+		return null;
 	}
 
 

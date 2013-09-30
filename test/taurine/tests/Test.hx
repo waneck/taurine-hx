@@ -14,19 +14,76 @@ class Test
 
 	static function main()
 	{
-		var z = [1];
+		var startAnim = true, someBool = false, noGo = false, otherBool = true, someBool = false;
 		var g = taurine.async.Generator.test({
-			var x = 10;
-			var y;
+if (startAnim)
+{
+	var x = 10;
+	var y = 30;
+	if (someBool)
+		x = 200;
+
+	if (noGo)
+	{
+		@yield return 10;
+	}
+	else
+	{
+		if (otherBool)
+		{
+			var z = 10;
+
+			for (i in 0...1000)
 			{
-				var a = "xx", b:String = null;
-				for (a in z)
-					trace(y += a);
+				@yield return i + x;
+				trace(10);
 			}
-			switch(macro e)
+
+			if (startAnim)
 			{
-				case _:
+				var x = 10;
+				var y = 30;
+				if (someBool)
+					x = 200;
+
+				var x = if (noGo)
+				{
+					@yield return 10;
+					trace('hi');
+					600;
+				}
+				else
+				{
+					if (otherBool)
+					{
+						var z = 10;
+
+						for (i in 0...1000)
+						{
+							@yield return i + x;
+							trace(10);
+						}
+
+						trace("here");
+						@yield return x + y + z;
+					}
+					trace("ha");
+					900;
+				}
+
+				var z = 10;
+				trace(z + x);
 			}
+
+			trace("here");
+			@yield return x + y + z;
+		}
+		trace("ha");
+	}
+
+	var z = 10;
+	trace(z + x);
+}
 		});
 		var runner = new Runner();
 
