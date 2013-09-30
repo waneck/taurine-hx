@@ -7,8 +7,11 @@ Haxe standard API extensions
 * Pure Haxe Path library
 * Pure Haxe Path Globbing library
 * Standard URI library - thanks @skial !
+* Fast cross-target raw memory manipulation
+* Fast Matrix, Quaternion and Vector math
 
 ## What's being developed
+* Async programming building blocks
 * Intuitive File / FileSystem manipulation with File abstract
 
 ## What's planned
@@ -17,5 +20,8 @@ Haxe standard API extensions
 * TLS/SSL
 * Async I/O
 * Printf
+
+## Principles
+* 
 
 ![how standards proliferate](http://imgs.xkcd.com/comics/standards.png "How standards proliferate")
