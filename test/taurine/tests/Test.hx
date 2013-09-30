@@ -14,13 +14,20 @@ class Test
 
 	static function main()
 	{
-		// trace(Math.PI * 100);
-		// trace( Math.PI - Std.parseFloat(Math.PI + "") );
-		// trace(3.141592653589793);
-		teste1();
-		trace(Math.PI + taurine.math.MacroMath.reduce(-Math.PI));
-		trace(Math.PI + taurine.math.MacroMath.reduce(-Math.PI) == 0);
-		trace(taurine.math.MacroMath.reduce(3.14));
+		var z = [1];
+		var g = taurine.async.Generator.test({
+			var x = 10;
+			var y;
+			{
+				var a = "xx", b:String = null;
+				for (a in z)
+					trace(y += a);
+			}
+			switch(macro e)
+			{
+				case _:
+			}
+		});
 		var runner = new Runner();
 
 		runner.addCase(new PathTests());
