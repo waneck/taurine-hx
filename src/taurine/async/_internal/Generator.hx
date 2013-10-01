@@ -55,6 +55,16 @@ class Generator
 		}
 	}
 
+	private function mkGoto(i:Int):Expr
+	{
+		// if defined("cs")
+		{
+			// return macro untyped __goto__($v{i});
+		// } else {
+			return macro $selfref.label = $v{i};
+		}
+	}
+
 	public function change(e:Expr):Expr
 	{
 		var state = 0;
@@ -139,10 +149,7 @@ class Generator
 				expr = concat(macro @:captureHelper ($i{name} = $i{ident}), expr);
 				var ret = { expr: EFor({ expr:EIn(e1,e2), pos: efor.pos }, expr), pos: e.pos };
 				popBlock();
-				if (state != cstate)
-					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
-				else
-					ret;
+				ret;
 			case ETry(etry,ecatches):
 				var cstate = state;
 				var t = pre(mk_block(etry));
@@ -155,10 +162,7 @@ class Generator
 					popBlock();
 				}
 				var ret = { expr: ETry(t,ec), pos : e.pos };
-				if (state != cstate)
-					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
-				else
-					ret;
+				ret;
 				// @var myvar <-
 			case EFunction(f,_):
 				// pushBlock();
@@ -188,30 +192,14 @@ class Generator
 					popBlock();
 				}
 				var ret = { expr:ESwitch(cond,c2, edef == null ? null : pre(edef)), pos: e.pos };
-				if (state != cstate)
-					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
-				else
-					ret;
+				ret;
 
 			case EIf(cond,eif,eelse), ETernary(cond,eif,eelse):
 				cond = pre(cond);
 				var cstate = state;
 				eif = pre(mk_block(eif)); eelse = eelse == null ? null : pre(mk_block(eelse));
 				var ret = { expr: EIf(cond,eif,eelse), pos: e.pos };
-				if (state != cstate)
-					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
-				else
-					ret;
-
-			case EWhile(cond,expr,flag):
-				cond = pre(cond);
-				var cstate = state;
-				expr = pre(mk_block(expr));
-				var ret = { expr: EWhile(cond,expr,flag), pos: e.pos };
-				if (state != cstate)
-					{ expr: EMeta({pos:e.pos, params:[], name: ":interruptible" }, ret), pos: e.pos };
-				else
-					ret;
+				ret;
 
 			case EConst(CIdent(c)):
 				var cr = collectIdents(e)[0];
@@ -236,6 +224,19 @@ class Generator
 						{ expr:EConst(CIdent(s)), pos:e.pos };
 					}
 				}
+			case EBlock(bl):
+				pushBlock();
+				var bl2 = [];
+				for (b in bl)
+				{
+					var cstate = state;
+					var c = pre(b);
+					if (state != cstate)
+						c = macro @:interruptible $c;
+					bl2.push(c);
+				}
+				popBlock();
+				{ expr:EBlock(bl2), pos:e.pos }
 
 			case EBinop(OpAssign | OpAssignOp(_), _,_), EUnop(_,_,_):
 				modifying = true;
@@ -289,7 +290,7 @@ class Generator
 		//for each expression, look for @:interruptible meta
 		//if found, add state, and change the expression according to its type
 		//also revert back the name mangling, the @:captureHelper and @:evars
-		var cases = [], block = [];
+		var cases = [];
 		state = 0;
 		function demangle(name:String)
 		{
@@ -319,6 +320,7 @@ class Generator
 				case EMeta({name:":captureHelper"},_):
 					{ expr:EBlock([]), pos: e.pos }; //no-op
 				case EMeta({name:"yield"}, e):
+					e = cleanup(e);
 					macro return $e;
 				case EConst(CIdent(c)):
 					{ expr: EConst(CIdent( demangle(c) )), pos: e.pos };
@@ -328,12 +330,90 @@ class Generator
 			}
 		}
 
-		trace(haxe.macro.ExprTools.toString( cleanup(e) ));
+		// trace(haxe.macro.ExprTools.toString( cleanup(e) ));
+		var onEnd = null;
 
-		function loop(e:Expr):Void
+		//cuts expressions when yield is found
+		var delays = [];
+		// cases.push(null);
+		function cut(e:Expr):Expr
 		{
+			// trace('cutting ' + e);
+			var clen = cases.length;
+			var pos = getPosInfos(e.pos);
+			switch(e.expr)
+			{
+			case EBlock(bl):
+				var bl2 = [];
+				for (i in 0...bl.length)
+				{
+					var e = bl[i];
+					switch(e.expr)
+					{
+					case EMeta({name:":interruptible"}, itr):
+						//start cutting expressions off
+						switch(itr.expr)
+						{
+						case EIf(econd,eif,eelse):
+							econd = cleanup(econd); //no yield can be here; TODO: make sure it happens
+							var blockContinues = i != bl.length - 1;
+							var ccase = cases.length;
 
+							eif = cut(eif);
+							if (eelse != null)
+							{
+								var ccase_else = cases.length;
+								eelse = cut(eelse);
+							}
+							e.expr = EIf(econd,eif,eelse);
+						case EMeta({name:"yield"}, _):
+							e = cleanup(e);
+						case EBlock(_):
+							e = cut(itr);
+						default:
+							throw "haha " + itr;
+							// throw new Error('haha', e.pos);
+						}
+					case _:
+						bl2.push( cleanup(e) );
+						continue;
+					}
+					//if we are here, we found (and handled) an @:interruptible
+					bl2.push(e);
+
+					if (i < (bl.length - 1)) //there is still code on this block
+					{
+						if (clen + 2 != cases.length) //more than one case
+						{
+							bl2.push(mkGoto(cases.length-1));
+						}
+						var d = null;
+						while ( (d = delays.pop()) != null )
+							d(); //set goto to the correct case
+						//process the rest of the block
+						var x = cut({ expr: EBlock([for(j in (i+1)...bl.length) bl[j]]), pos: e.pos });
+						// trace(toString(e),"adding",toString(x));
+						cases.push(x);
+						return { expr: EBlock(bl2), pos: e.pos };
+					} else {
+						var e = macro null;
+						bl2.push(e);
+						delays.push(function() {
+							var goto = mkGoto(cases.length-1);
+							e.expr = goto.expr;
+						});
+					}
+				}
+				return { expr: EBlock(bl2), pos: e.pos };
+			default:
+				return cleanup(e);
+			}
 		}
+
+		e = cut(e);
+		// cases[0] = e;
+		trace([for (c in cases) haxe.macro.ExprTools.toString( c ) ]);
+		// trace(cases);
 
 
 		return null;

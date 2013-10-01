@@ -33,7 +33,8 @@ if (startAnim)
 		{
 			var z = 10;
 
-			for (i in 0...1000)
+			// for (i in 0...1000)
+			var i = 100;
 			{
 				@yield return i + x;
 				trace(10);
@@ -46,7 +47,8 @@ if (startAnim)
 				if (someBool)
 					x = 200;
 
-				var x = if (noGo)
+				// var x = if (noGo)
+				if (noGo)
 				{
 					@yield return 10;
 					trace('hi');
@@ -58,10 +60,11 @@ if (startAnim)
 					{
 						var z = 10;
 
-						for (i in 0...1000)
+						// for (i in 0...1000)
+						var i = 1000;
 						{
 							@yield return i + x;
-							trace(10);
+							trace(20);
 						}
 
 						trace("here");
@@ -81,7 +84,7 @@ if (startAnim)
 		trace("ha");
 	}
 
-	var z = 10;
+	var z = "zuba";
 	trace(z + x);
 }
 		});
