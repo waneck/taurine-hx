@@ -334,6 +334,7 @@ class Generator
 		var onEnd = null;
 
 		//cuts expressions when yield is found
+		cases.push(null);
 		var delays = [];
 		// cases.push(null);
 		function cut(e:Expr):Expr
@@ -383,23 +384,23 @@ class Generator
 
 					if (i < (bl.length - 1)) //there is still code on this block
 					{
-						if (clen + 2 != cases.length) //more than one case
-						{
-							bl2.push(mkGoto(cases.length-1));
-						}
 						var d = null;
 						while ( (d = delays.pop()) != null )
 							d(); //set goto to the correct case
 						//process the rest of the block
 						var x = cut({ expr: EBlock([for(j in (i+1)...bl.length) bl[j]]), pos: e.pos });
-						// trace(toString(e),"adding",toString(x));
+						if (cases.length - clen > 1) //more than one case
+						{
+							bl2.push(mkGoto(cases.length-1));
+						}
+						// trace(toString({ expr:EBlock(bl), pos:e.pos }),toString(e),"adding",toString(x));
 						cases.push(x);
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
 						var e = macro null;
 						bl2.push(e);
 						delays.push(function() {
-							var goto = mkGoto(cases.length-1);
+							var goto = mkGoto(cases.length - 1);
 							e.expr = goto.expr;
 						});
 					}
@@ -411,6 +412,12 @@ class Generator
 		}
 
 		e = cut(e);
+		var d = null;
+		while ( (d = delays.pop()) != null )
+			d(); //set goto to the correct case
+		// trace(toString(e));
+		trace(cases.length);
+		cases[0] = e;
 		// cases[0] = e;
 		trace([for (c in cases) haxe.macro.ExprTools.toString( c ) ]);
 		// trace(cases);

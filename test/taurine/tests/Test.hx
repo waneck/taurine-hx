@@ -14,7 +14,7 @@ class Test
 
 	static function main()
 	{
-		var startAnim = true, someBool = false, noGo = false, otherBool = true, someBool = false;
+		var startAnim = true, someBool = false, noGo = false, otherBool = true, someBool = false, startAnim2 = true;
 		var g = taurine.async.Generator.test({
 if (startAnim)
 {
@@ -36,11 +36,11 @@ if (startAnim)
 			// for (i in 0...1000)
 			var i = 100;
 			{
-				@yield return i + x;
+				@yield return i + x - 1;
 				trace(10);
 			}
 
-			if (startAnim)
+			if (startAnim2)
 			{
 				var x = 10;
 				var y = 30;
@@ -63,7 +63,7 @@ if (startAnim)
 						// for (i in 0...1000)
 						var i = 1000;
 						{
-							@yield return i + x;
+							@yield return i + x - 2;
 							trace(20);
 						}
 
