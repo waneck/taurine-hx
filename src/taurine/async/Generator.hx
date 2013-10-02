@@ -10,7 +10,6 @@ class Generator
 {
 	macro public static function test(e:Expr):Expr
 	{
-		new taurine.async._internal.Generator().change(e);
-		return macro null;
+		return new taurine.async._internal.Generator().change(e);
 	}
 }

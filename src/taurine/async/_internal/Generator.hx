@@ -312,6 +312,8 @@ class Generator
 									e2 = null;
 								default:
 									e2 = cleanup(e2);
+									if (usedVars.get(name))
+										e2 = macro $selfref.$name = $e2;
 							}
 							{ name: demangle(name), type:typesMap.get(name), expr:e2 };
 						case _: throw "assert";
@@ -323,7 +325,14 @@ class Generator
 					e = cleanup(e);
 					macro return $e;
 				case EConst(CIdent(c)):
-					{ expr: EConst(CIdent( demangle(c) )), pos: e.pos };
+					if (externals.exists(c))
+					{
+						macro $selfref.$c;
+					} else if (usedVars.get(c)) {
+						macro $selfref.$c;
+					} else {
+						{ expr: EConst(CIdent( demangle(c) )), pos: e.pos };
+					}
 				case _:
 					//@var a <- something()
 					map(e, cleanup);
@@ -416,14 +425,31 @@ class Generator
 		while ( (d = delays.pop()) != null )
 			d(); //set goto to the correct case
 		// trace(toString(e));
-		trace(cases.length);
+		// trace(cases.length);
 		cases[0] = e;
 		// cases[0] = e;
-		trace([for (c in cases) haxe.macro.ExprTools.toString( c ) ]);
+		// trace([for (c in cases) haxe.macro.ExprTools.toString( c ) ]);
 		// trace(cases);
 
+		var i = 0;
 
-		return null;
+		var sw = { expr : ESwitch(macro $selfref.state++, [for (c in cases) { values:[macro $v{i++}], expr:c }], macro throw ('Invalid state: ' + $selfref.state)), pos: e.pos };
+		sw = macro while(true) $sw;
+		if (!isClass)
+		{
+			var objdecl = [{ field:"state", expr: macro 0 }];
+			for (e in externals.keys())
+				if (usedVars.get(e))
+					objdecl.push({ field: e, expr: macro $i{e} });
+			for (t in typesMap.keys())
+				if (!externals.exists(t) && usedVars.get(t))
+					objdecl.push({ field: t, expr: macro null });
+			objdecl.push({ field: "next", expr: macro function() $sw });
+			e = { expr: EObjectDecl(objdecl), pos: e.pos };
+		}
+		trace(toString(e));
+
+		return e;
 	}
 
 

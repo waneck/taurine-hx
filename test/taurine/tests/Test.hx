@@ -88,6 +88,11 @@ if (startAnim)
 	trace(z + x);
 }
 		});
+	while(true)
+{
+	trace(g);
+	trace(g.next());
+}
 		var runner = new Runner();
 
 		runner.addCase(new PathTests());
