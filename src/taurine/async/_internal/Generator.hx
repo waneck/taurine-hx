@@ -61,7 +61,7 @@ class Generator
 		{
 			// return macro untyped __goto__($v{i});
 		// } else {
-			return macro $selfref.label = $v{i};
+			return macro $selfref.state = $v{i};
 		}
 	}
 
@@ -345,11 +345,22 @@ class Generator
 		//cuts expressions when yield is found
 		cases.push(null);
 		var delays = [];
+		inline function addDelay(depth:Int, delay:Void->Void):Void
+		{
+			var d = delays[depth];
+			if (d == null)
+			{
+				delays[depth] = d = [];
+			}
+			d.push(delay);
+		}
 		// cases.push(null);
-		function cut(e:Expr):Expr
+		function cut(e:Expr, depth:Int, ?thisCase:Int):Expr
 		{
 			// trace('cutting ' + e);
-			var clen = cases.length;
+			if (thisCase == null)
+				thisCase = cases.length - 1;
+			var setNextState = null;
 			var pos = getPosInfos(e.pos);
 			switch(e.expr)
 			{
@@ -369,14 +380,25 @@ class Generator
 							var blockContinues = i != bl.length - 1;
 							var ccase = cases.length;
 
-							eif = cut(eif);
+							eif = cut(eif,depth+1,thisCase);
 							if (eelse != null)
-								eelse = cut(eelse);
+								eelse = cut(eelse,depth+1,thisCase);
 							e.expr = EIf(econd,eif,eelse);
 						case EMeta({name:"yield"}, _):
+							bl2.push(macro $v{thisCase});
+							var possibleGoto = macro null;
+							setNextState = function(state:Int)
+							{
+								if (state - thisCase > 1)
+								{
+									var g = mkGoto(state);
+									possibleGoto.expr = g.expr;
+								}
+							};
+							bl2.push(possibleGoto);
 							e = cleanup(e);
 						case EBlock(_):
-							e = cut(itr);
+							e = cut(itr,depth+1);
 						default:
 							throw "haha " + itr;
 							// throw new Error('haha', e.pos);
@@ -390,48 +412,70 @@ class Generator
 
 					if (i < (bl.length - 1)) //there is still code on this block
 					{
-						var d = null;
-						while ( (d = delays.pop()) != null )
-							d(); //set goto to the correct case
-						//process the rest of the block
-						var nextBlockClen = cases.length;
-						var x = cut({ expr: EBlock([for(j in (i+1)...bl.length) bl[j]]), pos: e.pos });
-						if (cases.length - clen > 1) //more than one case
+						//recursively cut and add the result as a case
+						var idx = cases.push(null) - 1;
+						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
+						cases[idx] = remainingCode;
+
+						for (d in (depth+1)...delays.length)
 						{
-							bl2.push(mkGoto(cases.length-1));
+							var d = delays[d];
+							if (d != null)
+							{
+								var cd = null;
+								while( (cd = d.pop()) != null )
+									cd();
+							}
 						}
 
-						var ex = macro null;
-						x = concat(x, ex);
-						delays.push(function() {
-							if (cases.length - nextBlockClen > 1)
+						//if the index is different from the next case (thisCase + 1),
+						//add a specific goto statement
+						if (idx != thisCase + 1)
+						{
+							if (setNextState != null)
 							{
-								var goto = mkGoto(cases.length-1);
-								ex.expr = goto.expr;
+								setNextState(idx);
+							} else {
+								bl2.push(mkGoto(idx));
+								if (depth != 0)
+									bl2.push(macro continue); //TODO see which cases we can avoid this
 							}
-						});
-						// trace(toString({ expr:EBlock(bl), pos:e.pos }),toString(e),"adding",toString(x));
-						cases.push(x);
+						}
+
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
-						var e = macro null;
-						bl2.push(e);
-						delays.push(function() {
-							var goto = mkGoto(cases.length - 1);
-							e.expr = goto.expr;
+						var possibleGoto = macro null;
+						addDelay(depth, function() {
+							if (cases.length - 1 - thisCase > 1)
+							{
+								var g = mkGoto(cases.length-1);
+								possibleGoto.expr = g.expr;
+							}
 						});
+						bl2.push(possibleGoto);
+						// return { expr: EBlock(bl2), pos: e.pos };
 					}
 				}
+				//situation: we are currently at thisCase.
+				//and either we didn't find any @:interruptible
+				//(meaning we're the remainder of an already cut @:interruptible expression)
+				////or we found it, but there's nothing else in the block.
+				//in this case, we don't know what's our target case after this;
+				//so we will add it to delays[depth]
+				// var
+
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
 				return cleanup(e);
 			}
 		}
 
-		e = cut(e);
+		e = cut(e,0);
 		var d = null;
-		while ( (d = delays.pop()) != null )
-			d(); //set goto to the correct case
+		for (da in delays)
+			if (da != null)
+				while ( (d = da.pop()) != null )
+					d(); //set goto to the correct case
 		// trace(toString(e));
 		// trace(cases.length);
 		cases[0] = e;
@@ -441,8 +485,8 @@ class Generator
 
 		var i = 0;
 
-		var sw = { expr : ESwitch(macro $selfref.state++, [for (c in cases) { values:[macro $v{i++}], expr:c }], macro throw ('Invalid state: ' + $selfref.state)), pos: e.pos };
-		sw = macro while(true) $sw;
+		var sw = { expr : ESwitch(macro $selfref.state++, [for (c in cases) { values:[macro $v{i++}], expr:c }], macro throw ('Invalid state: ' + ($selfref.state - 1))), pos: e.pos };
+		sw = macro while(true) { trace("state",$selfref.state); $sw; };
 		if (!isClass)
 		{
 			var objdecl = [{ field:"state", expr: macro 0 }];

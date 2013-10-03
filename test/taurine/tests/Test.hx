@@ -15,6 +15,7 @@ class Test
 	static function main()
 	{
 		var startAnim = true, someBool = false, noGo = false, otherBool = true, someBool = false, startAnim2 = true;
+#if false
 		var g = taurine.async.Generator.test({
 if (startAnim)
 {
@@ -88,6 +89,34 @@ if (startAnim)
 	trace(z + x);
 }
 		});
+#else
+var g = taurine.async.Generator.test({
+	if (otherBool)
+	{
+		trace(1);
+		if (true)
+		{
+			@yield return "A";
+			trace(1.1);
+		}
+		if (someBool)
+		{
+			trace(-2);
+			@yield return "-a";
+			trace(-3);
+		} else {
+			trace(1.2);
+			@yield return "B";
+			trace(1.3);
+		}
+		trace(2);
+		@yield return "b";
+		trace(3);
+	}
+	@yield return "c";
+	trace(4);
+});
+#end
 	while(true)
 {
 	trace(g);
