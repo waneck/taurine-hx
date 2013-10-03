@@ -48,8 +48,7 @@ if (startAnim)
 				if (someBool)
 					x = 200;
 
-				// var x = if (noGo)
-				if (noGo)
+				var x = if (noGo)
 				{
 					@yield return 10;
 					trace('hi');

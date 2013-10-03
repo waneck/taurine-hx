@@ -229,11 +229,24 @@ class Generator
 				var bl2 = [];
 				for (b in bl)
 				{
-					var cstate = state;
-					var c = pre(b);
-					if (state != cstate)
-						c = macro @:interruptible $c;
-					bl2.push(c);
+					switch(b.expr)
+					{
+						case EVars(vars):
+							for(v in vars)
+							{
+								var cstate = state;
+								var c = pre({ expr:EVars([v]), pos:b.pos });
+								if (state != cstate)
+									c = macro @:interruptible $c;
+								bl2.push(c);
+							}
+						default:
+							var cstate = state;
+							var c = pre(b);
+							if (state != cstate)
+								c = macro @:interruptible $c;
+							bl2.push(c);
+					}
 				}
 				popBlock();
 				{ expr:EBlock(bl2), pos:e.pos }
@@ -355,7 +368,7 @@ class Generator
 			d.push(delay);
 		}
 		// cases.push(null);
-		function cut(e:Expr, depth:Int, ?thisCase:Int):Expr
+		function cut(e:Expr, depth:Int, ?thisCase:Int, ?onResult:Expr->Expr):Expr
 		{
 			// trace('cutting ' + e);
 			if (thisCase == null)
@@ -368,10 +381,17 @@ class Generator
 				var bl2 = [];
 				for (i in 0...bl.length)
 				{
+					var onres = (i == (bl.length - 1) ? onResult : null);
 					var e = bl[i];
 					switch(e.expr)
 					{
 					case EMeta({name:":interruptible"}, itr):
+						itr = switch(itr)
+						{
+							case macro @:evars $_:
+								cleanup(itr);
+							case _: itr;
+						}
 						//start cutting expressions off
 						switch(itr.expr)
 						{
@@ -380,9 +400,9 @@ class Generator
 							var blockContinues = i != bl.length - 1;
 							var ccase = cases.length;
 
-							eif = cut(eif,depth+1,thisCase);
+							eif = cut(eif,depth+1,thisCase, onres);
 							if (eelse != null)
-								eelse = cut(eelse,depth+1,thisCase);
+								eelse = cut(eelse,depth+1,thisCase, onres);
 							e.expr = EIf(econd,eif,eelse);
 						case EMeta({name:"yield"}, _):
 							bl2.push(macro $v{thisCase});
@@ -398,7 +418,16 @@ class Generator
 							bl2.push(possibleGoto);
 							e = cleanup(e);
 						case EBlock(_):
-							e = cut(itr,depth+1, thisCase);
+							e = cut(itr,depth+1, thisCase, onres);
+						case EVars([v]):
+							bl2.push({ expr: EVars([{ name: v.name, type: v.type, expr: macro null }]), pos: e.pos });
+							// trace(toString(v.expr));
+							var ve = v.expr, name = v.name;
+							var res = onres == null ?
+								function(e) { return macro $i{name} = $e; } :
+								function(e) { e = onres(e); return macro $i{name} = $e; };
+							e = cut(macro @:interruptible $ve, depth, res);
+
 						default:
 							throw "haha " + itr;
 							// throw new Error('haha', e.pos);
@@ -414,7 +443,7 @@ class Generator
 					{
 						//recursively cut and add the result as a case
 						var idx = cases.push(null) - 1;
-						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
+						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth, onResult);
 						cases[idx] = remainingCode;
 
 						for (d in (depth+1)...delays.length)
@@ -464,6 +493,7 @@ class Generator
 				//so we will add it to delays[depth]
 				// var
 
+				if (bl2.length > 0 && onResult != null) bl2[bl2.length-1] = onResult(bl2[bl2.length-1]);
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
 				return cleanup(e);
