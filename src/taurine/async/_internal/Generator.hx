@@ -371,10 +371,7 @@ class Generator
 
 							eif = cut(eif);
 							if (eelse != null)
-							{
-								var ccase_else = cases.length;
 								eelse = cut(eelse);
-							}
 							e.expr = EIf(econd,eif,eelse);
 						case EMeta({name:"yield"}, _):
 							e = cleanup(e);
@@ -397,11 +394,22 @@ class Generator
 						while ( (d = delays.pop()) != null )
 							d(); //set goto to the correct case
 						//process the rest of the block
+						var nextBlockClen = cases.length;
 						var x = cut({ expr: EBlock([for(j in (i+1)...bl.length) bl[j]]), pos: e.pos });
 						if (cases.length - clen > 1) //more than one case
 						{
 							bl2.push(mkGoto(cases.length-1));
 						}
+
+						var ex = macro null;
+						x = concat(x, ex);
+						delays.push(function() {
+							if (cases.length - nextBlockClen > 1)
+							{
+								var goto = mkGoto(cases.length-1);
+								ex.expr = goto.expr;
+							}
+						});
 						// trace(toString({ expr:EBlock(bl), pos:e.pos }),toString(e),"adding",toString(x));
 						cases.push(x);
 						return { expr: EBlock(bl2), pos: e.pos };
