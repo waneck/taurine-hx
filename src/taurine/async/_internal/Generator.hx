@@ -398,7 +398,7 @@ class Generator
 							bl2.push(possibleGoto);
 							e = cleanup(e);
 						case EBlock(_):
-							e = cut(itr,depth+1);
+							e = cut(itr,depth+1, thisCase);
 						default:
 							throw "haha " + itr;
 							// throw new Error('haha', e.pos);

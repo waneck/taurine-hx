@@ -15,7 +15,7 @@ class Test
 	static function main()
 	{
 		var startAnim = true, someBool = false, noGo = false, otherBool = true, someBool = false, startAnim2 = true;
-#if false
+#if true
 		var g = taurine.async.Generator.test({
 if (startAnim)
 {
