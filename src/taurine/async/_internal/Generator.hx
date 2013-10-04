@@ -297,6 +297,8 @@ class Generator
 			}
 		}
 
+		trace(toString(e));
+		trace(usedVars);
 		trace(typesMap);
 
 		//okay, now we'll start writing our fields:
@@ -404,7 +406,7 @@ class Generator
 							if (eelse != null)
 								eelse = cut(eelse,depth+1,thisCase, onres);
 							e.expr = EIf(econd,eif,eelse);
-						case EMeta({name:"yield"}, _):
+						case EMeta({name:"yield"}, _), EReturn(_):
 							bl2.push(macro $v{thisCase});
 							var possibleGoto = macro null;
 							setNextState = function(state:Int)
@@ -426,7 +428,7 @@ class Generator
 							var res = onres == null ?
 								function(e) { return macro $i{name} = $e; } :
 								function(e) { e = onres(e); return macro $i{name} = $e; };
-							e = cut(macro @:interruptible $ve, depth, res);
+							e = cut(macro { @:interruptible $ve; }, depth, thisCase, res);
 
 						default:
 							throw "haha " + itr;
@@ -493,6 +495,8 @@ class Generator
 				//so we will add it to delays[depth]
 				// var
 
+				if(onResult != null)
+					trace("onresult",bl2.length);
 				if (bl2.length > 0 && onResult != null) bl2[bl2.length-1] = onResult(bl2[bl2.length-1]);
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
