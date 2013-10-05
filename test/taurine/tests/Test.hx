@@ -43,8 +43,7 @@ if (startAnim)
 
 			if (startAnim2)
 			{
-				var x = 10;
-				var y = 30;
+				var x = 10, y = 30;
 				if (someBool)
 					x = 200;
 

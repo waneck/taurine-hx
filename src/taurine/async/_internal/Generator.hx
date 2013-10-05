@@ -110,9 +110,9 @@ class Generator
 			return name;
 		}
 
-		var modifying = false;
+		var modifying = false, curBlock = null;
 
-		function pre(e:Expr):Expr
+		function pre(e:Expr, ?onResult:Expr->Expr):Expr
 		{
 			var wasModifying = modifying;
 			modifying = false;
@@ -124,19 +124,51 @@ class Generator
 					case EReturn(val): val;
 					case _: val;
 				};
+				var wasCalled = false, res = onResult == null ?
+					function(e) { wasCalled = true; return macro @:yield $e; }:
+					function(e) { wasCalled = true; return macro @:yield ${onResult(e)}; };
 				state++;
 				states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
-				map({ expr:EMeta(meta, val), pos: e.pos }, pre);
-			case EVars(vars):
-				var vars2 = [], needType = false;
-				for (v in vars)
+				map({ expr:EMeta(meta, val), pos: e.pos }, pre.bind(_,res));
+			case EVars([v]):
+				var needType = false;
+				//we need the var name in order to set onResult (in case the expression is complex)
+				//however it can't be added to the scope just yet, as it only takes effect in the end of the scope
+				var i = v.name, id = vid++, name = 'v%$id%$i';
+				curState.declared.set(i, true);
+
+				var expr = null, wasCalled = false;
+				if (v.expr != null)
 				{
-					var expr = v.expr != null ? pre(v.expr) : macro untyped __undefined__;
-					var name = mkvar(v.name,v.type);
-					vars2.push({ expr : EBinop(OpAssign, macro $i{name}, expr), pos:e.pos });
+					inline function onUsed()
+					{
+						usedVars.set(name, true);
+						curState.used.set(name,true);
+						curState.written.set(name,true);
+					}
+					var res = onResult == null ?
+						function(e) { wasCalled = true; onUsed(); return macro $i{name} = $e; }:
+						function(e) { wasCalled = true; onUsed(); return macro $i{name} = ${onResult(e)}; };
+					expr = pre(v.expr,res);
+				} else {
+					expr = macro untyped __undefined__;
 				}
 
-				{ expr: EMeta({pos:e.pos, params:[], name: ":evars"}, { expr: EBlock(vars2), pos: e.pos }), pos : e.pos };
+				var ret = null, setExpr = expr;
+				if (wasCalled)
+					setExpr = macro untyped __undefined__;
+				var vars2 = [{ expr : EBinop(OpAssign, macro $i{name}, setExpr), pos:e.pos }];
+				ret = { expr: EMeta({pos:e.pos, params:[], name: ":evars"}, { expr: EBlock(vars2), pos: e.pos }), pos : e.pos };
+				if (wasCalled)
+				{
+					curBlock.push(ret);
+					ret = expr;
+				}
+
+				curScope.set(i, name);
+				typesMap.set(name,v.type);
+				return ret;
+
 			case EFor(efor = { expr:EIn(e1,e2) }, expr):
 				var cstate = state;
 				pushBlock();
@@ -152,13 +184,13 @@ class Generator
 				ret;
 			case ETry(etry,ecatches):
 				var cstate = state;
-				var t = pre(mk_block(etry));
+				var t = pre(mk_block(etry),onResult);
 				var ec = [];
 				for (c in ecatches)
 				{
 					pushBlock();
 					var name = mkvar(c.name);
-					ec.push({ type:c.type, name:name, expr: pre(mk_block(c.expr)) });
+					ec.push({ type:c.type, name:name, expr: pre(mk_block(c.expr),onResult) });
 					popBlock();
 				}
 				var ret = { expr: ETry(t,ec), pos : e.pos };
@@ -188,16 +220,16 @@ class Generator
 					var vals = collectIdents({ expr:EBlock(c.values), pos:e.pos });
 					pushBlock();
 					var exprSet = {expr:EBlock([for (v in vals) { var name = mkvar(v); macro @:captureHelper ($i{name} = $i{v}); }]), pos:e.pos};
-					c2.push({ values: c.values, guard: c.guard == null ? null : pre(c.guard), expr: c.expr == null ? exprSet : concat(exprSet,pre(c.expr)) });
+					c2.push({ values: c.values, guard: c.guard == null ? null : pre(c.guard), expr: c.expr == null ? exprSet : concat(exprSet,pre(c.expr,onResult)) });
 					popBlock();
 				}
-				var ret = { expr:ESwitch(cond,c2, edef == null ? null : pre(edef)), pos: e.pos };
+				var ret = { expr:ESwitch(cond,c2, edef == null ? null : pre(edef,onResult)), pos: e.pos };
 				ret;
 
 			case EIf(cond,eif,eelse), ETernary(cond,eif,eelse):
 				cond = pre(cond);
 				var cstate = state;
-				eif = pre(mk_block(eif)); eelse = eelse == null ? null : pre(mk_block(eelse));
+				eif = pre(mk_block(eif),onResult); eelse = eelse == null ? null : pre(mk_block(eelse),onResult);
 				var ret = { expr: EIf(cond,eif,eelse), pos: e.pos };
 				ret;
 
@@ -226,44 +258,59 @@ class Generator
 				}
 			case EBlock(bl):
 				pushBlock();
-				var bl2 = [];
+				var bl2 = [], i = -1, lst = bl.length - 1;
+				var oldBlock = curBlock;
+				curBlock = bl2;
 				for (b in bl)
 				{
+					++i;
+					function process(e:Expr,onp)
+					{
+						var cstate = state;
+						var c = pre(e,onp);
+						if (state != cstate)
+							c = macro @:interruptible $c;
+						bl2.push(c);
+					}
+
 					switch(b.expr)
 					{
 						case EVars(vars):
+							//make sure only one var is declared on EVars
 							for(v in vars)
-							{
-								var cstate = state;
-								var c = pre({ expr:EVars([v]), pos:b.pos });
-								if (state != cstate)
-									c = macro @:interruptible $c;
-								bl2.push(c);
-							}
+								process({ expr:EVars([v]), pos:b.pos }, null);
 						default:
-							var cstate = state;
-							var c = pre(b);
-							if (state != cstate)
-								c = macro @:interruptible $c;
-							bl2.push(c);
+							//check if we'll reroute onResult or apply it already
+							if (i==lst && onResult != null) switch(b.expr)
+							{
+								case EBlock(_), ESwitch(_,_,_), ETry(_,_):
+									process(b, onResult);
+								default:
+									process(b, null);
+									bl2[bl2.length-1] = onResult(bl2[bl2.length-1]);
+							} else {
+								process(b,null);
+							}
 					}
 				}
+				curBlock = oldBlock;
 				popBlock();
 				{ expr:EBlock(bl2), pos:e.pos }
 
 			case EBinop(OpAssign | OpAssignOp(_), _,_), EUnop(_,_,_):
 				modifying = true;
-				map(e,pre);
+				map(e,pre.bind(_));
 
 			case EReturn(_):
 				throw new Error("Return not allowed on generator context. Use @yield to yield values", e.pos);
 
 			default:
-				map(e,pre);
+				map(e,pre.bind(_));
 			}
 		}
 
 		e = pre(e);
+		trace(toString(e));
 
 		//get all types!
 		var needTypes = [], allvars = [];
@@ -297,8 +344,6 @@ class Generator
 			}
 		}
 
-		trace(toString(e));
-		trace(usedVars);
 		trace(typesMap);
 
 		//okay, now we'll start writing our fields:
@@ -370,7 +415,7 @@ class Generator
 			d.push(delay);
 		}
 		// cases.push(null);
-		function cut(e:Expr, depth:Int, ?thisCase:Int, ?onResult:Expr->Expr):Expr
+		function cut(e:Expr, depth:Int, ?thisCase:Int):Expr
 		{
 			// trace('cutting ' + e);
 			if (thisCase == null)
@@ -383,7 +428,6 @@ class Generator
 				var bl2 = [];
 				for (i in 0...bl.length)
 				{
-					var onres = (i == (bl.length - 1) ? onResult : null);
 					var e = bl[i];
 					switch(e.expr)
 					{
@@ -402,11 +446,11 @@ class Generator
 							var blockContinues = i != bl.length - 1;
 							var ccase = cases.length;
 
-							eif = cut(eif,depth+1,thisCase, onres);
+							eif = cut(eif,depth+1,thisCase);
 							if (eelse != null)
-								eelse = cut(eelse,depth+1,thisCase, onres);
+								eelse = cut(eelse,depth+1,thisCase);
 							e.expr = EIf(econd,eif,eelse);
-						case EMeta({name:"yield"}, _), EReturn(_):
+						case EMeta({name:"yield"}, _):
 							bl2.push(macro $v{thisCase});
 							var possibleGoto = macro null;
 							setNextState = function(state:Int)
@@ -420,16 +464,7 @@ class Generator
 							bl2.push(possibleGoto);
 							e = cleanup(e);
 						case EBlock(_):
-							e = cut(itr,depth+1, thisCase, onres);
-						case EVars([v]):
-							bl2.push({ expr: EVars([{ name: v.name, type: v.type, expr: macro null }]), pos: e.pos });
-							// trace(toString(v.expr));
-							var ve = v.expr, name = v.name;
-							var res = onres == null ?
-								function(e) { return macro $i{name} = $e; } :
-								function(e) { e = onres(e); return macro $i{name} = $e; };
-							e = cut(macro { @:interruptible $ve; }, depth, thisCase, res);
-
+							e = cut(itr,depth+1, thisCase);
 						default:
 							throw "haha " + itr;
 							// throw new Error('haha', e.pos);
@@ -445,7 +480,7 @@ class Generator
 					{
 						//recursively cut and add the result as a case
 						var idx = cases.push(null) - 1;
-						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth, onResult);
+						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
 
 						for (d in (depth+1)...delays.length)
@@ -495,9 +530,6 @@ class Generator
 				//so we will add it to delays[depth]
 				// var
 
-				if(onResult != null)
-					trace("onresult",bl2.length);
-				if (bl2.length > 0 && onResult != null) bl2[bl2.length-1] = onResult(bl2[bl2.length-1]);
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
 				return cleanup(e);
