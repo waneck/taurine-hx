@@ -8,7 +8,7 @@ import haxe.macro.Expr;
 **/
 class Generator
 {
-	macro public static function test(e:Expr):Expr
+	macro private static function test(e:Expr):Expr
 	{
 		return new taurine.async._internal.Generator().change(e);
 	}

@@ -125,11 +125,14 @@ class Generator
 					case _: val;
 				};
 				var wasCalled = false, res = onResult == null ?
-					function(e) { wasCalled = true; return macro @:yield $e; }:
-					function(e) { wasCalled = true; return macro @:yield ${onResult(e)}; };
+					function(e) { wasCalled = true; return macro @yield $selfref.__ret__ = $e; } :
+					function(e) { wasCalled = true; return macro @yield $selfref.__ret__ = ${onResult(e)}; };
 				state++;
+				val = pre(val,res);
+				if (!wasCalled)
+					val = macro @yield ($selfref.__ret__ = $val);
 				states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
-				map({ expr:EMeta(meta, val), pos: e.pos }, pre.bind(_,res));
+				{ expr:EMeta(meta, val), pos: e.pos };
 			case EVars([v]):
 				var needType = false;
 				//we need the var name in order to set onResult (in case the expression is complex)
@@ -383,7 +386,7 @@ class Generator
 					{ expr:EBlock([]), pos: e.pos }; //no-op
 				case EMeta({name:"yield"}, e):
 					e = cleanup(e);
-					macro return $e;
+					macro { $e; return true; };
 				case EConst(CIdent(c)):
 					if (externals.exists(c))
 					{
@@ -414,10 +417,8 @@ class Generator
 			}
 			d.push(delay);
 		}
-		// cases.push(null);
 		function cut(e:Expr, depth:Int, ?thisCase:Int):Expr
 		{
-			// trace('cutting ' + e);
 			if (thisCase == null)
 				thisCase = cases.length - 1;
 			var setNextState = null;
@@ -466,8 +467,7 @@ class Generator
 						case EBlock(_):
 							e = cut(itr,depth+1, thisCase);
 						default:
-							throw "haha " + itr;
-							// throw new Error('haha', e.pos);
+							throw "NI";
 						}
 					case _:
 						bl2.push( cleanup(e) );
@@ -525,10 +525,9 @@ class Generator
 				//situation: we are currently at thisCase.
 				//and either we didn't find any @:interruptible
 				//(meaning we're the remainder of an already cut @:interruptible expression)
-				////or we found it, but there's nothing else in the block.
+				//or we found it, but there's nothing else in the block.
 				//in this case, we don't know what's our target case after this;
 				//so we will add it to delays[depth]
-				// var
 
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
@@ -551,6 +550,7 @@ class Generator
 
 		var i = 0;
 
+		cases.push(macro { return false; });
 		var sw = { expr : ESwitch(macro $selfref.state++, [for (c in cases) { values:[macro $v{i++}], expr:c }], macro throw ('Invalid state: ' + ($selfref.state - 1))), pos: e.pos };
 		sw = macro while(true) { trace("state",$selfref.state); $sw; };
 		if (!isClass)
@@ -562,8 +562,10 @@ class Generator
 			for (t in typesMap.keys())
 				if (!externals.exists(t) && usedVars.get(t))
 					objdecl.push({ field: t, expr: macro null });
-			objdecl.push({ field: "next", expr: macro function() $sw });
+			objdecl.push({ field: "hasNext", expr: macro function() $sw });
+			objdecl.push({ field: "next", expr: macro function() return $selfref.__ret__ });
 			e = { expr: EObjectDecl(objdecl), pos: e.pos };
+			e = macro (cast $e : Iterator<Dynamic>);
 		}
 		trace(toString(e));
 

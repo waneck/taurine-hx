@@ -3,16 +3,16 @@ package taurine.async;
 #if !cpp
 #if (java || flash9)
 //static targets - achieve best performance
-@:generic class GeneratorResult<T>
+@:generic class Task<T>
 
 #elseif cs
 //C# has @:generic built into the JIT compiler
-class GeneratorResult<T>
+class Task<T>
 
 #else
 //untyped targets have no benefit from it to be a class;
 //rather, it will only incur on extra uneeded information
-typedef GeneratorResult<T> =
+typedef Task<T> =
 
 #end
 {
@@ -29,9 +29,9 @@ typedef GeneratorResult<T> =
 }
 #else
 //C++ already has its own fast iterator class
-class GeneratorResult<T> extends cpp.FastIterator<T>
+class Task<T> extends cpp.FastIterator<T>
 {
 	public function exception(e:Dynamic):Void;
-r
+}
 
 #end
