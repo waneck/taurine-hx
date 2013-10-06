@@ -493,6 +493,9 @@ class Generator
 								{
 									var g = mkGoto(state);
 									possibleGoto.expr = g.expr;
+								} else {
+									var g = macro $v{'soft goto $state'};
+									possibleGoto.expr = g.expr;
 								}
 							};
 							bl2.push(possibleGoto);
@@ -535,7 +538,11 @@ class Generator
 
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
-						delayGotoResolution(depth);
+						if (setNextState != null) //the last call was a @yield:
+							addDelay(depth,setNextState);
+						else
+							delayGotoResolution(depth);
+						setNextState= null;
 
 						return { expr: EBlock(bl2), pos: e.pos };
 					}
