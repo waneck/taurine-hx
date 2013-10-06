@@ -440,6 +440,24 @@ class Generator
 			{
 			case EBlock(bl):
 				var bl2 = [];
+
+				function delayGotoResolution(targetDepth:Int)
+				{
+					var possibleGoto = macro null;
+					addDelay(targetDepth, function(c) {
+						if (c - thisCase > 1)
+						{
+							var g = mkGoto(c);
+							possibleGoto.expr = g.expr;
+						} else {
+							var g = macro $v{'soft goto: $c'};
+							possibleGoto.expr = g.expr;
+						}
+					});
+					bl2.push(macro $v{'depth $depth, case $thisCase'});
+					bl2.push(possibleGoto);
+				}
+
 				bl2.push(macro $v{'start:: depth $depth, case $thisCase'});
 				for (i in 0...bl.length)
 				{
@@ -499,7 +517,7 @@ class Generator
 						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
 
-						runDelays(depth,cases.length-1);
+						// runDelays(depth,cases.length-1);
 
 						//if the index is different from the next case (thisCase + 1),
 						//add a specific goto statement
@@ -517,19 +535,8 @@ class Generator
 
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
-						var possibleGoto = macro null;
-						addDelay(depth, function(c) {
-							if (cases.length - 1 - thisCase > 1)
-							{
-								var g = mkGoto(c);
-								possibleGoto.expr = g.expr;
-							} else {
-								var g = macro $v{'soft goto: ${cases.length - 1}'};
-								possibleGoto.expr = g.expr;
-							}
-						});
-						bl2.push(macro $v{'depth $depth, case $thisCase'});
-						bl2.push(possibleGoto);
+						delayGotoResolution(depth);
+
 						return { expr: EBlock(bl2), pos: e.pos };
 					}
 				}
@@ -539,19 +546,7 @@ class Generator
 				//or we found it, but there's nothing else in the block.
 				//in this case, we don't know what's our target case after this;
 				//so we will add it to delays[depth]
-				var possibleGoto = macro null;
-				addDelay(depth, function(c) {
-					if (cases.length - 1 - thisCase > 1)
-					{
-						var g = mkGoto(c);
-						possibleGoto.expr = g.expr;
-					} else {
-						var g = macro $v{'soft goto: ${cases.length - 1}'};
-						possibleGoto.expr = g.expr;
-					}
-				});
-				bl2.push(macro $v{'depth $depth, case $thisCase'});
-				bl2.push(possibleGoto);
+				delayGotoResolution(depth+1);
 
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
