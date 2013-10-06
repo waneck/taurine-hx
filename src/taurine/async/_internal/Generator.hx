@@ -407,8 +407,21 @@ class Generator
 
 		//cuts expressions when yield is found
 		cases.push(null);
-		var delays = [];
-		inline function addDelay(depth:Int, delay:Void->Void):Void
+		var delays:Array<Array<Int->Void>> = [];
+		function runDelays(depth:Int, c:Int)
+		{
+			for (d in (depth+1)...delays.length)
+			{
+				var d = delays[d];
+				if (d != null)
+				{
+					var cd = null;
+					while( (cd = d.pop()) != null )
+						cd(c);
+				}
+			}
+		}
+		inline function addDelay(depth:Int, delay:Int->Void):Void
 		{
 			var d = delays[depth];
 			if (d == null)
@@ -427,6 +440,7 @@ class Generator
 			{
 			case EBlock(bl):
 				var bl2 = [];
+				bl2.push(macro $v{'start:: depth $depth, case $thisCase'});
 				for (i in 0...bl.length)
 				{
 					var e = bl[i];
@@ -450,6 +464,7 @@ class Generator
 							eif = cut(eif,depth+1,thisCase);
 							if (eelse != null)
 								eelse = cut(eelse,depth+1,thisCase);
+							runDelays(depth, cases.length);
 							e.expr = EIf(econd,eif,eelse);
 						case EMeta({name:"yield"}, _):
 							bl2.push(macro $v{thisCase});
@@ -466,6 +481,7 @@ class Generator
 							e = cleanup(e);
 						case EBlock(_):
 							e = cut(itr,depth+1, thisCase);
+							runDelays(depth,cases.length);
 						default:
 							throw "NI";
 						}
@@ -483,16 +499,7 @@ class Generator
 						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
 
-						for (d in (depth+1)...delays.length)
-						{
-							var d = delays[d];
-							if (d != null)
-							{
-								var cd = null;
-								while( (cd = d.pop()) != null )
-									cd();
-							}
-						}
+						runDelays(depth,cases.length-1);
 
 						//if the index is different from the next case (thisCase + 1),
 						//add a specific goto statement
@@ -511,15 +518,19 @@ class Generator
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
 						var possibleGoto = macro null;
-						addDelay(depth, function() {
+						addDelay(depth, function(c) {
 							if (cases.length - 1 - thisCase > 1)
 							{
-								var g = mkGoto(cases.length-1);
+								var g = mkGoto(c);
+								possibleGoto.expr = g.expr;
+							} else {
+								var g = macro $v{'soft goto: ${cases.length - 1}'};
 								possibleGoto.expr = g.expr;
 							}
 						});
+						bl2.push(macro $v{'depth $depth, case $thisCase'});
 						bl2.push(possibleGoto);
-						// return { expr: EBlock(bl2), pos: e.pos };
+						return { expr: EBlock(bl2), pos: e.pos };
 					}
 				}
 				//situation: we are currently at thisCase.
@@ -528,6 +539,19 @@ class Generator
 				//or we found it, but there's nothing else in the block.
 				//in this case, we don't know what's our target case after this;
 				//so we will add it to delays[depth]
+				var possibleGoto = macro null;
+				addDelay(depth, function(c) {
+					if (cases.length - 1 - thisCase > 1)
+					{
+						var g = mkGoto(c);
+						possibleGoto.expr = g.expr;
+					} else {
+						var g = macro $v{'soft goto: ${cases.length - 1}'};
+						possibleGoto.expr = g.expr;
+					}
+				});
+				bl2.push(macro $v{'depth $depth, case $thisCase'});
+				bl2.push(possibleGoto);
 
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
@@ -540,7 +564,7 @@ class Generator
 		for (da in delays)
 			if (da != null)
 				while ( (d = da.pop()) != null )
-					d(); //set goto to the correct case
+					d(cases.length-1); //set goto to the correct case
 		// trace(toString(e));
 		// trace(cases.length);
 		cases[0] = e;
