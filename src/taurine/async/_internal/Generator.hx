@@ -218,6 +218,7 @@ class Generator
 
 				var ret = macro { $subjdecl; $itdecl; $ewhile; };
 				var actual_idsubj = lookScope(idsubj);
+				usedVars.set(actual_idsubj, true);
 
 				var if_is_array_do = function(typesMap:Map<String,ComplexType>)
 				{
@@ -254,22 +255,9 @@ class Generator
 				ret;
 
 			case EWhile(cond,eblock,normal):
-				var cstate = state, 
-						stateIdx = states.length,
-						ccstate = curState = { used:new Map(), written: new Map(), declared: new Map() };
-				if (normal)
-					cond = pre(cond);
+				var cstate = state;
 				eblock = pre(mk_block(eblock));
-				if (!normal)
-					cond = pre(cond);
-				
-				if (state != cstate)
-				{
-					for (v in ccstate.used.keys())
-						usedVars.set(v,true); //make sure any variable used inside here isn't transient
-					for (v in states[stateIdx-1].declared.keys())
-						usedVars.set(v,true);
-				}
+				cond = pre(cond);
 
 				{ expr: EWhile(cond,eblock,normal), pos: e.pos };
 
@@ -433,7 +421,8 @@ class Generator
 					for (f in a.fields)
 					{
 						var tcomplex = haxe.macro.TypeTools.toComplexType(f.type);
-						typesMap.set(f.name, tcomplex);
+						if (!typesMap.exists(f.name))
+							typesMap.set(f.name, tcomplex);
 
 						var ivar = iteratorVars.get(f.name);
 						if (ivar != null)
