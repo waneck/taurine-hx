@@ -184,9 +184,7 @@ class GeneratorTests {
 		Assert.isTrue(t1.hasNext());
 		Assert.same({retn:"A1",arr:[1,1.1,1.11]}, t1.next());
 		Assert.isTrue(t1.hasNext());
-		var ret = t1.next();
-		trace(ret);
-		Assert.same({retn:"B",arr:[1,1.1,1.11,1.12,1.2]}, ret);
+		Assert.same({retn:"B",arr:[1,1.1,1.11,1.12,1.2]}, t1.next());
 		Assert.isTrue(t1.hasNext());
 		Assert.same({retn:"B1",arr:[1.4]}, t1.next());
 		Assert.isTrue(t1.hasNext());
@@ -198,7 +196,51 @@ class GeneratorTests {
 		Assert.same({retn:"c",arr:[2,3]}, last);
 		Assert.isFalse(t1.hasNext());
 		Assert.same([2,3,4],last.arr);
+	}
 
+	// public function test_fibonacci() 
+	// {
+	// 	//returns the 10 first fibonacci numbers
+	// 	var fib = test({
+	// 		var a0 = 0, a1 = 1;
+	// 		@yield 0; @yield 1;
+	// 		for (i in 0...8)
+	// 		{
+	// 			var a2 = a0 + a1;
+	// 			a1 = a2; a0 = a1;
+	// 			@yield a2;
+	// 		}
+	// 	});
+
+	// 	Assert.same([0,1, 1, 2, 3, 5, 8, 13, 21, 34], [for(v in fib) v]);
+	// }
+
+	// public function test_fact()
+	// {
+	// 	//first 10 factorial numbers
+	// 	var fact = test({
+	// 		var acc = 1;
+	// 		for (i in 0...10)
+	// 		{
+	// 			@yield (acc *= i);
+	// 		}
+	// 	});
+
+	// 	Assert.same([1,1,2,6,24,120,720,5040,40320,362880,3628800], [for(v in fact) v]);
+	// }
+
+	public function test_array_for()
+	{
+		var t = test({
+			var arr = [1,2,3,4,5,6,7], lastValue = -1;
+			for (a in arr)
+			{
+				var myval = a + lastValue;
+				lastValue = a;
+				@yield myval;
+				// trace(a);
+			}
+		});
 	}
 
 	// public function test_vardecl()

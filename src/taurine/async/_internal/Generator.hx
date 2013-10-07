@@ -2,6 +2,7 @@ package taurine.async._internal;
 import haxe.macro.Expr;
 import haxe.macro.ExprTools.*;
 import haxe.macro.Context.*;
+import haxe.macro.Context;
 import haxe.macro.Type;
 
 /**
@@ -30,6 +31,18 @@ class Generator
 			selfref = macro untyped __this__;
 	}
 
+	private static function isType(e:Expr):Bool
+	{
+		return switch(cleanup(e).expr)
+		{
+			case EField(ef,_):
+				isType(ef);
+			case EConst(CIdent(_)):
+				true;
+			default: false;
+		}
+	}
+
 	private static function concat(e1:Expr, e2:Expr):Expr
 	{
 		return switch [e1.expr,e2.expr]
@@ -55,6 +68,19 @@ class Generator
 		}
 	}
 
+	private static function cleanup(e:Expr):Expr
+	{
+		return switch(e.expr)
+		{
+			case EMeta(_,e): 
+				cleanup(e);
+			case EParenthesis(e):
+				cleanup(e);
+			default:
+				e;
+		}
+	}
+
 	private function mkGoto(i:Int):Expr
 	{
 		// if defined("cs")
@@ -76,6 +102,7 @@ class Generator
 				scope = [new Map()],
 				typesMap = new Map(), //the vars that need types
 				usedVars = new Map(),
+				iteratorVars = new Map(), //{ 
 				states = [{ used: new Map(), written: new Map(), declared: new Map() }];
 		var curScope = scope[0], vid = 0, curState = states[0];
 
@@ -104,7 +131,7 @@ class Generator
 		function mkvar(i:String, ?t)
 		{
 			var id = vid++, name = 'v%$id%$i';
-			curState.declared.set(i, true);
+			curState.declared.set(name, true);
 			curScope.set(i, name);
 			typesMap.set(name,t);
 			return name;
@@ -138,7 +165,7 @@ class Generator
 				//we need the var name in order to set onResult (in case the expression is complex)
 				//however it can't be added to the scope just yet, as it only takes effect in the end of the scope
 				var i = v.name, id = vid++, name = 'v%$id%$i';
-				curState.declared.set(i, true);
+				curState.declared.set(name, true);
 
 				var expr = null, wasCalled = false;
 				if (v.expr != null)
@@ -171,20 +198,81 @@ class Generator
 				curScope.set(i, name);
 				typesMap.set(name,v.type);
 				return ret;
+			
+			case EFor(macro $i{ident} in $nmin...$nmax, eblock):
+				pre(macro { var $ident = $nmin - 1; while (++$i{ident} < $nmax) ${mk_block(eblock)} }, onResult);
 
 			case EFor(efor = { expr:EIn(e1,e2) }, expr):
 				var cstate = state;
 				pushBlock();
-				// var e1 = collectIdents(e1);
-				e2 = pre(e2);
-
 				var ident = collectIdents(e1)[0];
-				var name = mkvar(ident);
-				expr = pre(mk_block(expr));
-				expr = concat(macro @:captureHelper ($i{name} = $i{ident}), expr);
-				var ret = { expr: EFor({ expr:EIn(e1,e2), pos: efor.pos }, expr), pos: e.pos };
+				var idit = ident + "__iterator",
+						idsubj = ident + "__itsubj";
+
+				var subjdecl = pre(macro var $idsubj = $e2);
+				var itdecl = pre( macro var $idit = taurine.async._internal.IteratorHelper.convert($i{idsubj}) );
+				
+				var ewhile = pre(macro while($i{idit}.hasNext()) { var $ident = $i{idit}.next(); $expr; });
+				if (state != cstate)
+					ewhile = macro @:iterruptible $ewhile;
+
+				var ret = macro { $subjdecl; $itdecl; $ewhile; };
+				var actual_idsubj = lookScope(idsubj);
+
+				var if_is_array_do = function(typesMap:Map<String,ComplexType>)
+				{
+					function changeVarsDecl(vardecl:Expr, to:Expr)
+					{
+						switch(vardecl)
+						{
+							case macro @:evars { $i{varName} = $oldVal; }:
+								oldVal.expr = to.expr;
+								return varName;
+							default: return throw new Error("Expected var declaration", vardecl.pos);
+						}
+					}
+					var idit = changeVarsDecl(itdecl, macro -1),
+							idsubj = macro $i{actual_idsubj};
+					switch(cleanup(ewhile).expr)
+					{
+						case EWhile(cond,eblock,_):
+							cond.expr = (macro ++$i{idit} < $idsubj.length).expr;
+							switch(cleanup(eblock).expr)
+							{
+								case EBlock(arr):
+									//var ident = it.next()
+									changeVarsDecl(arr[0], macro $idsubj[$i{idit}]);
+								default:
+									throw "Not recognized expression: " + toString(eblock);
+							}
+						default: throw "assert";
+					}
+					typesMap.set(idit, macro : StdTypes.Int); //change iterator type to Int
+				};
+				iteratorVars.set(actual_idsubj, {name: actual_idsubj, ifArray:if_is_array_do});
 				popBlock();
 				ret;
+
+			case EWhile(cond,eblock,normal):
+				var cstate = state, 
+						stateIdx = states.length,
+						ccstate = curState = { used:new Map(), written: new Map(), declared: new Map() };
+				if (normal)
+					cond = pre(cond);
+				eblock = pre(mk_block(eblock));
+				if (!normal)
+					cond = pre(cond);
+				
+				if (state != cstate)
+				{
+					for (v in ccstate.used.keys())
+						usedVars.set(v,true); //make sure any variable used inside here isn't transient
+					for (v in states[stateIdx-1].declared.keys())
+						usedVars.set(v,true);
+				}
+
+				{ expr: EWhile(cond,eblock,normal), pos: e.pos };
+
 			case ETry(etry,ecatches):
 				var cstate = state;
 				var t = pre(mk_block(etry),onResult);
@@ -236,6 +324,9 @@ class Generator
 				var ret = { expr: EIf(cond,eif,eelse), pos: e.pos };
 				ret;
 
+			case EField(ef, field) if (field.charCodeAt(0) >= 'A'.code && field.charCodeAt(0) <= 'Z'.code && isType(ef)):
+				e;
+
 			case EConst(CIdent(c)):
 				var cr = collectIdents(e)[0];
 				if (cr == null)
@@ -244,7 +335,7 @@ class Generator
 				} else {
 					var s = lookScope(c);
 					var n = s == null ? c : s;
-					if (!curState.declared.get(c))
+					if (!curState.declared.get(n))
 					{
 						usedVars.set(n, true);
 						curState.used.set(n,true);
@@ -341,7 +432,51 @@ class Generator
 					var a = a.get();
 					for (f in a.fields)
 					{
-						typesMap.set(f.name, haxe.macro.TypeTools.toComplexType(f.type));
+						var tcomplex = haxe.macro.TypeTools.toComplexType(f.type);
+						typesMap.set(f.name, tcomplex);
+
+						var ivar = iteratorVars.get(f.name);
+						if (ivar != null)
+						{
+							//check if it's like an array
+							var likeArray = false;
+							switch(Context.follow(f.type))
+							{
+								case TInst(cl,_):
+									var c = cl.get();
+									trace(1);
+									//this is sadly the only way to know if the type has ArrayAccess:
+									if (cl.toString() == "Array" || try { Context.typeof(macro { var x : $tcomplex; x[0]; }); true; } catch(e:Dynamic) false)
+									{
+										trace(2);
+										for (f in c.fields.get())
+											if (f.name == "length")
+											{
+												trace(3);
+												likeArray = true;
+												break;
+											}
+									}
+								case TAbstract(a,_):
+									var a = a.get();
+									if (a.meta.has(":arrayAccess"))
+									{
+										var c = a.impl.get();
+										if (c != null) for (f in c.fields.get())
+											if (f.name == "length")
+											{
+												likeArray = true;
+												break;
+											}
+									}
+								default:
+							}
+							if (likeArray)
+							{
+								trace(4);
+								ivar.ifArray(typesMap);
+							}
+						}
 					}
 				case _: throw "assert";
 			}
@@ -503,8 +638,15 @@ class Generator
 						case EBlock(_):
 							e = cut(itr,depth+1, thisCase);
 							runDelays(depth,cases.length);
+
+						//loops
+						//starting with some special cases
+						// case EFor(macro $i{ident} in $nmin...$nmax, eblock):
+						// 	e = cut(macro { var $ident = $nmin - 1; while(--$ident < $nmax) ${mk_block(eblock)} });
+						case EFor(macro $i{ident} in $it, eblock):
+							throw "NA";
 						default:
-							throw "NI";
+							throw "NI" + toString(e);
 						}
 					case _:
 						bl2.push( cleanup(e) );
