@@ -558,16 +558,30 @@ class Generator
 		cases.push(null);
 		var loopDelays:Array<Array<Int->Int->Void>> = [];
 		var delays:Array<Array<Int->Void>> = [];
+		var loopDepths = new Map();
 		function runDelays(depth:Int, c:Int)
 		{
-			for (d in (depth+1)...delays.length)
+			var isLoop = loopDepths.get(depth);
+			if (isLoop)
 			{
-				var d = delays[d];
-				if (d != null)
+				for (_ in (depth+1)...delays.length)
 				{
-					var cd = null;
-					while( (cd = d.pop()) != null )
-						cd(c);
+					var d = delays.pop();
+					loopDelays[loopDelays.length-1].push(function(condition,_) {
+						for (cd in d)
+							cd(condition);
+					});
+				}
+			} else {
+				for (d in (depth+1)...delays.length)
+				{
+					var d = delays[d];
+					if (d != null)
+					{
+						var cd = null;
+						while( (cd = d.pop()) != null )
+							cd(c);
+					}
 				}
 			}
 		}
