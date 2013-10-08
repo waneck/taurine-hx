@@ -233,14 +233,18 @@ class GeneratorTests {
 	{
 		var t = test({
 			var arr = [1,2,3,4,5,6,7], lastValue = -1;
+			trace("?");
 			for (a in arr)
 			{
+				trace(a, lastValue);
 				var myval = a + lastValue;
 				lastValue = a;
 				@yield myval;
 				// trace(a);
 			}
 		});
+		for(s in t)
+			trace(s);
 	}
 
 	// public function test_vardecl()

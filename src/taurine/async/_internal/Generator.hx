@@ -33,7 +33,7 @@ class Generator
 
 	private static function isType(e:Expr):Bool
 	{
-		return switch(cleanup(e).expr)
+		return switch(dropMetas(e).expr)
 		{
 			case EField(ef,_):
 				isType(ef);
@@ -68,14 +68,14 @@ class Generator
 		}
 	}
 
-	private static function cleanup(e:Expr):Expr
+	private static function dropMetas(e:Expr):Expr
 	{
 		return switch(e.expr)
 		{
 			case EMeta(_,e): 
-				cleanup(e);
+				dropMetas(e);
 			case EParenthesis(e):
-				cleanup(e);
+				dropMetas(e);
 			default:
 				e;
 		}
@@ -202,7 +202,7 @@ class Generator
 			case EFor(macro $i{ident} in $nmin...$nmax, eblock):
 				pre(macro { var $ident = $nmin - 1; while (++$i{ident} < $nmax) ${mk_block(eblock)} }, onResult);
 
-			case EFor(efor = { expr:EIn(e1,e2) }, expr):
+			case EFor({ expr:EIn(e1,e2) }, expr):
 				var cstate = state;
 				pushBlock();
 				var ident = collectIdents(e1)[0];
@@ -214,7 +214,7 @@ class Generator
 				
 				var ewhile = pre(macro while($i{idit}.hasNext()) { var $ident = $i{idit}.next(); $expr; });
 				if (state != cstate)
-					ewhile = macro @:iterruptible $ewhile;
+					ewhile = macro @:interruptible $ewhile;
 
 				var ret = macro { $subjdecl; $itdecl; $ewhile; };
 				var actual_idsubj = lookScope(idsubj);
@@ -234,11 +234,11 @@ class Generator
 					}
 					var idit = changeVarsDecl(itdecl, macro -1),
 							idsubj = macro $i{actual_idsubj};
-					switch(cleanup(ewhile).expr)
+					switch(dropMetas(ewhile).expr)
 					{
 						case EWhile(cond,eblock,_):
 							cond.expr = (macro ++$i{idit} < $idsubj.length).expr;
-							switch(cleanup(eblock).expr)
+							switch(dropMetas(eblock).expr)
 							{
 								case EBlock(arr):
 									//var ident = it.next()
@@ -255,9 +255,34 @@ class Generator
 				ret;
 
 			case EWhile(cond,eblock,normal):
-				var cstate = state;
+				//unfortunately we need to lookahead
+				//to determine if this `while` is interruptible
+				var hasYield = false;
+				function fiter(e:Expr):Void
+				{
+					switch(e)
+					{
+						case macro @yield $_:
+							hasYield = true;
+						default:
+							iter(e,fiter);
+					}
+				}
+				fiter(eblock);
+				if (hasYield)
+					states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
+
 				eblock = pre(mk_block(eblock));
+				if (hasYield && !normal)
+				{
+					//yet another state only for the condition check
+					states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
+				}
 				cond = pre(cond);
+
+				//and another state AGAIN so we can properly isolate the while block
+				if (hasYield)
+					states.push(curState = { used: new Map(), written: new Map(), declared: new Map() });
 
 				{ expr: EWhile(cond,eblock,normal), pos: e.pos };
 
@@ -531,6 +556,7 @@ class Generator
 
 		//cuts expressions when yield is found
 		cases.push(null);
+		var loopDelays:Array<Array<Int->Int->Void>> = [];
 		var delays:Array<Array<Int->Void>> = [];
 		function runDelays(depth:Int, c:Int)
 		{
@@ -565,26 +591,35 @@ class Generator
 			case EBlock(bl):
 				var bl2 = [];
 
+				var loopCond = -1;
 				function delayGotoResolution(targetDepth:Int)
 				{
 					var possibleGoto = macro null;
-					addDelay(targetDepth, function(c) {
-						if (c - thisCase > 1)
-						{
-							var g = mkGoto(c);
-							possibleGoto.expr = g.expr;
-						} else {
-							var g = macro $v{'soft goto: $c'};
-							possibleGoto.expr = g.expr;
-						}
-					});
-					bl2.push(macro $v{'depth $depth, case $thisCase'});
+					if (loopCond >= 0)
+					{
+						var g = mkGoto(loopCond);
+						possibleGoto.expr = g.expr;
+					} else {
+						addDelay(targetDepth, function(c) {
+							if (c - thisCase != 1)
+							{
+								var g = mkGoto(c);
+								possibleGoto.expr = g.expr;
+							} else {
+								var g = macro $v{'soft goto: $c'};
+								possibleGoto.expr = g.expr;
+							}
+						});
+					}
+					bl2.push(macro $v{'depth $depth, case $thisCase, loopCond $loopCond'});
 					bl2.push(possibleGoto);
 				}
 
 				bl2.push(macro $v{'start:: depth $depth, case $thisCase'});
-				for (i in 0...bl.length)
+				var i = -1, len = bl.length;
+				while(++i < len)
 				{
+					loopCond = -1;
 					var e = bl[i];
 					switch(e.expr)
 					{
@@ -613,7 +648,8 @@ class Generator
 							var possibleGoto = macro null;
 							setNextState = function(state:Int)
 							{
-								if (state - thisCase > 1)
+								trace("setting goto " + state);
+								if (state - thisCase != 1)
 								{
 									var g = mkGoto(state);
 									possibleGoto.expr = g.expr;
@@ -627,13 +663,49 @@ class Generator
 						case EBlock(_):
 							e = cut(itr,depth+1, thisCase);
 							runDelays(depth,cases.length);
+						case EWhile(_,_,_) if (i > 0):
+							//we need to cut this upright
+							i--;
+							e = mkGoto(cases.length); //goto next case
+							if (depth != 0)
+							{
+								bl2.push(e);
+								e = macro continue; //TODO see which cases we can avoid this
+							}
 
-						//loops
-						//starting with some special cases
-						// case EFor(macro $i{ident} in $nmin...$nmax, eblock):
-						// 	e = cut(macro { var $ident = $nmin - 1; while(--$ident < $nmax) ${mk_block(eblock)} });
-						case EFor(macro $i{ident} in $it, eblock):
-							throw "NA";
+						case EWhile(cond,block,normal):
+							var condState = -1;
+							var thisLoop = loopDelays.push([]) - 1;
+							if (normal)
+							{
+								condState = thisCase;
+								var gotoEnd = macro null;
+								loopDelays[thisLoop].push(function(condition,end) {
+									var g = mkGoto(end);
+									gotoEnd.expr = g.expr;
+								});
+								e = macro if (!(${cleanup(cond)})) $gotoEnd;
+								var idx = cases.push(null) - 1;
+								trace(toString(mk_block(dropMetas(block))));
+								block = cut(mk_block(dropMetas(block)), depth+1, idx);
+								cases[idx] = block;
+								loopCond = idx;
+							} else {
+								e = cut(mk_block(dropMetas(block)), depth+1, thisCase);
+								condState = cases.push(null) - 1;
+								var gotoEnd = macro null;
+								loopDelays[thisLoop].push(function(_,end) {
+									var g = mkGoto(end);
+									gotoEnd.expr = g.expr;
+								});
+								var gotoBegin = mkGoto(thisCase);
+								cases[condState] = macro if (${cleanup(cond)}) $gotoBegin else $gotoEnd;
+								loopCond = condState;
+							}
+							var l = loopDelays.pop();
+							if (thisLoop != loopDelays.length) throw "assert";
+							for (l in l) l(condState,cases.length);
+							runDelays(depth,condState);
 						default:
 							throw "NI" + toString(e);
 						}
@@ -650,6 +722,8 @@ class Generator
 						var idx = cases.push(null) - 1;
 						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
+						if (loopCond >= 0)
+							idx = loopCond;
 
 						// runDelays(depth,cases.length-1);
 
@@ -697,13 +771,8 @@ class Generator
 		for (da in delays)
 			if (da != null)
 				while ( (d = da.pop()) != null )
-					d(cases.length-1); //set goto to the correct case
-		// trace(toString(e));
-		// trace(cases.length);
+					d(cases.length); //set goto to the correct case
 		cases[0] = e;
-		// cases[0] = e;
-		// trace([for (c in cases) haxe.macro.ExprTools.toString( c ) ]);
-		// trace(cases);
 
 		var i = 0;
 
