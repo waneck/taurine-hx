@@ -558,30 +558,16 @@ class Generator
 		cases.push(null);
 		var loopDelays:Array<Array<Int->Int->Void>> = [];
 		var delays:Array<Array<Int->Void>> = [];
-		var loopDepths = new Map();
 		function runDelays(depth:Int, c:Int)
 		{
-			var isLoop = loopDepths.get(depth);
-			if (isLoop)
+			for (d in (depth+1)...delays.length)
 			{
-				for (_ in (depth+1)...delays.length)
+				var d = delays[d];
+				if (d != null)
 				{
-					var d = delays.pop();
-					loopDelays[loopDelays.length-1].push(function(condition,_) {
-						for (cd in d)
-							cd(condition);
-					});
-				}
-			} else {
-				for (d in (depth+1)...delays.length)
-				{
-					var d = delays[d];
-					if (d != null)
-					{
-						var cd = null;
-						while( (cd = d.pop()) != null )
-							cd(c);
-					}
+					var cd = null;
+					while( (cd = d.pop()) != null )
+						cd(c);
 				}
 			}
 		}
@@ -605,27 +591,20 @@ class Generator
 			case EBlock(bl):
 				var bl2 = [];
 
-				var loopCond = -1;
 				function delayGotoResolution(targetDepth:Int)
 				{
 					var possibleGoto = macro null;
-					if (loopCond >= 0)
-					{
-						var g = mkGoto(loopCond);
-						possibleGoto.expr = g.expr;
-					} else {
-						addDelay(targetDepth, function(c) {
-							if (c - thisCase != 1)
-							{
-								var g = mkGoto(c);
-								possibleGoto.expr = g.expr;
-							} else {
-								var g = macro $v{'soft goto: $c'};
-								possibleGoto.expr = g.expr;
-							}
-						});
-					}
-					bl2.push(macro $v{'depth $depth, case $thisCase, loopCond $loopCond'});
+					addDelay(targetDepth, function(c) {
+						if (c - thisCase != 1)
+						{
+							var g = mkGoto(c);
+							possibleGoto.expr = g.expr;
+						} else {
+							var g = macro $v{'soft goto: $c'};
+							possibleGoto.expr = g.expr;
+						}
+					});
+					bl2.push(macro $v{'depth $depth, case $thisCase'});
 					bl2.push(possibleGoto);
 				}
 
@@ -633,7 +612,6 @@ class Generator
 				var i = -1, len = bl.length;
 				while(++i < len)
 				{
-					loopCond = -1;
 					var e = bl[i];
 					switch(e.expr)
 					{
@@ -655,14 +633,15 @@ class Generator
 							eif = cut(eif,depth+1,thisCase);
 							if (eelse != null)
 								eelse = cut(eelse,depth+1,thisCase);
-							runDelays(depth, cases.length);
+							if (i < (bl.length - 1))
+								runDelays(depth, cases.length);
 							e.expr = EIf(econd,eif,eelse);
 						case EMeta({name:"yield"}, _):
 							bl2.push(macro $v{thisCase});
 							var possibleGoto = macro null;
 							setNextState = function(state:Int)
 							{
-								trace("setting goto " + state);
+								// trace("setting goto " + state);
 								if (state - thisCase != 1)
 								{
 									var g = mkGoto(state);
@@ -676,7 +655,8 @@ class Generator
 							e = cleanup(e);
 						case EBlock(_):
 							e = cut(itr,depth+1, thisCase);
-							runDelays(depth,cases.length);
+							if (i < (bl.length - 1))
+								runDelays(depth,cases.length);
 						case EWhile(_,_,_) if (i > 0):
 							//we need to cut this upright
 							i--;
@@ -698,14 +678,13 @@ class Generator
 									var g = mkGoto(end);
 									gotoEnd.expr = g.expr;
 								});
-								e = macro if (!(${cleanup(cond)})) $gotoEnd;
+								e = macro { if (!(${cleanup(cond)})) $gotoEnd; continue; };
 								var idx = cases.push(null) - 1;
-								trace(toString(mk_block(dropMetas(block))));
-								block = cut(mk_block(dropMetas(block)), depth+1, idx);
+								trace(toString(mk_block(dropMetas(concat(macro trace($selfref), block)))));
+								block = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, idx);
 								cases[idx] = block;
-								loopCond = idx;
 							} else {
-								e = cut(mk_block(dropMetas(block)), depth+1, thisCase);
+								e = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, thisCase);
 								condState = cases.push(null) - 1;
 								var gotoEnd = macro null;
 								loopDelays[thisLoop].push(function(_,end) {
@@ -714,7 +693,6 @@ class Generator
 								});
 								var gotoBegin = mkGoto(thisCase);
 								cases[condState] = macro if (${cleanup(cond)}) $gotoBegin else $gotoEnd;
-								loopCond = condState;
 							}
 							var l = loopDelays.pop();
 							if (thisLoop != loopDelays.length) throw "assert";
@@ -736,9 +714,6 @@ class Generator
 						var idx = cases.push(null) - 1;
 						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
-						if (loopCond >= 0)
-							idx = loopCond;
-
 						// runDelays(depth,cases.length-1);
 
 						//if the index is different from the next case (thisCase + 1),
