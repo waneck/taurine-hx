@@ -202,13 +202,13 @@ class GeneratorTests {
 	{
 		//returns the 10 first fibonacci numbers
 		var fib = test({
-			var a0 = 0, a1 = 1;
+			var an2 = 0, an1 = 1;
 			@yield 0; @yield 1;
 			for (i in 0...8)
 			{
-				var a2 = a0 + a1;
-				a1 = a2; a0 = a1;
-				@yield a2;
+				var c = an1 + an2;
+				an2 = an1; an1 = c;
+				@yield c;
 			}
 		});
 
@@ -220,8 +220,10 @@ class GeneratorTests {
 		//first 10 factorial numbers
 		var fact = test({
 			var acc = 1;
-			for (i in 0...10)
+			@yield 1;
+			for (i in 1...10)
 			{
+				trace(acc,i);
 				@yield (acc *= i);
 			}
 		});
