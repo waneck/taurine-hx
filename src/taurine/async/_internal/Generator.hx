@@ -446,7 +446,7 @@ class Generator
 					for (f in a.fields)
 					{
 						var tcomplex = haxe.macro.TypeTools.toComplexType(f.type);
-						if (!typesMap.exists(f.name))
+						if (typesMap.get(f.name) == null)
 							typesMap.set(f.name, tcomplex);
 
 						var ivar = iteratorVars.get(f.name);
@@ -458,11 +458,9 @@ class Generator
 							{
 								case TInst(cl,_):
 									var c = cl.get();
-									trace(1);
 									//this is sadly the only way to know if the type has ArrayAccess:
 									if (cl.toString() == "Array" || try { Context.typeof(macro { var x : $tcomplex; x[0]; }); true; } catch(e:Dynamic) false)
 									{
-										trace(2);
 										for (f in c.fields.get())
 											if (f.name == "length")
 											{
@@ -504,6 +502,8 @@ class Generator
 		//also revert back the name mangling, the @:captureHelper and @:evars
 		var cases = [];
 		state = 0;
+		var curblock = [];
+		scope = [curScope = new Map()];
 		function demangle(name:String)
 		{
 			var l = name.lastIndexOf("%");
@@ -511,8 +511,11 @@ class Generator
 				return name;
 			return name.substr(l+1);
 		}
+		modifying = false;
 		function cleanup(e:Expr):Expr
 		{
+			var wasModifying = modifying;
+			modifying = false;
 			return switch(e.expr)
 			{
 				case EMeta({name:":evars"},{ expr:EBlock(bl) }):
@@ -525,7 +528,10 @@ class Generator
 								default:
 									e2 = cleanup(e2);
 									if (usedVars.get(name))
+									{
 										e2 = macro $selfref.$name = $e2;
+										curScope.set(name,name);
+									}
 							}
 							{ name: demangle(name), type:typesMap.get(name), expr:e2 };
 						case _: throw "assert";
@@ -537,14 +543,35 @@ class Generator
 					e = cleanup(e);
 					macro { $e; return true; };
 				case EConst(CIdent(c)):
-					if (externals.exists(c))
+					var t = typesMap.get(c);
+					var realv = demangle(c);
+					if (externals.exists(c) || usedVars.get(c))
 					{
-						macro $selfref.$c;
-					} else if (usedVars.get(c)) {
-						macro $selfref.$c;
-					} else {
-						{ expr: EConst(CIdent( demangle(c) )), pos: e.pos };
+						if (wasModifying)
+						{
+							return macro $selfref.$c;
+						} else if (lookScope(c) == null) {
+							curScope.set(c, c);
+							curblock.push(macro var $realv:$t = $selfref.$c);
+						}
 					}
+					{ expr: EConst(CIdent( realv )), pos: e.pos };
+				case EMeta(_,_), EParenthesis(_):
+					modifying = wasModifying;
+					map(e,cleanup);
+				case EBinop(OpAssign | OpAssignOp(_), e1,_), EUnop(_,_,e1):
+					modifying = true;
+					switch(dropMetas(e1).expr)
+					{
+						case EConst(CIdent(c)):
+							if (lookScope(c) != null)
+							{
+								var realv = demangle(c);
+								return macro $i{realv} = ${map(e,cleanup)};
+							}
+						case _:
+					}
+					map(e,cleanup);
 				case _:
 					//@var a <- something()
 					map(e, cleanup);
@@ -590,6 +617,9 @@ class Generator
 			{
 			case EBlock(bl):
 				var bl2 = [];
+				var old = curblock;
+				curblock = bl2;
+				pushBlock();
 
 				function delayGotoResolution(targetDepth:Int)
 				{
@@ -654,9 +684,11 @@ class Generator
 							bl2.push(possibleGoto);
 							e = cleanup(e);
 						case EBlock(_):
+							pushBlock();
 							e = cut(itr,depth+1, thisCase);
 							if (i < (bl.length - 1))
 								runDelays(depth,cases.length);
+							popBlock();
 						case EWhile(_,_,_) if (i > 0):
 							//we need to cut this upright
 							i--;
@@ -680,8 +712,10 @@ class Generator
 								});
 								e = macro { if (!(${cleanup(cond)})) $gotoEnd; continue; };
 								var idx = cases.push(null) - 1;
-								trace(toString(mk_block(dropMetas(concat(macro trace($selfref), block)))));
+								var olds = scope, oldcur = curScope;
+								scope = [curScope = new Map()];
 								block = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, idx);
+								scope = olds; curScope = oldcur;
 								cases[idx] = block;
 							} else {
 								e = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, thisCase);
@@ -691,8 +725,11 @@ class Generator
 									var g = mkGoto(end);
 									gotoEnd.expr = g.expr;
 								});
+								var olds = scope, oldcur = curScope;
+								scope = [curScope = new Map()];
 								var gotoBegin = mkGoto(thisCase);
 								cases[condState] = macro if (${cleanup(cond)}) $gotoBegin else $gotoEnd;
+								scope = olds; curScope = oldcur;
 							}
 							var l = loopDelays.pop();
 							if (thisLoop != loopDelays.length) throw "assert";
@@ -712,8 +749,11 @@ class Generator
 					{
 						//recursively cut and add the result as a case
 						var idx = cases.push(null) - 1;
+						var olds = scope, oldcur = curScope;
+						scope = [curScope = new Map()];
 						var remainingCode = cut({ expr: EBlock([for(i in (i+1)...bl.length) bl[i]]), pos: e.pos },depth);
 						cases[idx] = remainingCode;
+						scope = olds; curScope = oldcur;
 						// runDelays(depth,cases.length-1);
 
 						//if the index is different from the next case (thisCase + 1),
@@ -730,6 +770,7 @@ class Generator
 							}
 						}
 
+						popBlock();
 						return { expr: EBlock(bl2), pos: e.pos };
 					} else {
 						if (setNextState != null) //the last call was a @yield:
@@ -738,6 +779,7 @@ class Generator
 							delayGotoResolution(depth);
 						setNextState= null;
 
+						popBlock();
 						return { expr: EBlock(bl2), pos: e.pos };
 					}
 				}
@@ -749,6 +791,8 @@ class Generator
 				//so we will add it to delays[depth]
 				delayGotoResolution(depth+1);
 
+				popBlock();
+				curblock = old;
 				return { expr: EBlock(bl2), pos: e.pos };
 			default:
 				return cleanup(e);

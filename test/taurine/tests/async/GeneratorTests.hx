@@ -2,6 +2,7 @@ package taurine.tests.async;
 import taurine.UInt8;
 import utest.Assert;
 import taurine.async.Generator.*;
+using Lambda;
 
 @:access(taurine.async)
 class GeneratorTests {
@@ -213,6 +214,25 @@ class GeneratorTests {
 		});
 
 		Assert.same([0,1, 1, 2, 3, 5, 8, 13, 21, 34], [for(v in fib) v]);
+
+		//infinite version
+		var fib = test({
+			var an2 = 0, an1 = 1;
+			@yield 0; @yield 1;
+			while(true)
+			{
+				var c = an1 + an2;
+				an2 = an1; an1 = c;
+				@yield c;
+			}
+		});
+
+		for (i in [0,1, 1, 2, 3, 5, 8, 13, 21, 34])
+		{
+			Assert.isTrue(fib.hasNext());
+			Assert.equals(i,fib.next());
+		}
+		Assert.isTrue(fib.hasNext());
 	}
 
 	public function test_fact()
@@ -223,18 +243,72 @@ class GeneratorTests {
 			@yield 1;
 			for (i in 1...10)
 			{
-				trace(acc,i);
 				@yield (acc *= i);
 			}
 		});
 
 		Assert.same([1,1,2,6,24,120,720,5040,40320,362880], [for(v in fact) v]);
+
+		//infinite version
+		var fact = test({
+			var acc = 1, i = 1;
+			@yield 1;
+			while(true)
+			{
+				@yield (acc *= i++);
+			}
+		});
+
+		for (i in [1,1,2,6,24,120,720,5040,40320,362880])
+		{
+			Assert.isTrue(fact.hasNext());
+			Assert.equals(i,fact.next());
+		}
+		Assert.isTrue(fact.hasNext());
 	}
 
 	public function test_array_for()
 	{
 		var t = test({
 			var arr = [1,2,3,4,5,6,7], lastValue = -1;
+			for (a in arr)
+			{
+				// trace(a, lastValue);
+				var myval = a + lastValue;
+				lastValue = a;
+				@yield myval;
+				trace(a);
+			}
+		});
+		for (i in [0, 3, 5, 7, 9, 11, 13])
+		{
+			Assert.isTrue(t.hasNext());
+			Assert.equals(i, t.next());
+		}
+
+		//calling iterator() directly
+		var t = test({
+			var arr = [1,2,3,4,5,6,7], lastValue = -1;
+			for (a in arr.iterator())
+			{
+				trace(a, lastValue);
+				var myval = a + lastValue;
+				lastValue = a;
+				@yield myval;
+				trace(a);
+			}
+		});
+		for (i in [0, 3, 5, 7, 9, 11, 13])
+		{
+			Assert.isTrue(t.hasNext());
+			Assert.equals(i, t.next());
+		}
+	}
+
+	public function test_list_for()
+	{
+		var t = test({
+			var arr = [1,2,3,4,5,6,7].list(), lastValue = -1;
 			for (a in arr)
 			{
 				trace(a, lastValue);
@@ -249,6 +323,23 @@ class GeneratorTests {
 			Assert.isTrue(t.hasNext());
 			Assert.equals(i, t.next());
 		}
+		var t = test({
+			var arr = [1,2,3,4,5,6,7].list(), lastValue = -1;
+			for (a in arr.iterator())
+			{
+				trace(a, lastValue);
+				var myval = a + lastValue;
+				lastValue = a;
+				@yield myval;
+				trace(a);
+			}
+		});
+		for (i in [0, 3, 5, 7, 9, 11, 13])
+		{
+			Assert.isTrue(t.hasNext());
+			Assert.equals(i, t.next());
+		}
+		
 	}
 
 	// public function test_vardecl()
