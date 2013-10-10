@@ -311,11 +311,9 @@ class GeneratorTests {
 			var arr = [1,2,3,4,5,6,7].list(), lastValue = -1;
 			for (a in arr)
 			{
-				trace(a, lastValue);
 				var myval = a + lastValue;
-				lastValue = a;
 				@yield myval;
-				trace(a);
+				lastValue = a;
 			}
 		});
 		for (i in [0, 3, 5, 7, 9, 11, 13])
@@ -327,11 +325,9 @@ class GeneratorTests {
 			var arr = [1,2,3,4,5,6,7].list(), lastValue = -1;
 			for (a in arr.iterator())
 			{
-				trace(a, lastValue);
 				var myval = a + lastValue;
 				lastValue = a;
 				@yield myval;
-				trace(a);
 			}
 		});
 		for (i in [0, 3, 5, 7, 9, 11, 13])
@@ -341,6 +337,130 @@ class GeneratorTests {
 		}
 		
 	}
+
+	public function test_while()
+	{
+		var t = true, f = false, rand = Std.random(2) == 1;
+		var t = test({
+			var i = 10, a = [1.];
+			while(++i < 15)
+			{
+				a.push(i / 10);
+				if(t)
+				{
+					a.push(2);
+					if (true)
+					{
+						@yield {retn:1, arr:a};
+						if(rand)
+							a.push(2.05);
+					}
+					if (f)
+					{
+						a.push(-2);
+						@yield {retn:-1,arr:a};
+						a.push(-3);
+						if (f)
+						{
+							a.push(-4);
+							@yield null;
+							a.push(-5);
+						} else if (false) {
+							a.push(-6);
+							for(i in 0...10)
+								@yield null;
+							if (true)
+							{
+								a.push(-6.1);
+								do
+								{
+									@yield null;
+								} while(--i > 0);
+								a.push(-6.2);
+							}
+							a.push(-7);
+							@yield null;
+							a.push(-8);
+						} else {
+							a.push(-9);
+							@yield null;
+							a.push(-10);
+						}
+					} else {
+						if (t)
+						{
+							a.push(2.10);
+							@yield {retn:2, arr:a};
+							if (rand)
+								a.push(2.15);
+						} else {
+							a.push(-11);
+							@yield null;
+							a.push(-12);
+						}
+						a.push(2.2);
+						@yield {retn:3, arr:a};
+						var j = 3;
+						do
+						{
+							a.push(2 + j / 10);
+							@yield {retn:j+1, arr:a};
+							if (rand)
+								a.push(2 + j / 10 + .05);
+						} while(++j < 6);
+						a.push(2.6);
+					}
+					a = [];
+					if(t)
+					{
+						a.push(3);
+						@yield {retn:7, arr:a};
+						var j = 0;
+						while(++j < 3)
+						{
+							a.push(3 + j / 10);
+							@yield {retn:7 + j, arr:a};
+						}
+					} else if (f) {
+						a.push(-4);
+						@yield null;
+						a.push(-5);
+					} else {
+						a.push(-6);
+						@yield null;
+						if (true)
+						{
+							a.push(-7);
+							@yield null;
+							a.push(-8);
+						}
+						a.push(-9);
+						@yield null;
+						a.push(-10);
+					}
+					a = [];
+					a.push(4);
+					var j = 0;
+					do
+					{
+						@yield {retn:10, arr:a};
+						a.push(4 + j / 10);
+						if (rand)
+							a.push(4 + j / 10 + .05);
+					} while(++j < 4);
+				}
+				@yield {retn:11, arr:a};
+				a.push(5);
+			}
+		});
+
+		for (v in t)
+			trace(v);
+	}
+
+	//test_switch
+
+	//test_try_catch
 
 	// public function test_vardecl()
 	// {

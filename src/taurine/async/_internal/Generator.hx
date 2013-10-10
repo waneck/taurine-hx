@@ -714,11 +714,11 @@ class Generator
 								var idx = cases.push(null) - 1;
 								var olds = scope, oldcur = curScope;
 								scope = [curScope = new Map()];
-								block = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, idx);
+								block = cut(mk_block(dropMetas(block)), depth+1, idx);
 								scope = olds; curScope = oldcur;
 								cases[idx] = block;
 							} else {
-								e = cut(mk_block(dropMetas(concat(macro trace($selfref), block))), depth+1, thisCase);
+								e = cut(mk_block(dropMetas(block)), depth+1, thisCase);
 								condState = cases.push(null) - 1;
 								var gotoEnd = macro null;
 								loopDelays[thisLoop].push(function(_,end) {
