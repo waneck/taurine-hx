@@ -199,7 +199,7 @@ class GeneratorTests {
 		Assert.same([2,3,4],last.arr);
 	}
 
-	public function test_fibonacci() 
+	public function test_fibonacci()
 	{
 		//returns the 10 first fibonacci numbers
 		var fib = test({
@@ -335,7 +335,7 @@ class GeneratorTests {
 			Assert.isTrue(t.hasNext());
 			Assert.equals(i, t.next());
 		}
-		
+
 	}
 
 	public function test_while()
@@ -438,24 +438,65 @@ class GeneratorTests {
 						@yield null;
 						a.push(-10);
 					}
+          trace(a);
 					a = [];
 					a.push(4);
 					var j = 0;
 					do
 					{
-						@yield {retn:10, arr:a};
+						@yield {retn:10 + j, arr:a};
 						a.push(4 + j / 10);
 						if (rand)
 							a.push(4 + j / 10 + .05);
 					} while(++j < 4);
 				}
-				@yield {retn:11, arr:a};
+				@yield {retn:14, arr:a};
 				a.push(5);
 			}
 		});
 
-		for (v in t)
-			trace(v);
+		// var answers =
+		var i = 10,
+				a = [1.];
+		inline function getValue() return t.hasNext() ? t.next() : null;
+
+		for (i in 11...15)
+		{
+			a.push(i / 10);
+			a.push(2);
+			Assert.same({ retn:1, arr: a }, getValue());
+			if (rand) a.push(2.05);
+			a.push(2.10);
+			Assert.same({ retn:2, arr: a }, getValue());
+			if (rand) a.push(2.15);
+			a.push(2.2);
+			Assert.same({ retn:3, arr : a}, getValue());
+			a.push(2.3);
+			Assert.same({ retn:4, arr : a}, getValue());
+			a.push(2.4);
+			Assert.same({ retn:5, arr : a}, getValue());
+			a.push(2.5);
+			Assert.same({ retn:6, arr : a}, getValue());
+			a.push(2.6);
+			a = [3];
+			Assert.same({ retn:7, arr : a}, getValue());
+			a.push(3.1);
+			Assert.same({ retn:8, arr : a}, getValue());
+			a.push(3.2);
+			Assert.same({ retn:9, arr : a}, getValue());
+			a = [4];
+			Assert.same({ retn:10, arr : a}, getValue());
+			for (i in 0...4)
+			{
+				a.push(4 + i / 10);
+				if (rand) a.push(4 + i / 10 + .05);
+				Assert.same({ retn:11 + i, arr : a}, getValue());
+			}
+			a.push(5);
+			// Assert.same({ retn: 12, arr : a}, getValue());
+		}
+		// for (v in t)
+			// trace(v);
 	}
 
 	//test_switch
@@ -464,7 +505,7 @@ class GeneratorTests {
 
 	// public function test_vardecl()
 	// {
-		
+
 	// }
 
 }
