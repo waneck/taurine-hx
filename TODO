@@ -1,0 +1,13 @@
+== Async ==
+```
+var x = getFuture(); //IObservable
+for (v <- x)
+{
+	trace(v);
+}
+
+var x = !!getFuture(); //gets first
+var x = @await getFuture();
+var x = getFuture().zip(getFuture2()).zip(getFuture3());
+var z = [ for (v <- getFuture()) v ];
+```
