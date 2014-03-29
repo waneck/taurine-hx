@@ -1,8 +1,8 @@
 package taurine;
 
 /**
-	An Option is a wrapper type which can either have a value (Some) or not a
-	value (None).
+	An Option is a wrapper type which can either have a value (some) or not a
+	value (none).
 **/
 @:dce abstract Option<T>(Null<T>) from T
 {
@@ -98,7 +98,7 @@ package taurine;
 	}
 
 	/**
-		Extends the `switch` pattern matching to match on Option with None / Some() semantics
+		Extends the `switch` pattern matching to match on Option with none / some() semantics
 		Example:
 		```
 		some(10).match(switch _ {
