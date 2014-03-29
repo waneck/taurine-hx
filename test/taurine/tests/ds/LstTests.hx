@@ -2,6 +2,7 @@ package taurine.tests.ds;
 
 import taurine.ds.Lst;
 import taurine.ds.Lst.*;
+import taurine.Option.*;
 import utest.Assert;
 
 class LstTests
@@ -86,6 +87,9 @@ class LstTests
 
 		Assert.isTrue(lst(1,2,3).matches(1 + (2 + _)));
 		Assert.isFalse(lst(1,2,3).matches(1 + (3 + _)));
+
+		Assert.isTrue(lst(none(),some(42)).matches(none() + _));
+		Assert.isTrue(lst(none(),some(42)).matches(none() + (some(42) + _)));
 	}
 
 	public function testMap()
