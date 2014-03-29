@@ -68,7 +68,7 @@ class MatchHelper
 			case EBinop(OpAdd, e1, e2): // list hd :: tl
 				e2 = listCase(mapCaseExpr(e2));
 				return macro @:pos(e.pos) { cur: ${mapCaseExpr(e1)}, next: $e2 };
-			case ECall({ expr:EConst(CIdent("list")) }, el):
+			case ECall({ expr:EConst(CIdent("lst")) }, el):
 				var i = el.length;
 				var e = macro null;
 				while (i --> 0)

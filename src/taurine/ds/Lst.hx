@@ -181,7 +181,7 @@ abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Returns a new list with all elements from `this` appended to `l2`. Not tail-recursive.
 		Example:
 		```
-		trace( list(1,2,3) * list(4,5,6) ); // { 1, 2, 3, 4, 5, 6 }
+		trace( lst(1,2,3) * lst(4,5,6) ); // { 1, 2, 3, 4, 5, 6 }
 		```
 	**/
 	@:op(A*B) public function concat<T>( l2:Lst<T> ):Lst<T>
@@ -198,7 +198,7 @@ abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Returns a new list with all elements from `this` appended in reverse order to `l2`. Tail-recursive.
 		Example:
 		```
-		trace( list(1,2,3) * list(4,5,6) ); // { 3, 2, 1, 4, 5, 6 }
+		trace( lst(1,2,3).revConcat(lst(4,5,6)) ); // { 3, 2, 1, 4, 5, 6 }
 		```
 	**/
 	public function revConcat(l2:Lst<T>):Lst<T>
@@ -269,12 +269,12 @@ abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Creates a list from elements in `exprs`
 		Example:
 		```
-		trace(list()); // { }
-		trace(list(1)); // { 1 }
-		trace(list(1,2,3,4)); // { 1, 2, 3, 4 }
+		trace(lst()); // { }
+		trace(lst(1)); // { 1 }
+		trace(lst(1,2,3,4)); // { 1, 2, 3, 4 }
 		```
 	**/
-	macro public static function list(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Lst<Dynamic>>
+	macro public static function lst(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Lst<Dynamic>>
 	{
 		var ret = macro taurine.ds.Lst.empty();
 		var i = exprs.length;
@@ -286,16 +286,16 @@ abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	}
 
 	/**
-		Extends the `switch` pattern matching to match on lists with `a + b` meaning `head :: tail`, and `list(x,y,z)` meaning a list literal
+		Extends the `switch` pattern matching to match on lists with `a + b` meaning `head :: tail`, and `lst(x,y,z)` meaning a list literal
 		Example:
 		```
-		list(1,2,3,4).match(switch _ {
+		lst(1,2,3,4).match(switch _ {
 			//all of the following will match:
-			case 1 + list(2,3,4):
-			case _ + list(2,3,4):
+			case 1 + lst(2,3,4):
+			case _ + lst(2,3,4):
 			case 1 + (2 + (3 + (4 + null))):
-			case 1 + (2 + (_ + list(4))):
-			case 1 + (2 + (3 + (4 + list()))):
+			case 1 + (2 + (_ + lst(4))):
+			case 1 + (2 + (3 + (4 + lst()))):
 		});
 		```
 	**/
@@ -310,8 +310,8 @@ abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Performs the same case transformations as `match`, but expects a direct case expression, which will either evaluate to `true` (if `this` conforms to the pattern), or `false`
 		Example:
 		```
-		list(1,2,3).matches(1 + (2 + _)); // true
-		list(1,2,3).matches(1 + (3 + _)); // false
+		lst(1,2,3).matches(1 + (2 + _)); // true
+		lst(1,2,3).matches(1 + (3 + _)); // false
 	**/
 	macro public function matches(ethis:haxe.macro.Expr, expr:haxe.macro.Expr):haxe.macro.Expr.ExprOf<Bool>
 	{
