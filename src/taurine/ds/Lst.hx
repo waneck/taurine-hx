@@ -3,7 +3,7 @@ package taurine.ds;
 /**
 	An immutable Linked List implementation
 **/
-abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
+@:dce abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 {
 	/**
 		Gets the head of the list
