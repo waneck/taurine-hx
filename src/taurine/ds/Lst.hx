@@ -3,7 +3,7 @@ package taurine.ds;
 /**
 	An immutable Linked List implementation
 **/
-abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
+abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 {
 	/**
 		Gets the head of the list
@@ -13,10 +13,10 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	/**
 		Gets the tail of the list
 	**/
-	var tl(get,never):Null<LinkedList<T>>;
+	var tl(get,never):Null<Lst<T>>;
 
 	/**
-		Creates a new LinkedList from head and tail
+		Creates a new Lst from head and tail
 	**/
 	@:extern inline public function new(cur,next)
 	{
@@ -33,15 +33,15 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		return this.cur;
 	}
 
-	@:extern inline private function get_tl():Null<LinkedList<T>>
+	@:extern inline private function get_tl():Null<Lst<T>>
 	{
 		return this.next;
 	}
 
 	/**
-		Returns an empty LinkedList
+		Returns an empty Lst
 	**/
-	@:extern inline public static function empty<T>():LinkedList<T>
+	@:extern inline public static function empty<T>():Lst<T>
 	{
 		return null;
 	}
@@ -72,33 +72,33 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Applies function `fn` to `[v1, ..., vn]` and builds the list `[fn(v1), ... fn(vn)]`
 		Not tail-recursive.
 	**/
-	public function map<A>(fn:T->A):LinkedList<A>
+	public function map<A>(fn:T->A):Lst<A>
 	{
 		if (this == null)
 			return null;
 		else
-			return fn(this.cur) + (this.next : LinkedList<T>).map(fn);
+			return fn(this.cur) + (this.next : Lst<T>).map(fn);
 	}
 
 	/**
-		Returns a reversed LinkedList of all elements that satisfy the predicate `fn`.
+		Returns a reversed Lst of all elements that satisfy the predicate `fn`.
 		This function has inline semantics and does not allocate an anonymous function if the function is declared in its argument
 	**/
-	public function filter(fn:T->Bool):LinkedList<T>
+	public function filter(fn:T->Bool):Lst<T>
 	{
 		if (this == null)
 			return null;
 		else if (fn(this.cur))
-			return this.cur + (this.next : LinkedList<T>).filter(fn);
+			return this.cur + (this.next : Lst<T>).filter(fn);
 		else
-			return (this.next : LinkedList<T>).filter(fn);
+			return (this.next : Lst<T>).filter(fn);
 	}
 
 	/**
 		Applies function `fn` to `[v1, ..., vn]` and builds the list `[fn(vn), ... fn(v1)]`
 		This function has inline semantics and does not allocate an anonymous function if the function is declared in its argument
 	**/
-	@:extern inline public function revMap<A>(fn:T->A):LinkedList<A>
+	@:extern inline public function revMap<A>(fn:T->A):Lst<A>
 	{
 		var t = this,
 				ret = empty();
@@ -111,10 +111,10 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	}
 
 	/**
-		Returns a reversed LinkedList of all elements that satisfy the predicate `fn`.
+		Returns a reversed Lst of all elements that satisfy the predicate `fn`.
 		This function has inline semantics and does not allocate an anonymous function if the function is declared in its argument
 	**/
-	@:extern inline public function revFilter(fn:T->Bool):LinkedList<T>
+	@:extern inline public function revFilter(fn:T->Bool):Lst<T>
 	{
 		var t = this,
 				ret = empty();
@@ -145,7 +145,7 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	/**
 		Returns a reversed list. Tail-recursive
 	**/
-	public function rev():LinkedList<T>
+	public function rev():Lst<T>
 	{
 		var t = this,
 				ret = empty();
@@ -162,7 +162,7 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		Creates a new list with element `val` as its head and `list` as its tail
 		Example:
 		```
-		var list = 1 + LinkedList.empty();
+		var list = 1 + Lst.empty();
 		trace(list); // { 1 }
 		list = 2 + list;
 		trace(list); // { 2, 1 }
@@ -172,9 +172,9 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		trace(list2); // { 2, 1 }
 		```
 	**/
-	@:extern @:op(A+B) inline public static function add<T>( val:T, list:LinkedList<T> ) : LinkedList<T>
+	@:extern @:op(A+B) inline public static function add<T>( val:T, list:Lst<T> ) : Lst<T>
 	{
-		return new LinkedList( val, list );
+		return new Lst( val, list );
 	}
 
 	/**
@@ -184,14 +184,14 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		trace( list(1,2,3) * list(4,5,6) ); // { 1, 2, 3, 4, 5, 6 }
 		```
 	**/
-	@:op(A*B) public function concat<T>( l2:LinkedList<T> ):LinkedList<T>
+	@:op(A*B) public function concat<T>( l2:Lst<T> ):Lst<T>
 	{
 		if (this == null)
 			return l2;
 		if (l2 == null)
 			return this;
 
-		return this.cur + (this.next : LinkedList<T>).concat(l2);
+		return this.cur + (this.next : Lst<T>).concat(l2);
 	}
 
 	/**
@@ -201,7 +201,7 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		trace( list(1,2,3) * list(4,5,6) ); // { 3, 2, 1, 4, 5, 6 }
 		```
 	**/
-	public function revConcat(l2:LinkedList<T>):LinkedList<T>
+	public function revConcat(l2:Lst<T>):Lst<T>
 	{
 		return fold(function(acc,v) {
 			return add(v,acc);
@@ -232,21 +232,37 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	/**
 		Structural equality
 	**/
-	@:extern @:op(A == B) inline public function equals(to:LinkedList<T>):Bool
+	@:extern @:op(A == B) inline public function equals(to:Lst<T>):Bool
 	{
 		return this.equals(to.asNode());
 	}
 
-	// @:extern @:op(A == B) inline public static function dyneq(lst:to:Dynamic) {
-	//
-	// }
+	@:extern @:op(A == B) inline public static function dyneq<T>(lst:Lst<T>, to:Dynamic):Bool
+	{
+		return Std.is(to,Lst) ? lst.equals(to) : false;
+	}
+
+	@:extern @:op(A == B) inline public static function dyneq2<T>(to:Dynamic, lst:Lst<T>):Bool
+	{
+		return Std.is(to,Lst) ? lst.equals(to) : false;
+	}
 
 	/**
 		Structural inequality
 	**/
-	@:extern @:op(A != B) inline public function notEquals(to:LinkedList<T>):Bool
+	@:extern @:op(A != B) inline public function notEquals(to:Lst<T>):Bool
 	{
 		return !this.equals(to.asNode());
+	}
+
+	@:extern @:op(A != B) inline public static function dynNotEq<T>(lst:Lst<T>, to:Dynamic):Bool
+	{
+		return Std.is(to,Lst) ? !lst.equals(to) : true;
+	}
+
+	@:extern @:op(A != B) inline public static function dynNotEq2<T>(to:Dynamic, lst:Lst<T>):Bool
+	{
+		return Std.is(to,Lst) ? !lst.equals(to) : true;
 	}
 
 	/**
@@ -258,9 +274,9 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		trace(list(1,2,3,4)); // { 1, 2, 3, 4 }
 		```
 	**/
-	macro public static function list(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<LinkedList<Dynamic>>
+	macro public static function list(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Lst<Dynamic>>
 	{
-		var ret = macro taurine.ds.LinkedList.empty();
+		var ret = macro taurine.ds.Lst.empty();
 		var i = exprs.length;
 		while (i --> 0)
 		{
@@ -303,10 +319,10 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 	}
 }
 
-@:nativeGen class LL_Node<T>
+class LL_Node<T>
 {
-	@:readonly public var next(default,null):LL_Node<T>;
-	@:readonly public var cur(default,null):T;
+	public var next(default,null):LL_Node<T>;
+	public var cur(default,null):T;
 
 	public function new(cur,next)
 	{
@@ -319,7 +335,7 @@ abstract LinkedList<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 		return new LL_NodeIterator(this);
 	}
 
-	inline public function asList():LinkedList<T>
+	inline public function asList():Lst<T>
 	{
 		return this;
 	}

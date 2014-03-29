@@ -14,16 +14,9 @@ class Test
 
 	static function main()
 	{
-		// trace(Math.PI * 100);
-		// trace( Math.PI - Std.parseFloat(Math.PI + "") );
-		// trace(3.141592653589793);
-		teste1();
-		trace(Math.PI + taurine.math.MacroMath.reduce(-Math.PI));
-		trace(Math.PI + taurine.math.MacroMath.reduce(-Math.PI) == 0);
-		trace(taurine.math.MacroMath.reduce(3.14));
 		var runner = new Runner();
 
-		runner.addCase(new taurine.tests.ds.LinkedListTests());
+		runner.addCase(new taurine.tests.ds.LstTests());
 // 		runner.addCase(new PathTests());
 // 		runner.addCase(new GlobTests());
 // 		runner.addCase(new UriTests());
@@ -43,16 +36,6 @@ class Test
 #if sys
 		//Sys.exit(report.allOk() ? 0 : 1);
 #end
-	}
-
-	private static function teste(a:Int)
-	{
-		trace(a);
-	}
-
-	@:extern inline private static function teste1(a:Int=-2)
-	{
-		teste(a);
 	}
 
 }

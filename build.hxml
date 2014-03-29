@@ -8,6 +8,7 @@
 #-cpp bin/cpp
 #-java bin/java
 #-cs bin/cs
+-D no-copt
 -lib utest
 --next
 -cp src
@@ -16,3 +17,4 @@
 -debug
 --interp
 -lib utest
+-D no-copt

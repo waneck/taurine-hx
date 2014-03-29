@@ -1,10 +1,10 @@
 package taurine.tests.ds;
 
-import taurine.ds.LinkedList;
-import taurine.ds.LinkedList.*;
+import taurine.ds.Lst;
+import taurine.ds.Lst.*;
 import utest.Assert;
 
-class LinkedListTests
+class LstTests
 {
 	public function new()
 	{
@@ -75,6 +75,16 @@ class LinkedListTests
 
 		Assert.isTrue(list(1,2,3).matches(1 + (2 + _)));
 		Assert.isFalse(list(1,2,3).matches(1 + (3 + _)));
+	}
+
+	public function testMap()
+	{
+		Assert.same( list(1,2,3,4,5).map(function(v) return v * 2), list(2,4,6,8,10) );
+		Assert.same( list(5,4,3,2,1).revMap(function(v) return v * 2), list(2,4,6,8,10) );
+	}
+
+	public function testFilter()
+	{
 	}
 }
 

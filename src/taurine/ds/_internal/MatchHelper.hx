@@ -50,7 +50,7 @@ class MatchHelper
 				return ExprTools.map(e,map);
 				case _: switch Context.follow(Context.typeof(e))
 				{
-					case TAbstract(_.get() => { pack: ['taurine','ds'], name: 'LinkedList' }, _):
+					case TAbstract(_.get() => { pack: ['taurine','ds'], name: 'Lst' }, _):
 						return macro $e.asNode();
 					case _:
 						return e;
@@ -87,7 +87,7 @@ class MatchHelper
 		{
 			case EConst(CIdent(id)):
 				return macro _.asList() => $e;
-			case EParenthesis(p), EMeta(_,p):
+			case EParenthesis(p), EMeta(_,p), EDisplay(p,_):
 				return listCase(p);
 			case _:
 				return e;
