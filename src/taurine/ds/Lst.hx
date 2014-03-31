@@ -1,4 +1,5 @@
 package taurine.ds;
+import taurine.*;
 
 /**
 	An immutable Linked List implementation
@@ -6,14 +7,16 @@ package taurine.ds;
 @:dce abstract Lst<T>(LL_Node<T>) from LL_Node<T> to LL_Node<T>
 {
 	/**
-		Gets the head of the list
+		Gets the head of the list.
+		Will not throw an exception if the list is empty - it will return Option.none()
 	**/
-	var hd(get,never):Null<T>;
+	var hd(get,never):Option<T>;
 
 	/**
-		Gets the tail of the list
+		Gets the tail of the list.
+		Returns an empty list if the the list is empty
 	**/
-	var tl(get,never):Null<Lst<T>>;
+	var tl(get,never):Lst<T>;
 
 	/**
 		Creates a new Lst from head and tail
@@ -28,14 +31,14 @@ package taurine.ds;
 		return this;
 	}
 
-	@:extern inline private function get_hd():Null<T>
+	@:extern inline private function get_hd():Option<T>
 	{
-		return this.cur;
+		return this == null ? null : this.cur;
 	}
 
-	@:extern inline private function get_tl():Null<Lst<T>>
+	@:extern inline private function get_tl():Lst<T>
 	{
-		return this.next;
+		return this == null ? null : this.next;
 	}
 
 	/**
@@ -276,11 +279,20 @@ package taurine.ds;
 	**/
 	macro public static function lst(exprs:Array<haxe.macro.Expr>):haxe.macro.Expr.ExprOf<Lst<Dynamic>>
 	{
+		var pos = haxe.macro.Context.currentPos();
+		var type = switch haxe.macro.Context.follow(haxe.macro.Context.typeof( { expr: EArrayDecl(exprs), pos:pos })) {
+			case TInst(_,[t]):
+				t;
+			case _: throw "assert";
+		};
+		var ctype = haxe.macro.TypeTools.toComplexType(type);
 		var ret = macro taurine.ds.Lst.empty();
 		var i = exprs.length;
 		while (i --> 0)
 		{
-			ret = macro ( ${exprs[i]} + $ret );
+			// var e = macro @:pos(exprs[i].pos) (${exprs[i]} : $ctype);
+			var e = exprs[i];
+			ret = macro @:pos(exprs[i].pos) new taurine.ds.Lst<$ctype>($e, $ret);
 		}
 		return ret;
 	}

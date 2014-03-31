@@ -18,12 +18,12 @@ package taurine;
 
 	@:extern inline public static function none<T>():Option<T>
 	{
-		return null;
+		return (null : Option<T>);
 	}
 
 	@:extern inline public static function some<T>(v:T):Option<T>
 	{
-		if (v == null) throw "Option expected Some but entered null";
+		if (v == cast null) throw "Option expected Some but entered null";
 		return new Option(v);
 	}
 
