@@ -51,7 +51,7 @@ class MatchHelper
 				case _: switch Context.follow(Context.typeof(e))
 				{
 					case TAbstract(_.get() => { pack: ['taurine','ds'], name: 'Lst' }, _):
-						return macro $e.asNode();
+						return macro @:pos(e.pos) $e.asNode();
 					case _:
 						return e;
 				}

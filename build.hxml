@@ -5,8 +5,8 @@
 #-neko bin/neko.n
 #-js bin/js.js
 #-php bin/php
--cpp bin/cpp
-#-java bin/java
+#-cpp bin/cpp
+-java bin/java
 #-cs bin/cs
 -D no-copt
 -lib utest
