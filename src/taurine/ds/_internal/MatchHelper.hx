@@ -1,7 +1,10 @@
 package taurine.ds._internal;
 import haxe.macro.Expr;
-import haxe.macro.Context;
 import haxe.macro.ExprTools;
+import haxe.macro.Context;
+import haxe.macro.Type;
+
+using haxe.macro.Tools;
 
 class MatchHelper
 {
@@ -10,8 +13,7 @@ class MatchHelper
 		switch(e.expr)
 		{
 			case ESwitch(cond,cases,edef):
-				cond = mapCond(cond,ethis);
-				return { expr:ESwitch(cond,[ for (c in cases) { values:c.values.map(mapCaseExpr), guard:c.guard, expr:c.expr } ], edef), pos: e.pos };
+				return { expr: new MatchMapper(ethis,cond,cases,edef).getMapped(), pos: e.pos };
 			case _:
 				throw new Error('Switch expression expected', e.pos);
 		}
@@ -19,10 +21,33 @@ class MatchHelper
 
 	public static function getMatches(expr:Expr, ethis:Expr):Expr
 	{
-		return { expr: ESwitch(mapCond(ethis,ethis), [{ values:[mapCaseExpr(expr)], guard:null, expr:macro true }], (macro false)), pos:expr.pos };
+		return { expr: new MatchMapper(ethis,ethis,[{ values:[expr], guard:null, expr:macro true }], macro false).getMapped(), pos: expr.pos };
+	}
+}
+
+private class MatchMapper
+{
+	var cond:Expr;
+	var cases:Array<Case>;
+	var def:Null<Expr>;
+	var ethis:Null<Expr>;
+
+	public function new(ethis,cond,cases,def)
+	{
+		this.cond = cond;
+		this.cases = cases;
+		this.def = def;
+		this.ethis = ethis;
 	}
 
-	public static function mapCond(cond:Expr, ethis:Expr):Expr
+	public function getMapped()
+	{
+		mapCond();
+		var t = Context.typeof(ethis);
+		return ESwitch(cond,[ for (c in cases) { values: c.values.map(function(e) return mapCaseExpr(e,t)), guard: c.guard, expr: c.expr } ], def);
+	}
+
+	function mapCond()
 	{
 		if (ethis != null)
 		{
@@ -58,42 +83,73 @@ class MatchHelper
 			}
 		}
 		cond = map(cond);
-		return cond;
 	}
 
-	public static function mapCaseExpr(e:Expr):Expr
+	function mapCaseExpr(e:Expr,t:Type):Expr
 	{
 		switch(e.expr)
 		{
 			case EBinop(OpAdd, e1, e2): // list hd :: tl
-				e2 = listCase(mapCaseExpr(e2));
-				return macro @:pos(e.pos) { cur: ${mapCaseExpr(e1)}, next: $e2 };
+				var t2 = switch (t.follow())
+				{
+					case TAbstract(_.get() => { pack: ['taurine','ds'], name: 'Lst' } ,[t2]):
+						t2;
+					case TInst(_.get() => { pack: ['taurine','ds','_Lst'], name: 'LL_NodeIterator' } ,[t2]):
+						t2;
+					default:
+						return e;
+				};
+				e2 = listCase(mapCaseExpr(e2,t));
+				return macro @:pos(e.pos) { cur: ${mapCaseExpr(e1,t2)}, next: $e2 };
 			case ECall({ expr:EConst(CIdent("none")) }, []),
 					 EConst(CIdent("none")):
-				return macro @:pos(e.pos) null;
+				switch (t.follow())
+				{
+					case TAbstract(_.get() => { pack: ['taurine'], name:'Option' }, [t2]):
+						return macro @:pos(e.pos) null;
+					default:
+						return e;
+				}
 			case ECall({ expr:EConst(CIdent("some")) }, [v]):
-				return macro @:pos(e.pos) _.force() => $v;
+				switch(t.follow())
+				{
+					case TAbstract(_.get() => { pack: ['taurine'], name: 'Option' }, [t2]):
+						return macro @:pos(e.pos) _.force() => ${mapCaseExpr(v,t2)};
+					default:
+						return e;
+				}
 			case ECall({ expr:EConst(CIdent("lst")) }, el):
+				var t2 = switch (t.follow())
+				{
+					case TAbstract(_.get() => { pack: ['taurine','ds'], name: 'Lst' } ,[t2]):
+						t2;
+					case TInst(_.get() => { pack: ['taurine','ds','_Lst'], name: 'LL_NodeIterator' } ,[t2]):
+						t2;
+					default:
+						return e;
+				};
 				var i = el.length;
 				var e = macro null;
 				while (i --> 0)
 				{
-					e = macro @:pos(el[i].pos) { cur: ${mapCaseExpr(el[i])}, next: $e };
+					e = macro @:pos(el[i].pos) { cur: ${mapCaseExpr(el[i],t2)}, next: $e };
 				}
 				return e;
+			case EMeta(_,_) | EParenthesis(_):
+				return ExprTools.map(e,function(e) return mapCaseExpr(e,t));
 			case _:
-				return ExprTools.map(e,mapCaseExpr);
+				return e;
 		}
 	}
 
-	public static function listCase(e:Expr):Expr
+	static function listCase(e:Expr):Expr
 	{
 		switch(e.expr)
 		{
-			case EConst(CIdent(id)):
-				return macro _.asList() => $e;
-			case EParenthesis(p), EMeta(_,p), EDisplay(p,_):
-				return listCase(p);
+			// case EConst(CIdent(id)):
+			// 	return macro _.asList() => $e;
+			// case EParenthesis(p), EMeta(_,p), EDisplay(p,_):
+			// 	return listCase(p);
 			case _:
 				return e;
 		}

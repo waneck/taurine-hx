@@ -85,6 +85,19 @@ class LstTests
 				Assert.fail();
 		});
 
+		Assert.isTrue(hasRun); hasRun = false;
+		lst(1).match(switch _
+		{
+			case lst():
+				Assert.fail();
+			case 1 + (2 + _):
+				Assert.fail();
+			case null, _ + null, _:
+				Assert.isTrue(true);
+				hasRun = true;
+		});
+		Assert.isTrue(hasRun); hasRun = false;
+
 		Assert.isTrue(lst(1,2,3).matches(1 + (2 + _)));
 		Assert.isFalse(lst(1,2,3).matches(1 + (3 + _)));
 
