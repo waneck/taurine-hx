@@ -114,6 +114,7 @@ class Path extends PathDelegate
 	// windows version
 	public override function splitPath(filename:String):Array<String>
 	{
+		if (filename == null) return [".","","",""];
 		// Separate device+slash from tail
 		var device = '', tail = '';
 		if (!splitDeviceRe.match(filename))
@@ -152,6 +153,7 @@ class Path extends PathDelegate
 
 	override public function normalize(path:String):String
 	{
+		if (path == null) return ".";
 		if (!splitDeviceRe.match(path))
 			throw 'Invalid path: $path';
 
@@ -191,6 +193,7 @@ class Path extends PathDelegate
 
 	override public function isAbsolute(path:String):Bool
 	{
+		if (path == null) return false;
 		if (!splitDeviceRe.match(path))
 			throw 'Invlaid path: $path';
 		var device = splitDeviceRe.matched(1),
@@ -233,6 +236,8 @@ class Path extends PathDelegate
 	// windows version
 	override public function relative(from:String, to:String):String
 	{
+		if (from == null) from = ".";
+		if (to == null) to = ".";
 		from = resolve([from]);
 		to = resolve([to]);
 

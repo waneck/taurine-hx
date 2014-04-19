@@ -19,6 +19,7 @@ class Path extends PathDelegate
 
 	public override function splitPath(filename:String):Array<String>
 	{
+		if (filename == null) return [".","","",""];
 		if (!splitPathRe.match(filename))
 			throw 'Invalid path: $filename';
 		return [splitPathRe.matched(1), splitPathRe.matched(2), splitPathRe.matched(3), splitPathRe.matched(4)];
@@ -57,8 +58,9 @@ class Path extends PathDelegate
 
 	override public function normalize(path:String):String
 	{
+		if (path == null) return ".";
 		var isAbsolute = isAbsolute(path),
-			trailingSlash = path.substr(-1) == '/';
+		    trailingSlash = path.substr(-1) == '/';
 
 		// Normalize the path
 		path = taurine.io._unsafe.Path.normalizeArray(path.split('/').filter(function(p) {
@@ -80,7 +82,7 @@ class Path extends PathDelegate
 
 	override public function isAbsolute(path:String):Bool
 	{
-		return path.charAt(0) == '/';
+		return path == null ? false : path.charAt(0) == '/';
 	}
 
 	override public function join(paths:Array<String>):String
@@ -91,6 +93,8 @@ class Path extends PathDelegate
 
 	override public function relative(from:String, to:String):String
 	{
+		if (from == null) from = ".";
+		if (to == null) to = ".";
 		from = resolve([from]).substr(1);
 		to = resolve([to]).substr(1);
 

@@ -32,7 +32,12 @@ import taurine.System;
 class Path
 {
 	private static var _path:PathDelegate;
-	private static function path():PathDelegate
+	@:extern inline private static function path():PathDelegate
+	{
+		return _path != null ? _path : getpath();
+	}
+
+	private static function getpath():PathDelegate
 	{
 		if (_path != null)
 			return _path;
@@ -52,12 +57,12 @@ class Path
 	 */
 	public static var delimiter(get, never):String;
 
-	private static inline function get_sep()
+	inline private static inline function get_sep()
 	{
 		return path().sep;
 	}
 
-	private static inline function get_delimiter()
+	inline private static inline function get_delimiter()
 	{
 		return path().delimiter;
 	}
