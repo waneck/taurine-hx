@@ -205,7 +205,7 @@ class Geom
 			var ename2 = ename + "tmp", size = Std.int(ret.length / matlen);
 			decl = macro $i{ename2};
 			var arrName = name + "Array";
-			ret.unshift(macro var $ename2 = new taurine.math.$arrName($v{size}));
+			ret.unshift(macro var $ename2 = new taurine.math._unsafe.$arrName($v{size}));
 			ret.insert(1, macro var $ename = $decl.getData());
 		}
 

@@ -1,4 +1,5 @@
 package taurine.tests.math;
+import taurine.math._unsafe.*;
 import taurine.math.Geom.*;
 import taurine.math.*;
 import utest.Assert;

@@ -20,6 +20,7 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 package taurine.math;
+import taurine.math._unsafe.*;
 
 //This library was ported from the JavaScript library `glMatrix` - copyright above
 import haxe.ds.Vector;
