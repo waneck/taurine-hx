@@ -1,6 +1,9 @@
 package taurine.io;
 
 /**
+	This structure provides a jQuery-inspired interface to easily manipulate files and file system paths.
+
+	I
  * A lazy structure that represents a file or directory in the file system.
  * System calls are only made when needed, and they are cached until sync() is called.
  *
