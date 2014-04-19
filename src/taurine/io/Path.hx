@@ -41,7 +41,7 @@ import taurine.io._unsafe.Path in UPath;
 	}
 
 	/**
-		Creates a new Path root.
+		Creates a new root Path.
 		@see `path`
 	**/
 	macro public static function root(?expr:haxe.macro.Expr):haxe.macro.Expr.ExprOf<Path>
@@ -60,7 +60,7 @@ import taurine.io._unsafe.Path in UPath;
 		Its meaning depends if `root` has a trailing slash or if `path` is an absolute path.
 		`taurine.io.Path` then expects string concatenation to be perfomed explicitly, either by using `stradd` or its operator `^`
 	**/
-	@:deprecated("The `+` operator is unsafe to concatenate paths. Please use either `/` for directories or the `stradd` function")
+	@:deprecated("The `+` operator is unsafe to concatenate paths. Please use either `/` for directories or the `stradd` function (operator `^`)")
 	@:op(A + B) public function depAdd(to:Path):Path
 	{
 		return this + to.toString();
@@ -115,6 +115,16 @@ import taurine.io._unsafe.Path in UPath;
 		return UPath.extname(this);
 	}
 
+	/**
+		Returns the relative path between two paths.
+
+		If `this` and `to` paths are either both absolute, or both relative, the relative path returned without having to consult
+		the current working directory.
+		If however one is absolute and the other is relative, the current working directory is used to transform the relative into
+		an absolute path.
+		If the current working directory isn't available - as it happens on some platforms (JavaScript, Flash) - the current working directory
+		is assumed to be the root path
+	**/
 	public function relative(to:Path):Path
 	{
 		return UPath.relative(this,to.toString());
@@ -131,23 +141,94 @@ import taurine.io._unsafe.Path in UPath;
 	}
 
 	/**
-		Ensures `path` cannot escape the current directory.
+		Ensures `path` cannot escape the current `this` path.
+		If `path` escapes the current path, the current path itself is returned
+
+		Examples:
+		```
+			// absolute paths
+			var jailpath = root(some/path);
+			jailpath.jail('other/path'); // /some/path/other/path
+			jailpath.jail('other/../path'); // /some/path/path
+			jailpath.jail('../../'); // /some/path
+			jailpath.jail('../other/path'); // /some/path
+			jailpath.jail('../../some/path/other/path'); // /some/path/other/path
+			jailpath.jail('../../some/oops/../path/other/path'); // /some/path/other/path
+
+			// relative paths work also
+			jailpath = dot;
+			jailpath.jail('other/path'); // other/path
+			jailpath.jail('other/../path'); // path
+			jailpath.jail('../'); // .
+			jailpath.jail('../..'); // .
+			jailpath.jail('/absolute/path'); // .
+		```
 	**/
 	public function jail(path:Path):Path
 	{
 		return null;
 	}
 
+	/**
+		Tests whether `this` path is a parent of `path`.
+		The same logic from `jail` applies to this function:
+		 * If `this` is an absolute path and `path` is a relative, or if both are relative, this function will return whether `path` would escape `this`.
+		 * If however both are absolute paths, this function will return if `this` is a parent of `path`
+		 * If `this` is a relative path and `path` is absolute, it will always return `false`
+	**/
 	public function isParentOf(path:Path):Bool
 	{
 		return false;
 	}
 
+	/**
+		Allows one to iterate over each part of a path.
+		The path is always normalized before running
+		Examples:
+		```
+			using Lambda;
+
+			path('some/path/').array(); // ['some','path']
+			path('/some/path').array(); // ['some','path']
+			path('C:\\some\\path').array(); // ['C:','some','path']; // on Windows
+		```
+	**/
 	public function iterator():Iterator<String>
 	{
 		return null;
 	}
 
+	/**
+		Interprets current `this` path as a relative path, even if it's absolute.
+		It works by discarding the absolute part of a path.
+		Examples:
+		```
+			path('/some/path').asRelative(); // some/path
+			path('C:\\some\\path').asRelative(); // some/path
+			path('some/path').asRelative(); // some/path - unchanged
+
+			var somePath = path('/a/root/path');
+			var sandbox = path('./sandbox');
+			var transformed = sandbox.jail(somePath.asRelative()); // sandbox/a/root/path
+		```
+	**/
+	public function asRelative():Path
+	{
+		return null;
+	}
+
+	/**
+		Interprets the current `this` path as an absolute path, even if it's relative.
+		It's the same as combining a root '/' to the path
+	**/
+	@:extern inline public function asAbsolute():Path
+	{
+		return new Path('/') / this;
+	}
+
+	/**
+		Returns a path that goes up one level. Same as thisPath / "..".
+	**/
 	@:extern inline public function up():Path
 	{
 		return combine("..");
