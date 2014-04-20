@@ -166,3 +166,25 @@ First implementation:
 
 This implementation will create a new Source for each listener, which will obviously not generate the expected results if we listen and dispose after each @await
 We could change the way to deal with that, but still there is a problem with some cold observable implementations lurking if we adopt the listen/dispose after each @await
+
+possible solution:
+```haxe
+	var down = @await mouseDown;
+	@yield MoveTo(down);
+	try
+	{
+		@asyncFor (move in mouseMove)
+		{
+			@yield LineTo(move);
+		}
+	}
+	catch(e:Cancel) {
+		// example only - rethrow
+		throw e;
+	}
+	catch(e:Stop) {
+		@yield Finish;
+	}
+```
+
+
