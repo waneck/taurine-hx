@@ -2,12 +2,15 @@
 -cp test
 -main taurine.tests.Test
 -debug
-#-neko bin/neko.n
+-neko bin/neko.n
 #-js bin/js.js
 #-php bin/php
--cpp bin/cpp
+#-cpp bin/cpp
 #-java bin/java
 #-cs bin/cs
+-D no-copt
+-D real_position
+-D dump
 -lib utest
 --next
 -cp src
@@ -16,3 +19,4 @@
 -debug
 --interp
 -lib utest
+-D no-copt

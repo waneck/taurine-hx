@@ -16,6 +16,7 @@ class Test
 	{
 		var runner = new Runner();
 
+		runner.addCase(new taurine.tests.ds.LstTests());
 // 		runner.addCase(new PathTests());
 // 		runner.addCase(new GlobTests());
 // 		runner.addCase(new UriTests());
