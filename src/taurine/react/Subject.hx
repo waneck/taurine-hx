@@ -12,6 +12,11 @@ class Subject<T> implements ISource<T> implements IListener<T>
 		this.listeners = new Stack();
 	}
 
+	public function empty():Bool
+	{
+		return listeners.peek() == null;
+	}
+
 	public function subscribe(listener:Listener<T>):Disposable
 	{
 		return listeners.push(listener);
@@ -21,8 +26,7 @@ class Subject<T> implements ISource<T> implements IListener<T>
 	{
 		listeners.iter(function(l)
 		{
-			if (l != null)
-				l.onNext(val);
+			l.onNext(val);
 		});
 	}
 
@@ -30,8 +34,7 @@ class Subject<T> implements ISource<T> implements IListener<T>
 	{
 		listeners.iter(function(l)
 		{
-			if (l != null)
-				l.onCompleted();
+			l.onCompleted();
 		});
 	}
 
@@ -39,8 +42,7 @@ class Subject<T> implements ISource<T> implements IListener<T>
 	{
 		listeners.iter(function(l)
 		{
-			if (l != null)
-				l.onError(exc);
+			l.onError(exc);
 		});
 	}
 }

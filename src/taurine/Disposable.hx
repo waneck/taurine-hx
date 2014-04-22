@@ -18,6 +18,11 @@ package taurine;
 		return new FromFunc(fn);
 	}
 
+	@:from public static function fromCloseable(closeable:{ function close():Void; }):Disposable
+	{
+		return new FromCloseable(closeable);
+	}
+
 	@:extern inline public function dispose():Void
 	{
 		if (this != null) this.dispose();
@@ -30,6 +35,21 @@ package taurine;
 interface IDisposable
 {
 	function dispose():Void;
+}
+
+@:dce private class FromCloseable implements IDisposable
+{
+	var wrapped:{ function close():Void; };
+	public function new(wrapped)
+	{
+		this.wrapped = wrapped;
+	}
+
+	public function dispose():Void
+	{
+		if (this.wrapped != null)
+			this.wrapped.close();
+	}
 }
 
 @:dce private class FromFunc implements IDisposable
