@@ -8,6 +8,8 @@ package taurine;
 **/
 @:dce abstract Disposable(IDisposable) from IDisposable to IDisposable
 {
+	public static var empty = new EmptyDisposable();
+
 	@:extern inline public function new(d:IDisposable)
 	{
 		this = d;
@@ -15,12 +17,12 @@ package taurine;
 
 	@:from public static function fromFunc(fn:Void->Void):Disposable
 	{
-		return new FromFunc(fn);
+		return fn == null ? null : new FromFunc(fn);
 	}
 
 	@:from public static function fromCloseable(closeable:{ function close():Void; }):Disposable
 	{
-		return new FromCloseable(closeable);
+		return closeable == null ? null : new FromCloseable(closeable);
 	}
 
 	@:extern inline public function dispose():Void
@@ -37,6 +39,17 @@ interface IDisposable
 	function dispose():Void;
 }
 
+@:dce private class EmptyDisposable implements IDisposable
+{
+	public function new()
+	{
+	}
+
+	public function dispose()
+	{
+	}
+}
+
 @:dce private class FromCloseable implements IDisposable
 {
 	var wrapped:{ function close():Void; };
@@ -47,8 +60,7 @@ interface IDisposable
 
 	public function dispose():Void
 	{
-		if (this.wrapped != null)
-			this.wrapped.close();
+		this.wrapped.close();
 	}
 }
 
@@ -63,7 +75,6 @@ interface IDisposable
 
 	public function dispose()
 	{
-		if (fn != null)
-			fn();
+		fn();
 	}
 }
