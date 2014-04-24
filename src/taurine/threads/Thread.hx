@@ -1,7 +1,11 @@
 package taurine.threads;
 
 typedef Thread =
-#if neko
+#if TAURINE_NO_THREADS
+	SingleThreadedThread;
+#elseif TAURINE_CUSTOM_THREAD
+	CustomThread;
+#elseif neko
 	neko.vm.Thread;
 #elseif cpp
 	cpp.vm.Thread;
@@ -9,10 +13,6 @@ typedef Thread =
 	java.vm.Thread;
 #elseif cs
 	cs.vm.Thread;
-#elseif TAURINE_NO_THREADS
-	SingleThreadedThread;
-#elseif TAURINE_CUSTOM_THREAD
-	CustomThread;
 #else
 	See_readme_md_file_at_taurine_threads_dir;
 #end
