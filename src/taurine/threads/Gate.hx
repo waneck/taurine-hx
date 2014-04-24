@@ -1,18 +1,14 @@
 package taurine.threads;
 
 typedef GateData =
-#if TAURINE_NO_THREADS
-	SingleThreadedMutex;
-#elseif TAURINE_CUSTOM_THREAD
-	CustomMutex;
-#elseif neko
-	neko.vm.Mutex;
-#elseif cpp
-	cpp.vm.Mutex;
-#elseif java
+#if (TAURINE_NO_THREADS || macro)
+	Dynamic;
+#if TAURINE_CUSTOM_THREAD
+	taurine.threads.Mutex.MutexData;
+#elseif (cs || java)
 	_GateData;
-#elseif cs
-	_GateData;
+#else
+	taurine.threads.Mutex.MutexData;
 #else
 	See_readme_md_file_at_taurine_threads_dir;
 #end
@@ -29,7 +25,11 @@ abstract Gate(GateData)
 {
 	@:extern inline public function new()
 	{
+#if TAURINE_NO_THREADS
+		this = null;
+#else
 		this = new GateData();
+#end
 	}
 
 	@:noCompletion @:extern inline public function getData():GateData
@@ -52,6 +52,12 @@ abstract Gate(GateData)
 			}
 		```
 	**/
+#if macro
+	@:extern inline public function synchronized<A>(doExpr:A):Void
+	{
+		return doExpr;
+	}
+#else
 	macro public function synchronized(ethis:haxe.macro.Expr, doExpr:haxe.macro.Expr):haxe.macro.Expr
 	{
 		if (haxe.macro.Context.defined("TAURINE_NO_THREADS"))
@@ -66,6 +72,7 @@ abstract Gate(GateData)
 			return taurine.threads._internal.LockHelper.transformLock(ethis,doExpr,true);
 		}
 	}
+#end
 }
 
 #if (java || cs)

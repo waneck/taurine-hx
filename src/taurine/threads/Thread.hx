@@ -1,11 +1,11 @@
 package taurine.threads;
 
 typedef ThreadData =
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 	SingleThreadedThread;
 #elseif TAURINE_CUSTOM_THREAD
 	CustomThread;
-#elseif neko
+#elseif (neko && !interp)
 	neko.vm.Thread;
 #elseif cpp
 	cpp.vm.Thread;
@@ -63,7 +63,7 @@ abstract Thread(ThreadData) from ThreadData to ThreadData
 
 }
 
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 /**
 	A Single-Threaded Thread is here to emulate a Thread API when the underlying platform has no support for Threads.
 	In this case, `create` is obviously missing, since its use would imply in having support for Threads

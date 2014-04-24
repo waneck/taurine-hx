@@ -1,11 +1,11 @@
 package taurine.threads;
 
 typedef MutexData =
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 	SingleThreadedMutex;
 #elseif TAURINE_CUSTOM_THREAD
 	CustomMutex;
-#elseif neko
+#elseif (neko && !interp)
 	neko.vm.Mutex;
 #elseif cpp
 	cpp.vm.Mutex;
@@ -70,6 +70,12 @@ typedef MutexData =
 			}
 		```
 	**/
+#if macro
+	@:extern inline public function synchronized<A>(doExpr:A):Void
+	{
+		return doExpr;
+	}
+#else
 	macro public function synchronized(ethis:haxe.macro.Expr, doExpr:haxe.macro.Expr):haxe.macro.Expr
 	{
 		//TODO change name?
@@ -80,9 +86,10 @@ typedef MutexData =
 			return taurine.threads._internal.LockHelper.transformLock(ethis,doExpr, false);
 		}
 	}
+#end
 }
 
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 class SingleThreadedMutex
 {
 	public function new()

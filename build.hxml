@@ -12,6 +12,7 @@
 -D real_position
 -D dump
 -lib utest
+--macro taurine.compiler.Taurine.beforeCompile()
 --next
 -cp src
 -cp test
@@ -20,3 +21,4 @@
 --interp
 -lib utest
 -D no-copt
+--macro taurine.compiler.Taurine.beforeCompile()

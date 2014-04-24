@@ -5,11 +5,11 @@ package taurine.threads;
 	For each time it is released, it can be acquired as many times.
 **/
 typedef Lock =
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 	SingleThreadedLock;
 #elseif TAURINE_CUSTOM_THREAD
 	CustomLock;
-#elseif neko
+#elseif (neko && !interp)
 	neko.vm.Lock;
 #elseif cpp
 	cpp.vm.Lock;
@@ -21,7 +21,7 @@ typedef Lock =
 	See_readme_md_file_at_taurine_threads_dir;
 #end
 
-#if TAURINE_NO_THREADS
+#if (TAURINE_NO_THREADS || macro)
 /**
 	A single-threaded reentrant lock. Holds the same mechanism as the multi-threaded implementation,
 	but will throw an exception if it would block.
