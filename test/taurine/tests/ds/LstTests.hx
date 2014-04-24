@@ -92,7 +92,7 @@ class LstTests
 				Assert.fail();
 			case 1 + (2 + _):
 				Assert.fail();
-			case null, _ + null, _:
+			case _:
 				Assert.isTrue(true);
 				hasRun = true;
 		});

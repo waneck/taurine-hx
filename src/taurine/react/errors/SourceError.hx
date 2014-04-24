@@ -1,4 +1,4 @@
-package taurine.react.errors
+package taurine.react.errors;
 
 enum SourceError
 {
