@@ -1,6 +1,6 @@
 package taurine.threads;
 
-typedef Thread =
+typedef ThreadData =
 #if TAURINE_NO_THREADS
 	SingleThreadedThread;
 #elseif TAURINE_CUSTOM_THREAD
@@ -16,6 +16,52 @@ typedef Thread =
 #else
 	See_readme_md_file_at_taurine_threads_dir;
 #end
+
+abstract Thread(ThreadData) from ThreadData to ThreadData
+{
+	/**
+		Returns the current executing thread.
+	**/
+	@:extern inline public static function current():ThreadData
+	{
+		return ThreadData.current();
+	}
+
+#if !TAURINE_NO_THREADS
+	/**
+		Creates a new thread that will execute the `fn` function. When the function completes, the thread will terminate.
+	**/
+	@:extern inline public static function create(fn:Void->Void):Thread
+	{
+	}
+#end
+
+	@:extern inline public static function readMessage(block:Bool):Dynamic
+	{
+		return ThreadData.readMessage(block);
+	}
+
+	@:extern inline public function sendMessage(msg:Dynamic):Void
+	{
+		this.sendMessage(msg);
+	}
+
+	@:extern inline public static function sleep(secs:Float):Void
+	{
+#if sys
+		Sys.sleep(secs);
+#elseif TAURINE_NO_THREADS
+		return; //FIXME?
+#elseif TAURINE_CUSTOM_THREAD
+		ThreadData.sleep(secs);
+#else
+#error "No sleep implementation"
+#end
+	}
+
+	//TODO: yield, kill, join
+
+}
 
 #if TAURINE_NO_THREADS
 /**
