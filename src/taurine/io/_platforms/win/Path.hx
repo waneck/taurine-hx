@@ -10,7 +10,7 @@ class Path extends PathDelegate
 
 	// Regex to split the tail part of the above into [*, dir, basename, ext]
 	var splitTailRe:EReg;
-	
+
 	public function new()
 	{
 		splitDeviceRe = ~/^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?([\\\/])?([\s\S]*?)$/;
@@ -18,8 +18,8 @@ class Path extends PathDelegate
 		this.sep = '\\';
 		this.delimiter = ';';
 	}
-	
-	override public function resolve(to:Array<String>):String 
+
+	override public function resolve(to:Array<String>):String
 	{
 		var resolvedDevice = '',
         resolvedTail = '',
@@ -42,7 +42,7 @@ class Path extends PathDelegate
 				path = System.env['=' + resolvedDevice];
 				// Verify that a drive-local cwd was found and that it actually points
 				// to our drive. If not, default to the drive's root.
-				if (path == null || path == "" || path.substr(0, 3).toLowerCase() != resolvedDevice.toLowerCase() + '\\') 
+				if (path == null || path == "" || path.substr(0, 3).toLowerCase() != resolvedDevice.toLowerCase() + '\\')
 				{
 					path = resolvedDevice + '\\';
 				}
@@ -64,13 +64,13 @@ class Path extends PathDelegate
 
 			if (device != null && device != '' &&
 			  resolvedDevice != null && resolvedDevice != '' &&
-			  device.toLowerCase() != resolvedDevice.toLowerCase()) 
+			  device.toLowerCase() != resolvedDevice.toLowerCase())
 			{
 				// This path points to another device so it is not applicable
 				continue;
 			}
 
-			if (resolvedDevice == null || resolvedDevice == '') 
+			if (resolvedDevice == null || resolvedDevice == '')
 			{
 				resolvedDevice = device;
 			}
@@ -80,7 +80,7 @@ class Path extends PathDelegate
 				resolvedAbsolute = isAbsolute;
 			}
 
-			if (resolvedDevice != null && resolvedDevice != '' && resolvedAbsolute) 
+			if (resolvedDevice != null && resolvedDevice != '' && resolvedAbsolute)
 			{
 				break;
 			}
@@ -88,7 +88,7 @@ class Path extends PathDelegate
 
 		// Convert slashes to backslashes when `resolvedDevice` points to an UNC
 		// root. Also squash multiple slashes into a single one where appropriate.
-		if (isUnc) 
+		if (isUnc)
 		{
 			resolvedDevice = normalizeUNCRoot(resolvedDevice);
 		}
@@ -103,16 +103,16 @@ class Path extends PathDelegate
 		  return p != null && p != '';
 		}
 
-		resolvedTail = taurine.io.Path.normalizeArray(~/[\\\/]+/g.split(resolvedTail).filter(f),
+		resolvedTail = taurine.io._unsafe.Path.normalizeArray(~/[\\\/]+/g.split(resolvedTail).filter(f),
 									  !resolvedAbsolute).join('\\');
 
 		var ret = (resolvedDevice + (resolvedAbsolute ? '\\' : '') + resolvedTail);
 		return ret != '' ? ret : '.';
 	}
-	
+
 	// Function to split a filename into [root, dir, basename, ext]
 	// windows version
-	public override function splitPath(filename:String):Array<String> 
+	public override function splitPath(filename:String):Array<String>
 	{
 		// Separate device+slash from tail
 		var device = '', tail = '';
@@ -125,11 +125,11 @@ class Path extends PathDelegate
 			if (m1 == null) m1 = '';
 			if (m2 == null) m2 = '';
 			if (m3 == null) m3 = '';
-			
+
 			device = m1 + m2;
 			tail = m3;
 		}
-		
+
 		// Split the tail into dir, basename and extension
 		var dir = null, basename = null, ext = null;
 		if (!splitTailRe.match(tail))
@@ -137,24 +137,24 @@ class Path extends PathDelegate
 		dir = splitTailRe.matched(1);
 		basename = splitTailRe.matched(2);
 		ext = splitTailRe.matched(3);
-		
+
 		if (dir == null) dir = '';
 		if (basename == null) basename = '';
 		if (ext == null) ext = '';
-		
+
 		return [device, dir, basename, ext];
 	}
-	
+
 	function normalizeUNCRoot(device:String)
 	{
 		return '\\\\' + ~/^[\\\/]+/.replace(~/[\\\/]+/g.replace(device, '\\'), '');
 	}
-	
-	override public function normalize(path:String):String 
+
+	override public function normalize(path:String):String
 	{
 		if (!splitDeviceRe.match(path))
 			throw 'Invalid path: $path';
-		
+
 		var device = splitDeviceRe.matched(1),
 			isUnc = device != null && device != '' && device.charAt(1) != ':',
 			isAbsolute = isAbsolute(path),
@@ -169,7 +169,7 @@ class Path extends PathDelegate
 		}
 
 		// Normalize the tail path
-		tail = taurine.io.Path.normalizeArray(~/[\\\/]+/g.split(tail).filter(function(p) {
+		tail = taurine.io._unsafe.Path.normalizeArray(~/[\\\/]+/g.split(tail).filter(function(p) {
 			return p != null && p != '';
 		}), !isAbsolute).join('\\');
 
@@ -188,8 +188,8 @@ class Path extends PathDelegate
 
 		return device + (isAbsolute ? '\\' : '') + tail;
 	}
-	
-	override public function isAbsolute(path:String):Bool 
+
+	override public function isAbsolute(path:String):Bool
 	{
 		if (!splitDeviceRe.match(path))
 			throw 'Invlaid path: $path';
@@ -199,8 +199,8 @@ class Path extends PathDelegate
 		var m2 = splitDeviceRe.matched(2);
 		return (m2 != null && m2 != '') || isUnc;
 	}
-	
-	override public function join(paths:Array<String>):String 
+
+	override public function join(paths:Array<String>):String
 	{
 		paths = paths.filter(function(s) return s != null && s.length != 0);
 		var joined = paths.join('\\');
@@ -224,14 +224,14 @@ class Path extends PathDelegate
 
 		return normalize(joined);
 	}
-	
+
 	// path.relative(from, to)
 	// it will solve the relative path from 'from' to 'to', for instance:
 	// from = 'C:\\orandea\\test\\aaa'
 	// to = 'C:\\orandea\\impl\\bbb'
 	// The output of the function should be: '..\\..\\impl\\bbb'
 	// windows version
-	override public function relative(from:String, to:String):String 
+	override public function relative(from:String, to:String):String
 	{
 		from = resolve([from]);
 		to = resolve([to]);
@@ -292,13 +292,13 @@ class Path extends PathDelegate
 
 		return outputParts.join('\\');
 	}
-	
-	override public function makeLong(path:String):String 
+
+	override public function makeLong(path:String):String
 	{
 		if (path == null || path == '')
 			return '';
 		var resolvedPath = resolve([path]);
-		
+
 		if (~/^[a-zA-Z]:\\/.match(resolvedPath)) {
 			// path is local filesystem path, which needs to be converted
 			// to long UNC path.

@@ -47,7 +47,7 @@ class Path extends PathDelegate
 		// handle relative paths to be safe (might happen when process.cwd() fails)
 
 		// Normalize the path
-		resolvedPath = taurine.io.Path.normalizeArray(resolvedPath.split('/').filter(function(p) {
+		resolvedPath = taurine.io._unsafe.Path.normalizeArray(resolvedPath.split('/').filter(function(p) {
 		  return p != null && p != '';
 		}), !resolvedAbsolute).join('/');
 
@@ -61,7 +61,7 @@ class Path extends PathDelegate
 			trailingSlash = path.substr(-1) == '/';
 
 		// Normalize the path
-		path = taurine.io.Path.normalizeArray(path.split('/').filter(function(p) {
+		path = taurine.io._unsafe.Path.normalizeArray(path.split('/').filter(function(p) {
 			return p != null && p != '';
 		}), !isAbsolute).join('/');
 

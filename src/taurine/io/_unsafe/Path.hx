@@ -1,4 +1,4 @@
-package taurine.io;
+package taurine.io._unsafe;
 import taurine.io._platforms.PathDelegate;
 import taurine.System;
 // this code was ported from Node.JS 'path' library

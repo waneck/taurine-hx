@@ -80,7 +80,6 @@ class QuatTests
 		result = arr.rotateZ(id,deg90,arr,out);
 		Assert.equals(result,arr);
 		var v1 = vec(0,1,0).array().transformQuat(0, arr,out).first();
-		trace(v1,vec(-1,0,0));
 		Assert.isTrue(v1.eq(vec(-1,0,0)));
 
 		//fromMat3

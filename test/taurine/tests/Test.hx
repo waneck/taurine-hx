@@ -38,4 +38,5 @@ class Test
 		//Sys.exit(report.allOk() ? 0 : 1);
 #end
 	}
+
 }
