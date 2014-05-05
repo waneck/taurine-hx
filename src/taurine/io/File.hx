@@ -21,8 +21,6 @@ abstract File(FileData) from FileData
 	{
 		return new FileData(s);
 	}
-
-
 }
 
 class FileData
