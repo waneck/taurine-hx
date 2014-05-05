@@ -1,6 +1,6 @@
 package taurine.mem;
 
-class MemInfo
+class MemInfo implements taurine.Disposable.IDisposable
 {
 	/**
 		Returns the buffer length if it was set.
@@ -10,6 +10,8 @@ class MemInfo
 	**/
 	public var length(default,null):Int;
 	public var length64(default,null):Int64;
+
+	private var useCount:Int;
 
 	/**
 		Sets the buffer length if it wasn't set yet.
@@ -21,6 +23,21 @@ class MemInfo
 	}
 
 	public function setLength64(newLen:Int64):Void
+	{
+	}
+
+	public function acquire()
+	{
+		useCount++;
+	}
+
+	public function release()
+	{
+		if (--useCount == 0)
+			dispose();
+	}
+
+	public function dispose():Void
 	{
 	}
 }
