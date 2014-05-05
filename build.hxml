@@ -4,11 +4,7 @@
 -debug
 -neko bin/neko.n
 #-js bin/js.js
-<<<<<<< HEAD
 #-php bin/php
-=======
--php bin/php
->>>>>>> rawmem php fixes
 #-cpp bin/cpp
 #-java bin/java
 #-cs bin/cs
