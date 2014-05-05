@@ -22,7 +22,7 @@ class Test
 // 		runner.addCase(new GlobTests());
 // 		runner.addCase(new UriTests());
 // 		runner.addCase(new taurine.tests.UInt8Tests());
-// 		runner.addCase(new taurine.tests.mem.RawMemTests());
+		runner.addCase(new taurine.tests.mem.RawMemTests());
 // #if js
 // 		runner.addCase(new taurine.tests.mem.RawMemTests.RawMemTestsBackwards());
 // 		runner.addCase(new taurine.tests.mem.RawMemTests.RawMemTestsArray());
@@ -32,11 +32,11 @@ class Test
 		runner.addCase(new taurine.tests.react.ReactTests());
 //
 // 		// var report = Report.create(runner);
-// 		var report = new utest.ui.text.PrintReport(runner);
-// 		runner.run();
+		var report = new utest.ui.text.PrintReport(runner);
+		runner.run();
 
 #if sys
-		//Sys.exit(report.allOk() ? 0 : 1);
+		// Sys.exit(report.allOk() ? 0 : 1);
 #end
 	}
 
