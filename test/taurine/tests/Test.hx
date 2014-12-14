@@ -28,6 +28,7 @@ class Test
 		// runner.addCase(new taurine.tests.math.MatrixTests());
 		// runner.addCase(new taurine.tests.math.QuatTests());
 		runner.addCase(new taurine.tests.async.GeneratorTests());
+		runner.addCase(new taurine.tests.ds.LstTests());
 
 		// var report = Report.create(runner);
 		var report = new utest.ui.text.PrintReport(runner);
@@ -36,16 +37,6 @@ class Test
 #if sys
 		//Sys.exit(report.allOk() ? 0 : 1);
 #end
-	}
-
-	private static function teste(a:Int)
-	{
-		trace(a);
-	}
-
-	@:extern inline private static function teste1(a:Int=-2)
-	{
-		teste(a);
 	}
 
 }
