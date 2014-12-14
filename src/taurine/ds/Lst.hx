@@ -333,7 +333,7 @@ import taurine.*;
 
 class LL_Node<T>
 {
-	public var next(default,null):LL_Node<T>;
+	public var next(default,null):Null<LL_Node<T>>;
 	public var cur(default,null):T;
 
 	public function new(cur,next)

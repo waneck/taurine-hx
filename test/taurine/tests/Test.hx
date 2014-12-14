@@ -29,6 +29,7 @@ class Test
 		// runner.addCase(new taurine.tests.math.QuatTests());
 		runner.addCase(new taurine.tests.async.GeneratorTests());
 		runner.addCase(new taurine.tests.ds.LstTests());
+		runner.addCase(new taurine.tests.react.ReactTests());
 
 		// var report = Report.create(runner);
 		var report = new utest.ui.text.PrintReport(runner);
@@ -38,5 +39,4 @@ class Test
 		//Sys.exit(report.allOk() ? 0 : 1);
 #end
 	}
-
 }
