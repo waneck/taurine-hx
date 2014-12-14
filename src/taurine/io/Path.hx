@@ -1,200 +1,236 @@
 package taurine.io;
-import taurine.io._platforms.PathDelegate;
-import taurine.System;
-// this code was ported from Node.JS 'path' library
-// last sync at commit: https://github.com/joyent/node/commit/22c68fdc1dae40f0ed9c71a02f66e5b2c6353691
-
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
+import taurine.io._unsafe.Path in UPath;
 
 /**
- * This module contains utilities for handling and transforming file paths.
- * Almost all these methods perform only string transformations. The file system is not consulted to check whether paths are valid.
- */
-class Path
+	This module contains utilities for handling and transforming file paths.
+	Unless noted, these methods perform only string transformations. The file system is not consulted to check whether paths are valid.
+
+	A `null` path is interpreted as `.` on any function here
+**/
+@:dce abstract Path(Null<String>) from String
 {
-	private static var _path:PathDelegate;
-	private static function path():PathDelegate
+	@:extern inline public function new(p:String)
 	{
-		if (_path != null)
-			return _path;
-		else if (System.isWin)
-			return _path = new taurine.io._platforms.win.Path();
-		else
-			return _path = new taurine.io._platforms.posix.Path();
+		this = p;
 	}
+
+	@:extern inline public static var dot:Path = new Path(".");
 
 	/**
-	 * The platform-specific file separator. '\\' or '/'.
-	 */
-	public static var sep(get, never):String;
-
-	/**
-	 * The platform-specific path delimiter, ; or ':'.
-	 */
-	public static var delimiter(get, never):String;
-
-	private static inline function get_sep()
-	{
-		return path().sep;
-	}
-
-	private static inline function get_delimiter()
-	{
-		return path().delimiter;
-	}
-
-	/**
-		Normalize a string path, taking care of '..' and '.' parts.
-
-		When multiple slashes are found, they're replaced by a single one; when the path contains a trailing slash,
-		it is preserved. On Windows backslashes are used.
-	 */
-	public static function normalize(s:String):String
-	{
-		return path().normalize(s);
-	}
-
-	public static function isAbsolute(p:String):Bool
-	{
-		return path().isAbsolute(p);
-	}
-
-	/**
-		Join all arguments together and normalize the resulting path.
-
-		Arguments must be strings. In v0.8, non-string arguments were silently ignored. In v0.10 and up, an exception is thrown.
-	 */
-	public static function join(paths:Array<String>):String
-	{
-		return path().join(paths);
-	}
-
-	/**
-		Solve the relative path from from to to.
-
-		At times we have two absolute paths, and we need to derive the relative path from one to the other. This is actually the reverse transform of path.resolve, which means we see that:
-
-		path.resolve(from, path.relative(from, to)) == path.resolve(to)
-		Examples:
-
+		Creates a new Path object, allowing some extra syntax sugars:
 		```
-		path.relative('C:\\orandea\\test\\aaa', 'C:\\orandea\\impl\\bbb')
-		// returns
-		'..\\..\\impl\\bbb'
+		path(a/b/c); // a/b/c
+		path(a / b / c); // a/b/c
+		path("a/b"/c); // a/b/c
+		root(); // /
+		root(a/b/c); // /a/b/c
+		path(".."/a/b/c); // ../a/b/c
+		root(".."); //warning: absolute path is going beyond root
+		```
 
-		path.relative('/data/orandea/test/aaa', '/data/orandea/impl/bbb')
-		// returns
-		'../../impl/bbb'
+		In order to use real variables' content, one must use single quotes:
+		```
+		var someVar = "someVarContents";
+		path('$someVar/b/c'); // someVarContents/b/c
+		path('$someVar'/b/c); // someVarContents/b/c
+		root('$someVar'/b/c); // /someVarContents/b/c
 		```
 	**/
-	public static function relative(from:String, to:String):String
+	macro public static function path(expr:haxe.macro.Expr):haxe.macro.Expr.ExprOf<Path>
 	{
-		return path().relative(from, to);
 	}
 
 	/**
-		Resolves `to` to an absolute path.
-	 */
-	public static function resolve(to:Array<String>):String
+		Creates a new root Path.
+		@see `path`
+	**/
+	macro public static function root(?expr:haxe.macro.Expr):haxe.macro.Expr.ExprOf<Path>
 	{
-		return path().resolve(to);
-	}
-
-	public static function splitPath(filename:String):Array<String>
-	{
-		return path().splitPath(filename);
 	}
 
 	/**
-		Return the directory name of a path. Similar to the Unix `dirname` command.
-	 */
-	public static function dirname(p:String):String
-	{
-		return path().dirname(p);
-	}
-
-	/**
-		Return the last portion of a path. Similar to the Unix basename command.
-
+		This operator is defined so a warning is placed on `+` operations.
+		Addition operators should be avoided as it's easy to write unsafe code. Take for example the following code:
 		```
+			function addPath(root:String, path:String)
+			{
+				return root + path;
+			}
+		```
+		Its meaning depends if `root` has a trailing slash or if `path` is an absolute path.
+		`taurine.io.Path` then expects string concatenation to be perfomed explicitly, either by using `stradd` or its operator `^`
+	**/
+	@:deprecated("The `+` operator is unsafe to concatenate paths. Please use either `/` for directories or the `stradd` function (operator `^`)")
+	@:op(A + B) public function depAdd(to:Path):Path
+	{
+		return this + to.toString();
+	}
+
+	/**
+		Construct a combined path from two paths. If `p` is absolute, it is returned unchanged
 		Example:
-
-		path.basename('/foo/bar/baz/asdf/quux.html')
-		// returns
-		'quux.html'
-
-		path.basename('/foo/bar/baz/asdf/quux.html', '.html')
-		// returns
-		'quux'
 		```
-	 */
-	public static function basename(p:String, ?ext:String):String
+			path("foo/../..") / "bar" // ../bar
+			path("/absolute/path.ext") / "bar" // /absolute/path.ext/bar
+			path("/absolute/path") / "/other/absolute/path" // /other/absolute/path
+			path("foo/../..") / "/absolute/path" // /absolute/path
+		```
+	**/
+	@:op(A / B) public function combine(p:Path):Path
 	{
-		return path().basename(p, ext);
+		if (p.isAbsolute() || this == "")
+			return p;
+		if (p.toString() == "")
+			return this;
+
+		return this + UPath.sep + p;
+	}
+
+	@:op(A ^ B) public function stradd(string:String):Path
+	{
+		return this + string;
+	}
+
+	@:extern inline public function isAbsolute():Bool
+	{
+		return UPath.isAbsolute(this);
+	}
+
+	@:extern inline public function dirname():Path
+	{
+		return UPath.dirname(this);
+	}
+
+	@:extern inline public function basename(?ext:String):Path
+	{
+		return UPath.basename(this,ext);
 	}
 
 	/**
 		Return the extension of the path, from the last '.' to end of string in the last portion of the path.
-		If there is no '.' in the last portion of the path or the first character of it is '.', then it returns an empty string. Examples:
+		If there is no '.' in the last portion of the path or the first character of it is '.', then it returns an empty string.
 	**/
-	public static function extname(p:String):String
+	@:extern inline public function extname():String
 	{
-		return path().extname(p);
+		return UPath.extname(this);
 	}
 
-	public static function makeLong(p:String):String
+	/**
+		Returns the relative path between two paths.
+
+		If `this` and `to` paths are either both absolute, or both relative, the relative path returned without having to consult
+		the current working directory.
+		If however one is absolute and the other is relative, the current working directory is used to transform the relative into
+		an absolute path.
+		If the current working directory isn't available - as it happens on some platforms (JavaScript, Flash) - the current working directory
+		is assumed to be the root path
+	**/
+	public function relative(to:Path):Path
 	{
-		return path().makeLong(p);
+		return UPath.relative(this,to.toString());
 	}
 
-	public static function normalizeArray(parts:Array<String>, allowAboveRoot:Bool)
+	@:extern inline public function normalize():Path
 	{
-		// if the path tries to go above the root, `up` ends up > 0
-		var up = 0;
-		var i = parts.length - 1;
-		while(i >= 0)
-		{
-			var last = parts[i];
-			if (last == '.') {
-				parts.splice(i, 1);
-			} else if (last == '..') {
-				parts.splice(i, 1);
-				up++;
-			} else if (up != 0) {
-				parts.splice(i, 1);
-				up--;
-			}
-			i--;
-		}
+		return UPath.normalize(this);
+	}
 
-		// if the path is allowed to go above the root, restore leading ..s
-		if (allowAboveRoot)
-		{
-			while (up-- > 0)
-			{
-				parts.unshift('..');
-			}
-		}
+	@:extern inline public function toString():String
+	{
+		return this == null ? "." : this;
+	}
 
-		return parts;
+	/**
+		Ensures `path` cannot escape the current `this` path.
+		If `path` escapes the current path, the current path itself is returned
+
+		Examples:
+		```
+			// absolute paths
+			var jailpath = root(some/path);
+			jailpath.jail('other/path'); // /some/path/other/path
+			jailpath.jail('other/../path'); // /some/path/path
+			jailpath.jail('../../'); // /some/path
+			jailpath.jail('../other/path'); // /some/path
+			jailpath.jail('../../some/path/other/path'); // /some/path/other/path
+			jailpath.jail('../../some/oops/../path/other/path'); // /some/path/other/path
+
+			// relative paths work also
+			jailpath = dot;
+			jailpath.jail('other/path'); // other/path
+			jailpath.jail('other/../path'); // path
+			jailpath.jail('../'); // .
+			jailpath.jail('../..'); // .
+			jailpath.jail('/absolute/path'); // .
+		```
+	**/
+	public function jail(path:Path):Path
+	{
+		return null;
+	}
+
+	/**
+		Tests whether `this` path is a parent of `path`.
+		The same logic from `jail` applies to this function:
+		 * If `this` is an absolute path and `path` is a relative, or if both are relative, this function will return whether `path` would escape `this`.
+		 * If however both are absolute paths, this function will return if `this` is a parent of `path`
+		 * If `this` is a relative path and `path` is absolute, it will always return `false`
+	**/
+	public function isParentOf(path:Path):Bool
+	{
+		return false;
+	}
+
+	/**
+		Allows one to iterate over each part of a path.
+		The path is always normalized before running
+		Examples:
+		```
+			using Lambda;
+
+			path('some/path/').array(); // ['some','path']
+			path('/some/path').array(); // ['some','path']
+			path('C:\\some\\path').array(); // ['C:','some','path']; // on Windows
+		```
+	**/
+	public function iterator():Iterator<String>
+	{
+		return null;
+	}
+
+	/**
+		Interprets current `this` path as a relative path, even if it's absolute.
+		It works by discarding the absolute part of a path.
+		Examples:
+		```
+			path('/some/path').asRelative(); // some/path
+			path('C:\\some\\path').asRelative(); // some/path
+			path('some/path').asRelative(); // some/path - unchanged
+
+			var somePath = path('/a/root/path');
+			var sandbox = path('./sandbox');
+			var transformed = sandbox.jail(somePath.asRelative()); // sandbox/a/root/path
+		```
+	**/
+	public function asRelative():Path
+	{
+		return null;
+	}
+
+	/**
+		Interprets the current `this` path as an absolute path, even if it's relative.
+		It's the same as combining a root '/' to the path
+	**/
+	@:extern inline public function asAbsolute():Path
+	{
+		return new Path('/') / this;
+	}
+
+	/**
+		Returns a path that goes up one level. Same as thisPath / "..".
+	**/
+	@:extern inline public function up():Path
+	{
+		return combine("..");
 	}
 }

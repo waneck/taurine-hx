@@ -1,5 +1,5 @@
 package taurine.tests.io;
-import taurine.io.Path;
+import taurine.io._unsafe.Path;
 import taurine.System;
 import utest.Assert;
 

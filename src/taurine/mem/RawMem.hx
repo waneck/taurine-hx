@@ -4,7 +4,7 @@ typedef RawMemData =
 
 #if js
 	js.html.DataView //if you need backwards-compatibility, use -D TAURINE_JS_BACKWARDS
-#elseif (neko || cpp || php)
+#elseif (neko || cpp)
 	haxe.io.BytesData
 #elseif java
 	java.nio.ByteBuffer
@@ -12,6 +12,8 @@ typedef RawMemData =
 	taurine.mem._internal.cs.RawMemData
 #elseif flash9
 	flash.util.ByteArray
+#elseif php
+	haxe.io.Bytes
 #else
 	haxe.io.BytesData //we'll just use Haxe Input/Output implementation
 #end;
@@ -27,6 +29,9 @@ typedef RawMemData =
 	There is a PHP implementation. However, it is not working correctly (see unit tests).
 	It works as expected on all other Haxe targets
 **/
+#if php
+@:access(haxe.io.Bytes)
+#end
 abstract RawMem(RawMemData)
 {
 
@@ -87,8 +92,6 @@ abstract RawMem(RawMemData)
 		dstu8.set(srcu8);
 #elseif neko
 		untyped $sblit(dest, destPos, src, srcPos, len);
-#elseif php
-		untyped __php__("substr($dest, 0, $destPos) . substr($src, $srcPos, $len) . substr($dest, $destPos+$len)");
 #elseif flash9
 		dest.getData().position = destPos;
 		dest.getData().writeBytes(src,srcPos,len);
@@ -108,19 +111,19 @@ abstract RawMem(RawMemData)
 		cs.system.Array.Copy(src.getData().data, srcPos, dest.getData().data, destPos, len);
 #elseif (cpp && !TAURINE_NO_INLINE_CPP)
 		untyped __cpp__('memmove(  dest->GetBase() + destPos, src->GetBase() + srcPos, len)');
+#elseif php
+		dest.getData().blit(destPos,src.getData(),srcPos,len);
 #else
-		var b1 = dest.getData();
-		var b2 = src.getData();
-		if( b1 == b2 && destPos > srcPos ) {
+		if( dest == src && destPos > srcPos ) {
 			var i = len;
 			while( i > 0 ) {
 				i--;
-				b1[i + destPos] = b2[i + srcPos];
+				dest.setUInt8(i+destPos, src.getUInt8(i+srcPos));
 			}
 			return;
 		}
 		for( i in 0...len )
-			b1[i+destPos] = b2[i+srcPos];
+			dest.setUInt8(i+destPos,src.getUInt8(i+srcPos));
 #end
 	}
 
@@ -162,7 +165,7 @@ abstract RawMem(RawMemData)
 #elseif neko
 		return untyped $ssize(this);
 #elseif php
-		return untyped __call__("strlen", this);
+		return untyped __call__("strlen", this.b);
 #elseif cs
 		return this.data.Length;
 #elseif java
@@ -182,7 +185,9 @@ abstract RawMem(RawMemData)
 		return untyped taurine.mem._internal.js.RawMemCompat.alloc(byteLength);
 #elseif js
 		return untyped new js.html.DataView(new js.html.ArrayBuffer(byteLength));
-#elseif (neko || cpp || php || flash9)
+#elseif php
+		return untyped haxe.io.Bytes.alloc(byteLength);
+#elseif (neko || cpp || flash9)
 		return untyped haxe.io.Bytes.alloc(byteLength).getData();
 #elseif java
 		return untyped java.nio.ByteBuffer.allocateDirect(byteLength).order(java.nio.ByteOrder.nativeOrder());
@@ -206,7 +211,7 @@ abstract RawMem(RawMemData)
 #elseif cpp
 		return untyped __global__.__hxcpp_memory_get_byte(this, offset) & 0xFF;
 #elseif php
-		return untyped __call__("ord", this[offset]);
+		return untyped __call__("ord", this.b[offset]);
 #elseif flash9
 		return this[offset];
 #elseif java
@@ -231,7 +236,7 @@ abstract RawMem(RawMemData)
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_byte(this, offset, val & 0xFF);
 #elseif php
-		this[offset] = untyped __call__("chr", val);
+		this.b[offset] = untyped __call__("chr", val);
 #elseif flash9
 		this[offset] = val;
 #elseif java
@@ -339,8 +344,8 @@ abstract RawMem(RawMemData)
 		var b = untyped $ssub(this,offset,4);
 		return _float_of_bytes(b, false);
 #elseif php
-		if (offset == 0) return untyped __call__("unpack", "f", this)[1];
-		var b = untyped __call__("substr", this, offset, 4);
+		if (offset == 0) return untyped __call__("unpack", "f", this.b)[1];
+		var b = untyped __call__("substr", this.b, offset, 4);
 		return untyped __call__('unpack', 'f', b)[1];
 #else
 		var b3 = getUInt8(offset), b2 = getUInt8(offset+1), b1 = getUInt8(offset+2), b0 = getUInt8(offset+3);
@@ -362,7 +367,7 @@ abstract RawMem(RawMemData)
 		Sets a 32-bit float at the specified offset.
 		WARNING: bounds may not be checked on all targets
 	**/
-	public #if (js || cpp || java || cs || flash9) inline #end function setFloat32(offset:Int, val:taurine.Single):Void
+	public #if (js || cpp || java || cs || flash9 || php) inline #end function setFloat32(offset:Int, val:taurine.Single):Void
 	{
 #if js
 		this.setFloat32(offset, val, LITTLE_ENDIAN);
@@ -382,7 +387,10 @@ abstract RawMem(RawMemData)
 #elseif php
 		var b = untyped __call__('pack', 'f', val);
 		for (i in 0...4)
-			setUInt8(offset + i, b[i]);
+		{
+			var val = untyped __call__("ord", b[i]);
+			setUInt8(offset + i,val);
+		}
 #else
 		if (val == 0.0)
 		{
@@ -434,8 +442,8 @@ abstract RawMem(RawMemData)
 		var b = untyped $ssub(this,offset,8);
 		return _double_of_bytes(b, false);
 #elseif php
-		if (offset == 0) return untyped __call__('unpack', 'd', this)[1];
-		var b = untyped __call__('substr', this, offset, 8);
+		if (offset == 0) return untyped __call__('unpack', 'd', this.b)[1];
+		var b = untyped __call__('substr', this.b, offset, 8);
 		return untyped __call__('unpack', 'd', b)[1];
 #else
 		var b7 = getUInt8(offset), b6 = getUInt8(offset+1), b5 = getUInt8(offset+2), b4 = getUInt8(offset+3);
@@ -468,7 +476,7 @@ abstract RawMem(RawMemData)
 		Sets a 32-bit float at the specified offset.
 		WARNING: bounds may not be checked on all targets
 	**/
-	public #if (js || cpp || java || cs || flash9) inline #end function setFloat64(offset:Int, val:Float):Void
+	public #if (js || php || cpp || java || cs || flash9) inline #end function setFloat64(offset:Int, val:Float):Void
 	{
 #if js
 		this.setFloat64(offset, val, LITTLE_ENDIAN);
@@ -488,7 +496,10 @@ abstract RawMem(RawMemData)
 #elseif php
 		var b = untyped __call__('pack', 'd', val);
 		for (i in 0...8)
-			setUInt8(offset + i, untyped this[i]);
+		{
+			var val = untyped __call__("ord", b[i]);
+			setUInt8(offset + i,val);
+		}
 #else
 		if (val == 0)
 		{

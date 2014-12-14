@@ -1,4 +1,5 @@
 package taurine.io;
+import taurine.io._unsafe.Path;
 
 /**
 	Provides pathname expansion syntax to Haxe. Native platform-dependent path separators are accepted.
@@ -684,7 +685,7 @@ enum GlobFlags
 	In order to avoid matching a string two times - one for partial and one for exact,
 	GlobMatch can be used to return more than one enum flag
  */
-abstract GlobMatch(Int)
+@:enum abstract GlobMatch(Int)
 {
 	public static var NoMatch = new GlobMatch(0);
 	public static var Partial = new GlobMatch(1);

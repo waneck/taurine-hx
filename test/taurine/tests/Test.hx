@@ -4,6 +4,7 @@ import taurine.tests.io.GlobTests;
 import taurine.tests.io.UriTests;
 import utest.Runner;
 import utest.ui.Report;
+import taurine.io.Path;
 
 /**
  * ...
@@ -36,7 +37,8 @@ class Test
 		runner.run();
 
 #if sys
-		//Sys.exit(report.allOk() ? 0 : 1);
+		// Sys.exit(report.allOk() ? 0 : 1);
 #end
 	}
+
 }
