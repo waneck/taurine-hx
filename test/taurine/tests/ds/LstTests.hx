@@ -96,7 +96,41 @@ class LstTests
 				Assert.isTrue(true);
 				hasRun = true;
 		});
+		// haxe issue #3680
+		// Assert.isTrue(hasRun);
+		hasRun = false;
+
+		var someType = { someList: lst(1,2,3,4), str:"a" };
+		Lst.match(switch(someType) {
+			case { someList: 1 + (2 + (3 + list)) }:
+				hasRun = true;
+				Assert.isTrue(list == lst(4));
+			case _:
+				Assert.fail();
+		});
 		Assert.isTrue(hasRun); hasRun = false;
+
+		Lst.match(switch [someType, lst(1,2,3) ] {
+			case [ { someList: 1 + (2 + (3 + list)) }, 1 + (2 + _) ]:
+				hasRun = true;
+				Assert.isTrue(list == lst(4));
+			case _:
+				Assert.fail();
+		});
+		Assert.isTrue(hasRun); hasRun = false;
+
+		Lst.match(switch [someType, lst(1,2,3) ] {
+			case [ st, 1 + (2 + list) ]:
+				hasRun = true;
+				Assert.isTrue(list == lst(3));
+				Assert.isTrue(st.someList == lst(1,2,3,4));
+			case _:
+				Assert.fail();
+		});
+		Assert.isTrue(hasRun); hasRun = false;
+
+		Assert.isTrue(lst(none(),some(1),some(2),none()).matches( none() + (some(1) + _) ));
+		Assert.isFalse(lst(none(),some(1),some(2),none()).matches( none() + (some(1) + (none() + _)) ));
 
 		Assert.isTrue(lst(1,2,3).matches(1 + (2 + _)));
 		Assert.isFalse(lst(1,2,3).matches(1 + (3 + _)));

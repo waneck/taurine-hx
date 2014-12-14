@@ -242,12 +242,12 @@ import taurine.*;
 
 	@:extern @:op(A == B) inline public static function dyneq<T>(lst:Lst<T>, to:Dynamic):Bool
 	{
-		return Std.is(to,Lst) ? lst.equals(to) : false;
+		return Std.is(to,LL_Node) ? lst.equals(to) : false;
 	}
 
 	@:extern @:op(A == B) inline public static function dyneq2<T>(to:Dynamic, lst:Lst<T>):Bool
 	{
-		return Std.is(to,Lst) ? lst.equals(to) : false;
+		return Std.is(to,LL_Node) ? lst.equals(to) : false;
 	}
 
 	/**
@@ -260,12 +260,12 @@ import taurine.*;
 
 	@:extern @:op(A != B) inline public static function dynNotEq<T>(lst:Lst<T>, to:Dynamic):Bool
 	{
-		return Std.is(to,Lst) ? !lst.equals(to) : true;
+		return Std.is(to,LL_Node) ? !lst.equals(to) : true;
 	}
 
 	@:extern @:op(A != B) inline public static function dynNotEq2<T>(to:Dynamic, lst:Lst<T>):Bool
 	{
-		return Std.is(to,Lst) ? !lst.equals(to) : true;
+		return Std.is(to,LL_Node) ? !lst.equals(to) : true;
 	}
 
 	/**
@@ -286,7 +286,7 @@ import taurine.*;
 			case _: throw "assert";
 		};
 		var ctype = haxe.macro.TypeTools.toComplexType(type);
-		var ret = macro taurine.ds.Lst.empty();
+		var ret = macro @:pos(pos) taurine.ds.Lst.empty();
 		var i = exprs.length;
 		while (i --> 0)
 		{
@@ -311,10 +311,17 @@ import taurine.*;
 		});
 		```
 	**/
-	macro public function match(ethis:haxe.macro.Expr, eswitch:haxe.macro.Expr)
+	macro public function match(ethis:haxe.macro.Expr, ?eswitch:haxe.macro.Expr)
 	{
+		switch(eswitch)
+		{
+			case null, macro null:
+				eswitch = ethis;
+				ethis = null;
+			case _:
+		}
 		var ret = taurine.ds._internal.MatchHelper.mapSwitch(eswitch,ethis);
-		trace(haxe.macro.ExprTools.toString(ret));
+		// trace(haxe.macro.ExprTools.toString(ret));
 		return ret;
 	}
 
@@ -327,7 +334,9 @@ import taurine.*;
 	**/
 	macro public function matches(ethis:haxe.macro.Expr, expr:haxe.macro.Expr):haxe.macro.Expr.ExprOf<Bool>
 	{
-		return taurine.ds._internal.MatchHelper.getMatches(expr,ethis);
+		var ret =  taurine.ds._internal.MatchHelper.getMatches(expr,ethis);
+		trace(haxe.macro.ExprTools.toString(ret));
+		return ret;
 	}
 }
 
@@ -388,7 +397,7 @@ class LL_Node<T>
 	}
 }
 
-private class LL_NodeIterator<T>
+class LL_NodeIterator<T>
 {
 	var current(default, null):LL_Node<T>;
 	inline public function new(cur)

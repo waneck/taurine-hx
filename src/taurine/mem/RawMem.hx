@@ -24,10 +24,6 @@ typedef RawMemData =
 	Byte order is **unspecified**, but is by preference the same as the native byte order.
 
 	If backwards-compatibility is needed for JavaScript, define -D TAURINE_JS_BACKWARDS
-
-## Availability
-	There is a PHP implementation. However, it is not working correctly (see unit tests).
-	It works as expected on all other Haxe targets
 **/
 #if php
 @:access(haxe.io.Bytes)
@@ -236,7 +232,7 @@ abstract RawMem(RawMemData)
 #elseif cpp
 		untyped __global__.__hxcpp_memory_set_byte(this, offset, val & 0xFF);
 #elseif php
-		this.b[offset] = untyped __call__("chr", val);
+		this.b[offset] = untyped __call__("chr", val & 0xFF);
 #elseif flash9
 		this[offset] = val;
 #elseif java
@@ -297,10 +293,16 @@ abstract RawMem(RawMemData)
 #elseif flash9
 		this.position = offset;
 		return this.readInt(offset);
+#elseif php
+		return ((getUInt8(offset) | (getUInt8(offset+1) << 8) | (getUInt8(offset+2) << 16) | (getUInt8(offset+3) << 24)) << extraBits) >> extraBits;
 #else
 		return getUInt8(offset) | (getUInt8(offset+1) << 8) | (getUInt8(offset+2) << 16) | (getUInt8(offset+3) << 24);
 #end
 	}
+
+	#if php
+	static var extraBits : Int = untyped __php__("PHP_INT_SIZE") * 8 - 32;
+	#end
 
 	/**
 		Sets an int (32 bits) at the specified offset.

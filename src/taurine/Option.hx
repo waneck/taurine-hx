@@ -108,7 +108,7 @@ package taurine;
 		});
 		```
 	**/
-	macro public function match(ethis:haxe.macro.Expr, eswitch:haxe.macro.Expr)
+	macro public function match(?ethis:haxe.macro.Expr, eswitch:haxe.macro.Expr)
 	{
 		var ret = taurine.ds._internal.MatchHelper.mapSwitch(eswitch,ethis);
 		// trace(haxe.macro.ExprTools.toString(ret));

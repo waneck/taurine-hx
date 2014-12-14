@@ -68,12 +68,12 @@ abstract UInt16(UInt16_t)
 		return fromInt(untyped a.t() - i);
 	}
 
-	@:op(A+B) public static inline function add_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A+B) public static inline function add_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt(a.i() + i.i());
 	}
 
-	@:op(A-B) public static inline function sub_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A-B) public static inline function sub_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt(untyped a.t() - i.t());
 	}
@@ -83,7 +83,7 @@ abstract UInt16(UInt16_t)
 		return fromInt(untyped a.t() * i);
 	}
 
-	@:op(A*B) public static inline function mul_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A*B) public static inline function mul_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt(untyped a.t() * i.t());
 	}
@@ -97,7 +97,7 @@ abstract UInt16(UInt16_t)
 #end
 	}
 
-	@:op(A/B) public static inline function div_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A/B) public static inline function div_uint16(a:UInt16, i:UInt16):UInt16
 	{
 #if (java || cs) //force integer division
 		return fromInt( Std.int(a.toInt() / i.toInt()) );
@@ -111,7 +111,7 @@ abstract UInt16(UInt16_t)
 		return fromInt( Std.int(a.toInt() % i) );
 	}
 
-	@:op(A%B) public static inline function mod_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A%B) public static inline function mod_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt( Std.int(a.toInt() % i.toInt()) );
 	}
@@ -121,7 +121,7 @@ abstract UInt16(UInt16_t)
 		return fromInt( (untyped a.t()) << i);
 	}
 
-	@:op(A<<B) public static inline function shl_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A<<B) public static inline function shl_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt( (untyped a) << (untyped i) );
 	}
@@ -131,7 +131,7 @@ abstract UInt16(UInt16_t)
 		return cast ((untyped a) >>> b);
 	}
 
-	@:op(A>>B) public static inline function shr_uintu(a:UInt16, i:UInt16):UInt8
+	@:op(A>>B) public static inline function shr_uintu(a:UInt16, i:UInt16):UInt16
 	{
 		return cast ((untyped a) >>> (untyped i));
 	}
@@ -141,7 +141,7 @@ abstract UInt16(UInt16_t)
 		return cast ((untyped a) >>> b);
 	}
 
-	@:op(A>>>B) public static inline function ushr_uintu(a:UInt16, i:UInt16):UInt8
+	@:op(A>>>B) public static inline function ushr_uintu(a:UInt16, i:UInt16):UInt16
 	{
 		return cast ((untyped a) >>> (untyped i));
 	}
@@ -151,7 +151,7 @@ abstract UInt16(UInt16_t)
 		return cast ((untyped a) & i);
 	}
 
-	@:op(A&B) public static inline function and_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A&B) public static inline function and_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return cast ((untyped a) & (untyped i));
 	}
@@ -161,7 +161,7 @@ abstract UInt16(UInt16_t)
 		return fromInt((untyped a) | i);
 	}
 
-	@:op(A|B) public static inline function or_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A|B) public static inline function or_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return cast ((untyped a) | (untyped i));
 	}
@@ -171,7 +171,7 @@ abstract UInt16(UInt16_t)
 		return fromInt((untyped a) ^ i);
 	}
 
-	@:op(A^B) public static inline function xor_uint8(a:UInt16, i:UInt16):UInt8
+	@:op(A^B) public static inline function xor_uint16(a:UInt16, i:UInt16):UInt16
 	{
 		return fromInt( (untyped a) ^ (untyped i) );
 	}
@@ -191,7 +191,7 @@ abstract UInt16(UInt16_t)
 		return compare(a,i) > 0;
 	}
 
-	@:op(A>B) public static inline function gt_uint8(a:UInt16, i:UInt16):Bool
+	@:op(A>B) public static inline function gt_uint16(a:UInt16, i:UInt16):Bool
 	{
 		return compare(a,i.toInt()) > 0;
 	}
@@ -201,7 +201,7 @@ abstract UInt16(UInt16_t)
 		return compare(a,i) >= 0;
 	}
 
-	@:op(A>=B) public static inline function gte_uint8(a:UInt16, i:UInt16):Bool
+	@:op(A>=B) public static inline function gte_uint16(a:UInt16, i:UInt16):Bool
 	{
 		return compare(a,i.toInt()) >= 0;
 	}
@@ -211,7 +211,7 @@ abstract UInt16(UInt16_t)
 		return compare(a,i) < 0;
 	}
 
-	@:op(A<B) public static inline function lt_uint8(a:UInt16, i:UInt16):Bool
+	@:op(A<B) public static inline function lt_uint16(a:UInt16, i:UInt16):Bool
 	{
 		return compare(a,i.toInt()) < 0;
 	}
@@ -221,7 +221,7 @@ abstract UInt16(UInt16_t)
 		return compare(a,i) <= 0;
 	}
 
-	@:op(A<=B) public static inline function lte_uint8(a:UInt16, i:UInt16):Bool
+	@:op(A<=B) public static inline function lte_uint16(a:UInt16, i:UInt16):Bool
 	{
 		return compare(a,i.toInt()) <= 0;
 	}
